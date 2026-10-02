@@ -1,0 +1,1 @@
+const r=require('express').Router();const c=require('./controller');const a=require('../../shared/middleware/auth');const h=require('../../shared/utils/async');r.get('/mine',a.requireAuth,h(c.mine));r.post('/from-order',a.requireAuth,a.requireRole('admin','seller'),h(c.createFromOrder));module.exports=r;
