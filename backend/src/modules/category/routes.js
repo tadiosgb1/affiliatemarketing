@@ -1,0 +1,1 @@
+const r=require('express').Router();const c=require('./controller');const a=require('../../shared/middleware/auth');const h=require('../../shared/utils/async');r.get('/',h(c.list));r.post('/',a.requireAuth,a.requireRole('admin'),h(c.create));module.exports=r;
