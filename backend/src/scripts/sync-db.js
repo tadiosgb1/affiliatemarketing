@@ -1,0 +1,1 @@
+require('dotenv').config(); const {sequelize}=require('../database/models'); (async()=>{try{await sequelize.sync({alter:process.env.NODE_ENV!=='production'});console.log('Database schema synchronized');process.exit(0);}catch(e){console.error(e);process.exit(1);}})();
