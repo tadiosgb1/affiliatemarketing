@@ -1,0 +1,1 @@
+const r=require('express').Router();const c=require('./controller');const h=require('../../shared/utils/async');r.get('/:code',h(c.redirect));module.exports=r;
