@@ -1,0 +1,1 @@
+module.exports=(sequelize,D)=>sequelize.define('Category',{id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},name:{type:D.STRING(120),allowNull:false,unique:true},slug:{type:D.STRING(140),allowNull:false,unique:true},description:{type:D.TEXT},imageUrl:{type:D.STRING(500)},isActive:{type:D.BOOLEAN,defaultValue:true}},{tableName:'categories'});
