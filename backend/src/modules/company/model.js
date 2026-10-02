@@ -1,0 +1,16 @@
+module.exports=(sequelize,D)=>sequelize.define('Company',{
+id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},
+name:{type:D.STRING(200),allowNull:false},
+legalName:{type:D.STRING(200)},
+registrationNumber:{type:D.STRING(100)},
+taxNumber:{type:D.STRING(100)},
+businessType:{type:D.ENUM('company','partnership','individual'),defaultValue:'company'},
+email:{type:D.STRING(190),validate:{isEmail:true}},
+phone:{type:D.STRING(40)},
+country:{type:D.STRING(100),defaultValue:'Ethiopia'},
+city:{type:D.STRING(100)},
+address:{type:D.STRING(300)},
+logoUrl:{type:D.STRING(500)},
+status:{type:D.ENUM('active','suspended'),defaultValue:'active'},
+settings:{type:D.JSON}
+},{tableName:'company'});
