@@ -1,0 +1,4 @@
+const {Company}=require('../../database/models');
+exports.get=async(req,res)=>{const company=await Company.findOne();if(!company)return res.status(404).json({success:false,message:'Company profile not configured'});res.json({success:true,data:company})};
+exports.create=async(req,res)=>{if(req.user.role!=='admin')return res.status(403).json({success:false,message:'Admin access required'});if(await Company.count())return res.status(409).json({success:false,message:'Company already exists'});const company=await Company.create(req.body);res.status(201).json({success:true,data:company})};
+exports.update=async(req,res)=>{if(req.user.role!=='admin')return res.status(403).json({success:false,message:'Admin access required'});const company=await Company.findOne();if(!company)return res.status(404).json({success:false,message:'Company profile not configured'});await company.update(req.body);res.json({success:true,data:company})};
