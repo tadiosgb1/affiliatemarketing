@@ -1,1 +1,0 @@
-const r=require('express').Router();const c=require('./controller');const a=require('../../shared/middleware/auth');const h=require('../../shared/utils/async');r.use(a.requireAuth);r.get('/shops/:shopId/members',h(c.list));r.post('/shops/:shopId/members',h(c.add));r.patch('/shops/:shopId/members/:memberId',h(c.update));module.exports=r;

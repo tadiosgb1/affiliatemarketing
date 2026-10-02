@@ -1,0 +1,1 @@
+module.exports=(sequelize,D)=>sequelize.define('Attribute',{id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},name:{type:D.STRING(120),allowNull:false},slug:{type:D.STRING(140),allowNull:false,unique:true},type:{type:D.ENUM('select','text','number','boolean','color'),defaultValue:'select'},isActive:{type:D.BOOLEAN,defaultValue:true}},{tableName:'attributes'});
