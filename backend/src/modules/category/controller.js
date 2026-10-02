@@ -1,0 +1,1 @@
+const {Category}=require('../../database/models');const {slugify}=require('../../shared/utils/slug');exports.list=async(_req,res)=>res.json({success:true,data:await Category.findAll({where:{isActive:true},order:[['name','ASC']]})});exports.create=async(req,res)=>res.status(201).json({success:true,data:await Category.create({...req.body,slug:slugify(req.body.name)})});
