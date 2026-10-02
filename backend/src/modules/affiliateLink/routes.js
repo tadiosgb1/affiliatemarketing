@@ -1,0 +1,1 @@
+const r=require('express').Router();const c=require('./controller');const a=require('../../shared/middleware/auth');const h=require('../../shared/utils/async');r.post('/',a.requireAuth,h(c.create));r.get('/mine',a.requireAuth,h(c.mine));module.exports=r;
