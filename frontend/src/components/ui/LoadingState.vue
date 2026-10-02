@@ -1,0 +1,1 @@
+<template><div class="flex min-h-40 items-center justify-center text-sm text-slate-500"><div class="mr-3 h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600"></div>Loading…</div></template>
