@@ -1,0 +1,15 @@
+module.exports=(sequelize,D)=>sequelize.define('Seller',{
+id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},
+userId:{type:D.UUID,allowNull:false,unique:true},
+businessName:{type:D.STRING(200),allowNull:false},
+legalName:{type:D.STRING(200)},
+businessType:{type:D.ENUM('individual','company','partnership'),defaultValue:'individual'},
+taxNumber:{type:D.STRING(100)},
+registrationNumber:{type:D.STRING(100)},
+phone:{type:D.STRING(40)},
+email:{type:D.STRING(190)},
+country:{type:D.STRING(100)},
+status:{type:D.ENUM('pending','under_review','approved','suspended','rejected'),defaultValue:'pending'},
+verifiedAt:{type:D.DATE},
+metadata:{type:D.JSON}
+},{tableName:'sellers',indexes:[{unique:true,fields:['user_id']},{fields:['status']}]});
