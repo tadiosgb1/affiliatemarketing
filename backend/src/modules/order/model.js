@@ -1,1 +1,15 @@
-module.exports=(sequelize,D)=>sequelize.define('Order',{id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},orderNumber:{type:D.STRING(32),unique:true,allowNull:false},userId:{type:D.UUID,allowNull:false},shopId:{type:D.UUID,allowNull:false},affiliateLinkId:{type:D.UUID},subtotal:{type:D.DECIMAL(12,2),allowNull:false},shippingAmount:{type:D.DECIMAL(12,2),defaultValue:0},taxAmount:{type:D.DECIMAL(12,2),defaultValue:0},total:{type:D.DECIMAL(12,2),allowNull:false},currency:{type:D.STRING(3),defaultValue:'USD'},paymentStatus:{type:D.ENUM('pending','paid','failed','refunded'),defaultValue:'pending'},status:{type:D.ENUM('pending','confirmed','processing','shipped','delivered','cancelled'),defaultValue:'pending'},shippingAddress:{type:D.JSON}},{tableName:'orders'});
+module.exports=(sequelize,D)=>sequelize.define('Order',{
+id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},
+orderNumber:{type:D.STRING(32),unique:true,allowNull:false},
+userId:{type:D.UUID,allowNull:false},
+companyId:{type:D.UUID,allowNull:false},
+affiliateLinkId:{type:D.UUID},
+subtotal:{type:D.DECIMAL(12,2),allowNull:false},
+shippingAmount:{type:D.DECIMAL(12,2),defaultValue:0},
+taxAmount:{type:D.DECIMAL(12,2),defaultValue:0},
+total:{type:D.DECIMAL(12,2),allowNull:false},
+currency:{type:D.STRING(3),defaultValue:'ETB'},
+paymentStatus:{type:D.ENUM('pending','verification_pending','paid','failed','refunded'),defaultValue:'pending'},
+status:{type:D.ENUM('pending','confirmed','processing','shipped','delivered','cancelled'),defaultValue:'pending'},
+shippingAddress:{type:D.JSON}
+},{tableName:'orders',indexes:[{fields:['company_id']},{fields:['payment_status']},{fields:['status']}]});
