@@ -1,0 +1,1 @@
+module.exports=schema=>(req,res,next)=>{const p=schema.safeParse({body:req.body,params:req.params,query:req.query});if(!p.success)return res.status(400).json({success:false,message:'Validation failed',errors:p.error.flatten()});req.body=p.data.body;req.params=p.data.params;req.query=p.data.query;next();};
