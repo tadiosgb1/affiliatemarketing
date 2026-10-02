@@ -1,1 +1,1 @@
-#backend server.js will be here
+require('./src/server');
