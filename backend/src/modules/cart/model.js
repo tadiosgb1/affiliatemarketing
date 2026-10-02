@@ -1,0 +1,1 @@
+module.exports=(sequelize,D)=>sequelize.define('Cart',{id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},userId:{type:D.UUID,allowNull:false,unique:true}},{tableName:'carts'});
