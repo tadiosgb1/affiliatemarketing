@@ -1,0 +1,1 @@
+module.exports=(sequelize,D)=>sequelize.define('AffiliateClick',{id:{type:D.BIGINT,autoIncrement:true,primaryKey:true},affiliateLinkId:{type:D.UUID,allowNull:false},ipHash:{type:D.STRING(64)},userAgent:{type:D.STRING(500)},referrer:{type:D.STRING(500)}},{tableName:'affiliate_clicks',updatedAt:false});
