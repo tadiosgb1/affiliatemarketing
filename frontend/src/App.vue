@@ -1,11 +1,1 @@
-<script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import AppShell from './components/layout/AppShell.vue'
-const route = useRoute()
-const authPages = computed(() => ['/login','/register'].includes(route.path))
-</script>
-<template>
-  <div v-if="authPages"><router-view /></div>
-  <AppShell v-else><router-view /></AppShell>
-</template>
+<script setup>import{computed}from'vue';import{useRoute}from'vue-router';import AppShell from'./components/AppShell.vue';const route=useRoute();const auth=computed(()=>['/login','/register'].includes(route.path))</script><template><AppShell v-if="!auth"><router-view/></AppShell><router-view v-else/></template>
