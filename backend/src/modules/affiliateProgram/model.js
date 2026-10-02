@@ -1,1 +1,11 @@
-module.exports=(sequelize,D)=>sequelize.define('AffiliateProgram',{id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},shopId:{type:D.UUID,allowNull:false},productId:{type:D.UUID},name:{type:D.STRING(180),allowNull:false},commissionType:{type:D.ENUM('percentage','fixed'),defaultValue:'percentage'},commissionRate:{type:D.DECIMAL(8,4),defaultValue:5},fixedCommission:{type:D.DECIMAL(12,2)},cookieDays:{type:D.INTEGER,defaultValue:30},status:{type:D.ENUM('active','paused'),defaultValue:'active'}},{tableName:'affiliate_programs'});
+module.exports=(sequelize,D)=>sequelize.define('AffiliateProgram',{
+id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},
+companyId:{type:D.UUID,allowNull:false},
+productId:{type:D.UUID},
+name:{type:D.STRING(180),allowNull:false},
+commissionType:{type:D.ENUM('percentage','fixed'),defaultValue:'percentage'},
+commissionRate:{type:D.DECIMAL(8,4),defaultValue:5},
+fixedCommission:{type:D.DECIMAL(12,2)},
+cookieDays:{type:D.INTEGER,defaultValue:30},
+status:{type:D.ENUM('active','paused'),defaultValue:'active'}
+},{tableName:'affiliate_programs',indexes:[{fields:['company_id']},{fields:['product_id']}]});
