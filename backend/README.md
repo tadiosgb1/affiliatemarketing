@@ -43,3 +43,7 @@ API base: `/api/v1`.
 
 ## Production hardening
 Use Sequelize migrations instead of alter-sync, connect a real payment provider webhook, add inventory reservation/expiry, shipping/tax services, object storage for media, email notifications, fraud/abuse controls and background jobs before launch.
+
+
+## Payment redesign
+The system is company-centric: one company owns the catalog and affiliate program. Shops are optional and not required for product management. Manual payment proof is the active flow: customers upload a screenshot, the payment enters verification_pending, and an admin verifies it. A Telebirr payment endpoint is present as an integration seam, but it stays inactive until the company confirms the Telebirr provider credentials/API flow. Production screenshot storage should use private object storage rather than the local uploads directory.
