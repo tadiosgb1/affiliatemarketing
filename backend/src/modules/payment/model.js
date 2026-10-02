@@ -1,0 +1,17 @@
+module.exports=(sequelize,D)=>sequelize.define('Payment',{
+id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},
+orderId:{type:D.UUID,allowNull:false,unique:true},
+userId:{type:D.UUID,allowNull:false},
+method:{type:D.ENUM('manual_screenshot','telebirr'),allowNull:false,defaultValue:'manual_screenshot'},
+status:{type:D.ENUM('pending','verification_pending','paid','failed','rejected','refunded'),defaultValue:'pending'},
+amount:{type:D.DECIMAL(12,2),allowNull:false},
+currency:{type:D.STRING(3),defaultValue:'ETB'},
+screenshotUrl:{type:D.STRING(1000)},
+transactionReference:{type:D.STRING(200)},
+providerReference:{type:D.STRING(200)},
+paidAt:{type:D.DATE},
+verifiedAt:{type:D.DATE},
+verifiedBy:{type:D.UUID},
+rejectionReason:{type:D.STRING(500)},
+metadata:{type:D.JSON}
+},{tableName:'payments',indexes:[{fields:['order_id']},{fields:['status']},{fields:['method']}]});
