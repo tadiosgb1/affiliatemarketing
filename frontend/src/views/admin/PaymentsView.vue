@@ -42,11 +42,12 @@ onMounted(loadPayments)
 </script>
 
 <template>
-  <section class="space-y-6">
+  <section
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Payments</span></p> class="space-y-6">
     <header>
-      <p class="text-sm font-bold uppercase tracking-wider text-indigo-600">Commerce</p>
-      <h1 class="mt-1 text-3xl font-black">Payments</h1>
-      <p class="mt-2 text-slate-500">Review customer payments and approve or reject submitted payments.</p>
+      
+      <h1 class="text-sm font-semibold text-slate-800">Payments</h1>
+      
     </header>
 
     <p v-if="success" role="status" class="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">{{ success }}</p>
