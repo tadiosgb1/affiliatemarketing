@@ -14,6 +14,7 @@ const routes = [
   { path: '/admin/inventory', meta: { management: true }, component: () => import('../views/admin/InventoryView.vue') },
   { path: '/admin/orders', meta: { management: true }, component: () => import('../views/admin/OrdersView.vue') },
   { path: '/admin/brands', meta: { management: true }, component: () => import('../views/admin/ResourceManagementView.vue') },
+  { path: '/admin/variants', meta: { management: true }, component: () => import('../views/admin/VariantsView.vue') },
   { path: '/admin/attributes', meta: { management: true }, component: () => import('../views/admin/ResourceManagementView.vue') },
   { path: '/admin/warehouses', meta: { management: true }, component: () => import('../views/admin/ResourceManagementView.vue') },
   { path: '/admin/suppliers', meta: { management: true }, component: () => import('../views/admin/ResourceManagementView.vue') },
