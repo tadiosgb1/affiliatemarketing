@@ -43,8 +43,8 @@ onMounted(loadOrders)
 </script>
 
 <template>
-  <section
-    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Orders</span></p> class="space-y-5">
+  <section class="space-y-5">
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Orders</span></p>
     <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div>
         <p class="text-[11px] font-bold uppercase tracking-[.15em] text-indigo-600">Commerce operations</p>
