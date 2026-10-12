@@ -70,8 +70,8 @@ onMounted(loadUsers)
 </script>
 
 <template>
-  <section
-    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Users</span></p> class="space-y-5">
+  <section class="space-y-5">
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Users</span></p>
     <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div><p class="text-[11px] font-bold uppercase tracking-[.15em] text-indigo-600">Access & permissions</p><h2 class="text-sm font-semibold text-slate-800">User management</h2><p class="mt-1.5 max-w-2xl text-[13px] leading-5 text-slate-500">Manage customer and affiliate accounts, assign staff roles and control account access.</p></div>
       <button type="button" class="h-10 rounded-lg border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50" :disabled="loading" @click="loadUsers">↻ Refresh users</button>
