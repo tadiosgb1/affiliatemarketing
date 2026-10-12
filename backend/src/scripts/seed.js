@@ -17,7 +17,7 @@ async function one(Model, where, defaults) {
 (async () => {
   await sequelize.authenticate();
   await sequelize.sync({ alter: process.env.NODE_ENV !== 'production' });
-  const passwordHash = await bcrypt.hash(process.env.DEMO_SEED_PASSWORD || '1234', 12);
+  const passwordHash = await bcrypt.hash('1234', 12);
 
   // Demo accounts for local development. Change these credentials before public deployment.
   async function ensureDemoUser(email, legacyEmail, defaults) {
