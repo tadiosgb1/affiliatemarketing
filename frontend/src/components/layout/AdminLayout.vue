@@ -61,7 +61,7 @@ const visibleGroups = computed(() => {
   const legacyStaff = String(auth.user?.role || '').toLowerCase() === 'company_staff'
   return groups.map(group => ({
     ...group,
-    items: group.items.filter(item => (!item.permission || isAdmin || legacyStaff || permissions.includes(item.permission))),
+    items: group.items.filter(item => item.path === '/admin/users' ? (isAdmin || legacyStaff || permissions.includes('users.view') || permissions.includes('users.manage')) : (!item.permission || isAdmin || legacyStaff || permissions.includes(item.permission)),
   })).filter(group => group.items.length)
 })
 const initials = computed(() => (auth.user?.name || auth.user?.email || 'Admin').trim().slice(0, 1).toUpperCase())
