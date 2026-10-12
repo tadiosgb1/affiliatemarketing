@@ -7,7 +7,7 @@ const route = useRoute()
 const router = useRouter()
 const mobileOpen = ref(false)
 const groups = [
-  { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: 'OV' }] },
+  { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: 'OV' }, { label: 'Users & access', path: '/admin/users', icon: 'US' }] },
   { label: 'Catalog', items: [
     { label: 'Products', path: '/admin/products', icon: 'PR' },
     { label: 'Categories', path: '/admin/categories', icon: 'CA' },
