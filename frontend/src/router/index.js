@@ -12,6 +12,7 @@ const routes = [
   { path: '/admin', meta: { management: true }, component: () => import('../views/admin/DashboardView.vue') },
   { path: '/admin/products', meta: { management: true }, component: () => import('../views/admin/ProductsView.vue') },
   { path: '/admin/inventory', meta: { management: true }, component: () => import('../views/admin/InventoryView.vue') },
+  { path: '/admin/orders', meta: { management: true }, component: () => import('../views/admin/OrdersView.vue') },
   { path: '/admin/categories', meta: { management: true }, component: () => import('../views/admin/CategoriesView.vue') },
   { path: '/admin/payments', meta: { management: true }, component: () => import('../views/admin/PaymentsView.vue') },
   { path: '/login', component: () => import('../views/auth/LoginView.vue') },
