@@ -28,7 +28,7 @@ const groups = [
   { label: 'Growth & finance', items: [{ label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: '↗' }, { label: 'Affiliate links', path: '/admin/affiliate-links', icon: '⌁' }, { label: 'Commissions', path: '/admin/commissions', icon: '
   { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: '⚙', adminOnly: true }] },
 ]
-const visibleGroups = computed(() => groups.map(group => ({ ...group, items: group.items.filter(item => !item.adminOnly || auth.user?.role === 'admin') })).filter(group => group.items.length))
+const visibleGroups = computed(() => groups.map(group => ({ ...group, items: group.items.filter(item => !item.adminOnly || String(auth.user?.role || '').toLowerCase() === 'admin') })).filter(group => group.items.length))
 const pageTitle = computed(() => groups.flatMap(group => group.items).find(item => item.path === route.path)?.label || 'Administration')
 const initials = computed(() => (auth.user?.name || auth.user?.email || 'Admin').trim().slice(0, 1).toUpperCase())
 function isActive(path) {
