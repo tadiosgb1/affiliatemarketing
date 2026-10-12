@@ -48,7 +48,7 @@ onMounted(loadOrders)
     <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div>
         
-        <h2 class="text-sm font-semibold text-slate-800">Orders</h2>
+        
         
       </div>
       <button type="button" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60" :disabled="loading" @click="loadOrders"><span>↻</span>{{ loading ? 'Refreshing…' : 'Refresh orders' }}</button>
