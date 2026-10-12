@@ -93,3 +93,25 @@ button:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+
+/* Keep form controls visually consistent even on pages with legacy Tailwind classes. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  min-height: 42px;
+  border: 1px solid #d6dce7;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #182230;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 4%);
+}
+textarea { min-height: 100px; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #818cf8;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+}
