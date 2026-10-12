@@ -13,6 +13,8 @@ const rows = ref([])
 const products = ref([])
 const suppliers = ref([])
 const showForm = ref(false)
+const selectedAttribute = ref(null)
+const optionForm = ref({ value: '', label: '' })
 const search = ref('')
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -158,6 +160,23 @@ async function load() {
     loading.value = false
   }
 }
+function manageOptions(attribute) { selectedAttribute.value = attribute; optionForm.value = { value: '', label: '' }; error.value = ''; success.value = '' }
+function closeOptions() { selectedAttribute.value = null; optionForm.value = { value: '', label: '' } }
+async function addAttributeOption() {
+  const value = optionForm.value.value.trim()
+  if (!value || !selectedAttribute.value) return
+  saving.value = true; error.value = ''; success.value = ''
+  try {
+    const response = await api.post('/attributes/' + selectedAttribute.value.id + '/values', { value, label: optionForm.value.label.trim() || value })
+    const created = response.data?.data
+    const target = rows.value.find(row => row.id === selectedAttribute.value.id)
+    if (target && created) target.values = [...(target.values || []), created]
+    selectedAttribute.value = target || selectedAttribute.value
+    optionForm.value = { value: '', label: '' }
+    success.value = 'Attribute option added.'
+  } catch (err) { error.value = err.response?.data?.message || 'Could not add this option.' }
+  finally { saving.value = false }
+}
 async function createRecord() {
   saving.value = true
   error.value = ''
@@ -218,7 +237,7 @@ function badgeClass(row, column) {
   const value = String(row[column.key] || 'draft').toLowerCase()
   return ['active', 'received', 'ordered'].includes(value) ? 'bg-emerald-50 text-emerald-700' : ['paused', 'cancelled'].includes(value) ? 'bg-slate-100 text-slate-600' : 'bg-amber-50 text-amber-700'
 }
-watch(key, () => { showForm.value = false; search.value = ''; currentPage.value = 1; resetForm(); load() })
+watch(key, () => { showForm.value = false; closeOptions(); search.value = ''; currentPage.value = 1; resetForm(); load() })
 watch(search, () => { currentPage.value = 1 })
 onMounted(() => { resetForm(); load() })
 </script>
@@ -234,6 +253,12 @@ onMounted(() => { resetForm(); load() })
     </header>
     <div v-if="error" role="alert" class="flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800"><span>{{ error }}</span><button type="button" class="shrink-0 font-semibold underline" @click="load">Retry</button></div>
     <div v-if="success" role="status" class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-800">{{ success }}</div>
+
+    <section v-if="selectedAttribute && key === 'attributes'" class="border border-slate-200 bg-white p-5">
+      <div class="mb-4 flex items-center justify-between"><h3 class="text-[14px] font-bold text-slate-900">{{ selectedAttribute.name }} · Options</h3><button type="button" class="text-[12px] font-semibold text-slate-600 underline" @click="closeOptions">Back to attributes</button></div>
+      <form class="mb-5 grid gap-3 sm:grid-cols-3" @submit.prevent="addAttributeOption"><div><label class="mb-1 block text-[12px] font-semibold">Option value</label><input v-model="optionForm.value" required maxlength="120" class="w-full" placeholder="e.g. blue" /></div><div><label class="mb-1 block text-[12px] font-semibold">Display label</label><input v-model="optionForm.label" maxlength="160" class="w-full" placeholder="e.g. Blue" /></div><div class="flex items-end"><button type="submit" :disabled="saving" class="h-10 bg-indigo-600 px-4 text-[12px] font-semibold text-white disabled:opacity-50">{{ saving ? 'Saving…' : 'Add option' }}</button></div></form>
+      <div class="divide-y divide-slate-100 border-y border-slate-200"><div v-for="option in selectedAttribute.values || []" :key="option.id" class="flex items-center justify-between py-3 text-[12px]"><span class="font-medium text-slate-800">{{ option.label || option.value }}</span><span class="text-slate-500">{{ option.value }}</span></div><p v-if="!(selectedAttribute.values || []).length" class="py-5 text-[12px] text-slate-500">No options yet.</p></div>
+    </section>
 
     <form v-if="showForm" class="border border-slate-200 bg-white p-5" @submit.prevent="createRecord">
       <div class="mb-4 flex items-start justify-between"><div><h3 class="text-[14px] font-bold text-slate-900">Add {{ config.title.toLowerCase().replace(/s$/, '') }}</h3><p class="mt-1 text-[12px] text-slate-500">Fields marked required must be completed.</p></div></div>
@@ -255,11 +280,11 @@ onMounted(() => { resetForm(); load() })
 
     <div class="grid gap-0 border-y border-slate-200 bg-white sm:grid-cols-2"><article class="border-b border-slate-200 p-4 sm:border-b-0 sm:border-r"><p class="text-[12px] font-medium text-slate-500">Total {{ config.title.toLowerCase() }}</p><p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ loading ? '—' : rows.length }}</p></article><article class="p-4"><p class="text-[12px] font-medium text-slate-500">Visible records</p><p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ loading ? '—' : visibleRows.length }}</p></article></div>
 
-    <div v-if="!showForm" class="overflow-hidden border border-slate-200 bg-white">
+    <div v-if="!showForm && !selectedAttribute" class="overflow-hidden border border-slate-200 bg-white">
       <div class="flex flex-col gap-3 border-b border-slate-100 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"><div><h3 class="text-[13px] font-bold text-slate-900">{{ config.title }} register</h3><p class="mt-0.5 text-[11px] text-slate-500">{{ visibleRows.length }} {{ countLabel }}</p></div><input v-model="search" type="search" :placeholder="'Search ' + config.title.toLowerCase() + '…'" class="w-full sm:max-w-[260px]" /></div>
       <div v-if="loading" class="space-y-3 p-5"><div v-for="n in 4" :key="n" class="h-10 animate-pulse rounded-md bg-slate-50"></div></div>
       <div v-else-if="!error && !visibleRows.length" class="px-6 py-12 text-center"><p class="text-[13px] font-semibold text-slate-800">No records found</p><p class="mt-1 text-[12px] text-slate-500">{{ rows.length ? 'Try a different search.' : 'Create your first record to get started.' }}</p></div>
-      <div v-else-if="visibleRows.length" class="overflow-x-auto"><table class="w-full min-w-[650px] text-left text-[12px]"><thead class="bg-slate-50/80 text-slate-500"><tr><th v-for="column in config.columns" :key="column.key" class="px-4 py-3">{{ column.label }}</th></tr></thead><tbody><tr v-for="row in paginatedRows" :key="row.id" class="border-t border-slate-100 transition hover:bg-slate-50/70"><td v-for="column in config.columns" :key="column.key" class="px-4 py-3.5 text-slate-600"><span v-if="['active','status'].includes(column.kind)" class="inline-flex border px-2 py-1 text-[10px] font-semibold capitalize" :class="badgeClass(row,column)">{{ display(row,column) }}</span><span v-else :class="column.key === 'name' || column.key === 'orderNumber' ? 'font-semibold text-slate-900' : ''">{{ display(row,column) }}</span></td></tr></tbody></table></div>
+      <div v-else-if="visibleRows.length" class="overflow-x-auto"><table class="w-full min-w-[650px] text-left text-[12px]"><thead class="bg-slate-50/80 text-slate-500"><tr><th v-for="column in config.columns" :key="column.key" class="px-4 py-3">{{ column.label }}</th><th v-if="key === 'attributes'" class="px-4 py-3">Manage</th></tr></thead><tbody><tr v-for="row in paginatedRows" :key="row.id" class="border-t border-slate-100 transition hover:bg-slate-50/70"><td v-for="column in config.columns" :key="column.key" class="px-4 py-3.5 text-slate-600"><span v-if="['active','status'].includes(column.kind)" class="inline-flex border px-2 py-1 text-[10px] font-semibold capitalize" :class="badgeClass(row,column)">{{ display(row,column) }}</span><span v-else :class="column.key === 'name' || column.key === 'orderNumber' ? 'font-semibold text-slate-900' : ''">{{ display(row,column) }}</span></td><td v-if="key === 'attributes'" class="px-4 py-3"><button type="button" class="font-semibold text-indigo-700 hover:underline" @click="manageOptions(row)">Manage options</button></td></tr></tbody></table></div>
       <AdminPagination v-if="!loading && visibleRows.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="visibleRows.length" />
       <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-400">Connected to {{ config.endpoint }} · Record access follows the backend's current permissions.</div>
     </div>
