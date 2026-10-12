@@ -33,7 +33,7 @@ async function requireAuth(req, res, next) {
 
   try {
     const user = await User.findByPk(payload.sub)
-    if (!user || !user.isActive) {
+    if (!user || user.isActive === false) {
       return res.status(401).json({ success: false, code: 'ACCOUNT_INACTIVE', message: 'This account is unavailable. Please contact an administrator.' })
     }
     req.user = user
