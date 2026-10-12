@@ -21,7 +21,7 @@ async function submit() {
     const data = response.data?.data
     if (!data?.user || !data?.token) throw new Error('The server response was incomplete.')
     setAuth(data.user, data.token)
-    await router.push(data.user.role === 'admin' || data.user.role === 'company_staff' ? '/admin' : '/shop')
+    const role = String(data.user.role || '').toLowerCase()\n    await router.push(['admin', 'company_staff'].includes(role) ? '/admin' : '/shop')
   } catch (err) {
     error.value = err.response?.data?.message || err.message || 'Unable to sign in. Please try again.'
   } finally {
