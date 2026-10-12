@@ -1,0 +1,1 @@
+module.exports=(sequelize,D)=>sequelize.define('Role',{id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},name:{type:D.STRING(80),allowNull:false,unique:true},slug:{type:D.STRING(100),allowNull:false,unique:true},description:{type:D.STRING(255)},isSystem:{type:D.BOOLEAN,defaultValue:false},isActive:{type:D.BOOLEAN,defaultValue:true}},{tableName:'roles'});
