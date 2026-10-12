@@ -27,8 +27,10 @@ const requireAnyPermission=(keys)=>async(req,res,next)=>{
  try{
   const userId=req.user?.id;
   if(!userId)return res.status(401).json({success:false,message:'Authentication required'});
+  const denied=new Set();
   for(const key of keys){
    const override=await UserPermission.findOne({where:{userId},include:[{model:Permission,as:'permission',where:{key}}]});
+   if(override?.effect==='deny')denied.add(key);
    if(override?.effect==='grant')return next();
   }
   const assignments=await UserRole.findAll({where:{userId},include:[{model:Role,as:'role',where:{isActive:true}}]});
@@ -37,7 +39,7 @@ const requireAnyPermission=(keys)=>async(req,res,next)=>{
   if(legacy==='admin'||slugs.includes('admin'))return next();
   const roleIds=assignments.map(item=>item.roleId);
   if(roleIds.length){
-   const grant=await RolePermission.findOne({where:{roleId:{[Op.in]:roleIds}},include:[{model:Permission,as:'permission',where:{key:{[Op.in]:keys}}}]});
+   const grant=await RolePermission.findOne({where:{roleId:{[Op.in]:roleIds}},include:[{model:Permission,as:'permission',where:{key:{[Op.in]:keys.filter(key=>!denied.has(key))}}}]});
    if(grant)return next();
   }
   if(!assignments.length&&legacy==='company_staff'&&keys.some(key=>['catalog.view','catalog.manage','inventory.view','inventory.manage','procurement.view','procurement.manage','orders.view','orders.manage','payments.view','finance.view','affiliates.manage','company.manage'].includes(key)))return next();
