@@ -27,7 +27,7 @@ const routes = [
   { path: '/admin/commissions', meta: { management: true }, component: () => import('../views/admin/FinanceManagementView.vue') },
   { path: '/admin/payouts', meta: { management: true }, component: () => import('../views/admin/FinanceManagementView.vue') },
   { path: '/admin/users', meta: { management: true }, component: () => import('../views/admin/UsersView.vue') },
-  { path: '/admin/access-control', meta: { management: true, adminOnly: true }, component: () => import('../views/admin/AccessControlView.vue') },
+  { path: '/admin/access-control', meta: { management: true, permission: 'access.manage' }, component: () => import('../views/admin/AccessControlView.vue') },
   { path: '/admin/company', meta: { management: true }, component: () => import('../views/admin/CompanySettingsView.vue') },
   { path: '/admin/categories', meta: { management: true }, component: () => import('../views/admin/CategoriesView.vue') },
   { path: '/admin/payments', meta: { management: true }, component: () => import('../views/admin/PaymentsView.vue') },
@@ -45,7 +45,7 @@ router.beforeEach(to => {
   const roleSlugs = (auth.user?.roles || []).map(role => typeof role === 'string' ? role : role.slug)
   const permissions = auth.user?.permissions || []
   const isManager = ['admin', 'company_staff'].includes(String(auth.user?.role || '').toLowerCase()) || roleSlugs.some(role => role !== 'customer' && role !== 'affiliate') || permissions.some(permission => permission.endsWith('.manage') || permission === 'dashboard.view')
-  if (to.matched.some(record => record.meta.adminOnly) && String(auth.user?.role || '').toLowerCase() !== 'admin' && !roleSlugs.includes('admin')) return '/admin'
+  if (to.matched.some(record => record.meta.permission) && String(auth.user?.role || '').toLowerCase() !== 'admin' && !roleSlugs.includes('admin') && !permissions.includes(to.matched.find(record => record.meta.permission)?.meta.permission)) return '/admin'
   if (to.matched.some(record => record.meta.management) && !isManager) {
     return auth.user ? '/shop' : '/login'
   }
