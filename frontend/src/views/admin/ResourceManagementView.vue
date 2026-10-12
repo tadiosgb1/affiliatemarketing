@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../../services/api'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const route = useRoute()
 const loading = ref(true)
@@ -13,6 +14,9 @@ const products = ref([])
 const suppliers = ref([])
 const showForm = ref(false)
 const search = ref('')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedRows = computed(() => visibleRows.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 const form = ref({})
 
 const resources = {
@@ -214,7 +218,8 @@ function badgeClass(row, column) {
   const value = String(row[column.key] || 'draft').toLowerCase()
   return ['active', 'received', 'ordered'].includes(value) ? 'bg-emerald-50 text-emerald-700' : ['paused', 'cancelled'].includes(value) ? 'bg-slate-100 text-slate-600' : 'bg-amber-50 text-amber-700'
 }
-watch(key, () => { showForm.value = false; search.value = ''; resetForm(); load() })
+watch(key, () => { showForm.value = false; search.value = ''; currentPage.value = 1; resetForm(); load() })
+watch(search, () => { currentPage.value = 1 })
 onMounted(() => { resetForm(); load() })
 </script>
 
@@ -254,7 +259,8 @@ onMounted(() => { resetForm(); load() })
       <div class="flex flex-col gap-3 border-b border-slate-100 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"><div><h3 class="text-[13px] font-bold text-slate-900">{{ config.title }} register</h3><p class="mt-0.5 text-[11px] text-slate-500">{{ visibleRows.length }} {{ countLabel }}</p></div><input v-model="search" type="search" :placeholder="'Search ' + config.title.toLowerCase() + '…'" class="w-full sm:max-w-[260px]" /></div>
       <div v-if="loading" class="space-y-3 p-5"><div v-for="n in 4" :key="n" class="h-10 animate-pulse rounded-md bg-slate-50"></div></div>
       <div v-else-if="!error && !visibleRows.length" class="px-6 py-12 text-center"><p class="text-[13px] font-semibold text-slate-800">No records found</p><p class="mt-1 text-[12px] text-slate-500">{{ rows.length ? 'Try a different search.' : 'Create your first record to get started.' }}</p></div>
-      <div v-else-if="visibleRows.length" class="overflow-x-auto"><table class="w-full min-w-[650px] text-left text-[12px]"><thead class="bg-slate-50/80 text-slate-500"><tr><th v-for="column in config.columns" :key="column.key" class="px-4 py-3">{{ column.label }}</th></tr></thead><tbody><tr v-for="row in visibleRows" :key="row.id" class="border-t border-slate-100 transition hover:bg-slate-50/70"><td v-for="column in config.columns" :key="column.key" class="px-4 py-3.5 text-slate-600"><span v-if="['active','status'].includes(column.kind)" class="inline-flex border px-2 py-1 text-[10px] font-semibold capitalize" :class="badgeClass(row,column)">{{ display(row,column) }}</span><span v-else :class="column.key === 'name' || column.key === 'orderNumber' ? 'font-semibold text-slate-900' : ''">{{ display(row,column) }}</span></td></tr></tbody></table></div>
+      <div v-else-if="visibleRows.length" class="overflow-x-auto"><table class="w-full min-w-[650px] text-left text-[12px]"><thead class="bg-slate-50/80 text-slate-500"><tr><th v-for="column in config.columns" :key="column.key" class="px-4 py-3">{{ column.label }}</th></tr></thead><tbody><tr v-for="row in paginatedRows" :key="row.id" class="border-t border-slate-100 transition hover:bg-slate-50/70"><td v-for="column in config.columns" :key="column.key" class="px-4 py-3.5 text-slate-600"><span v-if="['active','status'].includes(column.kind)" class="inline-flex border px-2 py-1 text-[10px] font-semibold capitalize" :class="badgeClass(row,column)">{{ display(row,column) }}</span><span v-else :class="column.key === 'name' || column.key === 'orderNumber' ? 'font-semibold text-slate-900' : ''">{{ display(row,column) }}</span></td></tr></tbody></table></div>
+      <AdminPagination v-if="!loading && visibleRows.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="visibleRows.length" />
       <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-400">Connected to {{ config.endpoint }} · Record access follows the backend's current permissions.</div>
     </div>
   </section>
