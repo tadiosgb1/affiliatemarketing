@@ -7,6 +7,8 @@ const saving = ref(false)
 const error = ref('')
 const success = ref('')
 const configured = ref(false)
+const selectedLogo = ref(null)
+const logoPreview = ref('')
 const form = ref({
   name: '', legalName: '', registrationNumber: '', taxNumber: '', businessType: 'company',
   email: '', phone: '', country: 'Ethiopia', city: '', address: '', logoUrl: '', status: 'active',
@@ -21,7 +23,6 @@ const fields = [
   { key: 'country', label: 'Country' },
   { key: 'city', label: 'City' },
   { key: 'address', label: 'Business address', type: 'textarea' },
-  { key: 'logoUrl', label: 'Logo URL' },
 ]
 async function loadCompany() {
   loading.value = true
@@ -31,6 +32,7 @@ async function loadCompany() {
     const company = response.data?.data
     if (company) {
       configured.value = true
+      logoPreview.value = company.logoUrl || ''
       Object.keys(form.value).forEach(key => {
         if (company[key] !== undefined && company[key] !== null) form.value[key] = company[key]
       })
@@ -42,14 +44,25 @@ async function loadCompany() {
     loading.value = false
   }
 }
+function onLogoChange(event) {
+  const file = event.target.files?.[0] || null
+  selectedLogo.value = file
+  logoPreview.value = file ? URL.createObjectURL(file) : (form.value.logoUrl || '')
+}
 async function saveCompany() {
   saving.value = true
   error.value = ''
   success.value = ''
   try {
-    const payload = { ...form.value }
-    if (configured.value) await api.patch('/company', payload)
-    else await api.post('/company', payload)
+    const payload = new FormData()
+    Object.entries(form.value).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) payload.append(key, String(value))
+    })
+    if (selectedLogo.value) payload.append('logo', selectedLogo.value)
+    const options = { headers: { 'Content-Type': 'multipart/form-data' } }
+    if (configured.value) await api.patch('/company', payload, options)
+    else await api.post('/company', payload, options)
+    selectedLogo.value = null
     configured.value = true
     success.value = 'Company profile saved successfully.'
     await loadCompany()
@@ -75,6 +88,14 @@ onMounted(loadCompany)
     <form v-else class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" @submit.prevent="saveCompany">
       <div class="border-b border-slate-100 px-5 py-4"><h3 class="text-[14px] font-bold text-slate-900">Business information</h3><p class="mt-1 text-[12px] text-slate-500">Fields marked required must be completed.</p></div>
       <div class="grid gap-x-5 gap-y-4 p-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div class="sm:col-span-2 xl:col-span-3">
+          <label for="company-logo" class="mb-1.5 block text-[12px] font-semibold text-slate-700">Company logo</label>
+          <div class="flex flex-wrap items-center gap-4">
+            <img v-if="logoPreview" :src="logoPreview" alt="Company logo preview" class="h-20 w-20 border border-slate-200 bg-white object-contain p-1" />
+            <div v-else class="flex h-20 w-20 items-center justify-center border border-dashed border-slate-300 text-xs text-slate-400">No logo</div>
+            <input id="company-logo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="max-w-full text-sm" @change="onLogoChange" />
+          </div>
+        </div>
         <div v-for="field in fields" :key="field.key" :class="field.type === 'textarea' ? 'sm:col-span-2 xl:col-span-3' : ''">
           <label :for="'company-' + field.key" class="mb-1.5 block text-[12px] font-semibold text-slate-700">{{ field.label }}<span v-if="field.required" class="ml-1 text-rose-500">*</span></label>
           <textarea v-if="field.type === 'textarea'" :id="'company-' + field.key" v-model="form[field.key]" :required="field.required" rows="3"></textarea>
