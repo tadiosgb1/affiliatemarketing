@@ -250,7 +250,7 @@ onMounted(() => { resetForm(); load() })
 
     <div class="grid gap-0 border-y border-slate-200 bg-white sm:grid-cols-2"><article class="border-b border-slate-200 p-4 sm:border-b-0 sm:border-r"><p class="text-[12px] font-medium text-slate-500">Total {{ config.title.toLowerCase() }}</p><p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ loading ? '—' : rows.length }}</p></article><article class="p-4"><p class="text-[12px] font-medium text-slate-500">Visible records</p><p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ loading ? '—' : visibleRows.length }}</p></article></div>
 
-    <div class="overflow-hidden border border-slate-200 bg-white">
+    <div v-if="!showForm" class="overflow-hidden border border-slate-200 bg-white">
       <div class="flex flex-col gap-3 border-b border-slate-100 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"><div><h3 class="text-[13px] font-bold text-slate-900">{{ config.title }} register</h3><p class="mt-0.5 text-[11px] text-slate-500">{{ visibleRows.length }} {{ countLabel }}</p></div><input v-model="search" type="search" :placeholder="'Search ' + config.title.toLowerCase() + '…'" class="w-full sm:max-w-[260px]" /></div>
       <div v-if="loading" class="space-y-3 p-5"><div v-for="n in 4" :key="n" class="h-10 animate-pulse rounded-md bg-slate-50"></div></div>
       <div v-else-if="!error && !visibleRows.length" class="px-6 py-12 text-center"><p class="text-[13px] font-semibold text-slate-800">No records found</p><p class="mt-1 text-[12px] text-slate-500">{{ rows.length ? 'Try a different search.' : 'Create your first record to get started.' }}</p></div>
