@@ -26,7 +26,12 @@ const groups = [
     { label: 'Customer carts', path: '/admin/carts', icon: '▢', adminOnly: true },
     { label: 'Payments', path: '/admin/payments', icon: '◉', adminOnly: true },
   ] },
-  { label: 'Growth & finance', items: [{ label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: '↗' }, { label: 'Affiliate links', path: '/admin/affiliate-links', icon: '⌁' }, { label: 'Commissions', path: '/admin/commissions', icon: '
+  { label: 'Growth & finance', items: [
+    { label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: '↗' },
+    { label: 'Affiliate links', path: '/admin/affiliate-links', icon: '⌁', adminOnly: true },
+    { label: 'Commissions', path: '/admin/commissions', icon: '$', adminOnly: true },
+    { label: 'Payouts', path: '/admin/payouts', icon: '⇄', adminOnly: true },
+  ] },
   { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: '⚙', adminOnly: true }] },
 ]
 const visibleGroups = computed(() => groups.map(group => ({ ...group, items: group.items.filter(item => !item.adminOnly || String(auth.user?.role || '').toLowerCase() === 'admin') })).filter(group => group.items.length))
