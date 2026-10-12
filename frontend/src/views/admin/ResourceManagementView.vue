@@ -64,8 +64,16 @@ const resources = {
     searchKeys: ['name', 'contactName', 'email', 'phone'],
   },
   'purchase-orders': {
-    title: 'Purchase orders', group: 'Inventory', endpoint: '/purchase-orders', description: 'Track replenishment orders and supplier receipt status. This view is read-only; receiving stock is handled by the purchase-order workflow.',
-    readOnly: true,
+    title: 'Purchase orders', group: 'Inventory', endpoint: '/purchase-orders', description: 'Create replenishment orders and track supplier receipt status.',
+    fields: [
+      { key: 'supplierId', label: 'Supplier', type: 'supplier', required: true },
+      { key: 'variantId', label: 'Product variant', type: 'variant', required: true },
+      { key: 'quantityOrdered', label: 'Quantity', type: 'number', min: 1, step: 1, required: true },
+      { key: 'unitCost', label: 'Unit cost', type: 'number', min: 0, step: '0.01', required: true },
+      { key: 'currency', label: 'Currency', type: 'select', options: [{ label: 'ETB', value: 'ETB' }, { label: 'USD', value: 'USD' }] },
+      { key: 'expectedAt', label: 'Expected delivery', type: 'date' },
+      { key: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Optional purchase notes' },
+    ],
     columns: [{ key: 'orderNumber', label: 'Purchase order' }, { key: 'supplier', label: 'Supplier', kind: 'supplier' }, { key: 'status', label: 'Status', kind: 'status' }, { key: 'totalCost', label: 'Total cost', kind: 'money' }, { key: 'expectedAt', label: 'Expected', kind: 'date' }],
     searchKeys: ['orderNumber', 'status', 'currency'],
   },
@@ -120,8 +128,8 @@ function resetForm() {
       : field.key === 'status' ? 'active'
       : ['productId', 'supplierId', 'variantId'].includes(field.key) ? ''
       : field.key === 'currency' ? 'ETB'
-      : field.key === 'minimumOrderQty' ? 1
-      : field.key === 'costPrice' ? 0
+      : ['minimumOrderQty', 'quantityOrdered'].includes(field.key) ? 1
+      : ['costPrice', 'unitCost'].includes(field.key) ? 0
       : field.key === 'leadTimeDays' ? 0
       : field.key === 'isPrimary' ? false
       : ''
@@ -134,8 +142,8 @@ async function load() {
   error.value = ''
   try {
     const requests = [api.get(config.value.listEndpoint || config.value.endpoint)]
-    if (['affiliate-programs', 'supplier-products'].includes(key.value)) requests.push(api.get('/products'))
-    if (key.value === 'supplier-products') requests.push(api.get('/suppliers'))
+    if (['affiliate-programs', 'supplier-products', 'purchase-orders'].includes(key.value)) requests.push(api.get('/products/admin/all'))
+    if (['supplier-products', 'purchase-orders'].includes(key.value)) requests.push(api.get('/suppliers'))
     const responses = await Promise.all(requests)
     rows.value = normalizeRows(responses[0].data?.data)
     if (responses[1]) products.value = normalizeRows(responses[1].data?.data ?? responses[1].data?.products)
@@ -162,6 +170,11 @@ async function createRecord() {
       }
     })
     if (key.value === 'affiliate-programs' && !payload.productId) delete payload.productId
+    if (key.value === 'purchase-orders') {
+      payload.items = [{ variantId: payload.variantId, quantityOrdered: Number(payload.quantityOrdered), unitCost: Number(payload.unitCost) }]
+      payload.quantityOrdered = Number(payload.quantityOrdered)
+      payload.unitCost = Number(payload.unitCost)
+    }
     if (key.value === 'supplier-products') {
       payload.costPrice = Number(payload.costPrice)
       payload.minimumOrderQty = Number(payload.minimumOrderQty || 1)
