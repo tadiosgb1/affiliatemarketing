@@ -10,11 +10,13 @@ const configured = ref(false)
 const selectedLogo = ref(null)
 const logoPreview = ref('')
 const form = ref({
-  name: '', legalName: '', registrationNumber: '', taxNumber: '', businessType: 'company',
+  name: '', platformName: '', tagline: '', primaryColor: '#4f46e5', legalName: '', registrationNumber: '', taxNumber: '', businessType: 'company',
   email: '', phone: '', country: 'Ethiopia', city: '', address: '', logoUrl: '', status: 'active',
 })
 const fields = [
   { key: 'name', label: 'Trading name', required: true },
+  { key: 'platformName', label: 'Platform brand name' },
+  { key: 'tagline', label: 'Platform tagline' },
   { key: 'legalName', label: 'Legal name' },
   { key: 'registrationNumber', label: 'Registration number' },
   { key: 'taxNumber', label: 'Tax number' },
@@ -88,6 +90,13 @@ onMounted(loadCompany)
     <form v-else class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" @submit.prevent="saveCompany">
       <div class="border-b border-slate-100 px-5 py-4"><h3 class="text-[14px] font-bold text-slate-900">Business information</h3><p class="mt-1 text-[12px] text-slate-500">Fields marked required must be completed.</p></div>
       <div class="grid gap-x-5 gap-y-4 p-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div>
+          <label for="platform-color" class="mb-1.5 block text-[12px] font-semibold text-slate-700">Platform brand colour</label>
+          <div class="flex h-10 items-center gap-3 border border-slate-200 px-2">
+            <input id="platform-color" v-model="form.primaryColor" type="color" class="h-7 w-10 border-0 bg-transparent p-0" />
+            <span class="text-[12px] text-slate-600">{{ form.primaryColor }}</span>
+          </div>
+        </div>
         <div class="sm:col-span-2 xl:col-span-3">
           <label for="company-logo" class="mb-1.5 block text-[12px] font-semibold text-slate-700">Company logo</label>
           <div class="flex flex-wrap items-center gap-4">
