@@ -17,7 +17,7 @@ const isManager = computed(() => {
 })
 onMounted(async () => {
   try {
-    const response = await api.get('/company')
+    const response = await api.get('/company/brand')
     const brand = response.data?.data
     if (brand?.primaryColor && /^#[0-9a-f]{6}$/i.test(brand.primaryColor)) document.documentElement.style.setProperty('--platform-primary', brand.primaryColor)
   } catch { /* Keep the default platform accent when company settings are not configured. */ }
