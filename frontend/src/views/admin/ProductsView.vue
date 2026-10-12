@@ -142,7 +142,7 @@ onMounted(load)
       </div>
     </form>
 
-    <div class="overflow-hidden border border-slate-200 bg-white">
+    <div v-if="!showForm" class="overflow-hidden border border-slate-200 bg-white">
       <p v-if="loading" class="p-6 text-sm text-slate-500">Loading products from the backend…</p>
       <p v-else-if="!products.length" class="p-6 text-sm text-slate-500">No products found. Create a category, then add your first product.</p>
       <div v-else class="overflow-x-auto">
