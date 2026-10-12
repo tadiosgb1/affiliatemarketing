@@ -94,22 +94,17 @@ onMounted(load)
 
 <template>
   <section class="space-y-6">
-    <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-      <div>
-        <p class="text-sm font-bold uppercase tracking-wider text-indigo-600">Catalog management</p>
-        <h1 class="mt-1 text-3xl font-black">Products</h1>
-        <p class="mt-2 text-slate-500">Create and publish products in the customer storefront.</p>
-      </div>
-      <div class="flex gap-2">
-        <button class="rounded-xl border bg-white px-4 py-2.5 font-bold" @click="load">Refresh</button>
-        <button class="rounded-xl bg-slate-950 px-4 py-2.5 font-bold text-white" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ New product' }}</button>
+    <header class="flex flex-col justify-end gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center">
+      <div class="flex gap-2 sm:ml-auto">
+        <button class="h-9 border border-slate-300 bg-white px-3.5 text-[12px] font-semibold text-slate-700 transition hover:bg-slate-50" @click="load">Refresh</button>
+        <button class="h-9 bg-indigo-600 px-3.5 text-[12px] font-semibold text-white transition hover:bg-indigo-700" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ New product' }}</button>
       </div>
     </header>
 
     <p v-if="error" role="alert" class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ error }}</p>
     <p v-if="success" role="status" class="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">{{ success }}</p>
 
-    <form v-if="showForm" class="grid gap-4 rounded-2xl border bg-white p-5 md:grid-cols-2" @submit.prevent="createProduct">
+    <form v-if="showForm" class="grid gap-4 border border-slate-200 bg-white p-5 md:grid-cols-2" @submit.prevent="createProduct">
       <div>
         <label class="mb-1 block text-sm font-semibold">Product name</label>
         <input v-model="form.name" required maxlength="180" class="w-full rounded-xl border px-3 py-2.5" placeholder="e.g. Everyday cotton T-shirt" />
@@ -146,19 +141,19 @@ onMounted(load)
       </div>
     </form>
 
-    <div class="overflow-hidden rounded-2xl border bg-white">
+    <div class="overflow-hidden border border-slate-200 bg-white">
       <p v-if="loading" class="p-6 text-sm text-slate-500">Loading products from the backend…</p>
       <p v-else-if="!products.length" class="p-6 text-sm text-slate-500">No products found. Create a category, then add your first product.</p>
       <div v-else class="overflow-x-auto">
         <table class="w-full text-left text-sm">
-          <thead class="bg-slate-50 text-slate-500"><tr><th class="p-4">Product</th><th class="p-4">SKU</th><th class="p-4">Price</th><th class="p-4">Stock</th><th class="p-4">Status</th><th class="p-4">Action</th></tr></thead>
+          <thead class="border-b border-slate-200 bg-slate-50 text-slate-500"><tr><th class="p-4">Product</th><th class="p-4">SKU</th><th class="p-4">Price</th><th class="p-4">Stock</th><th class="p-4">Status</th><th class="p-4">Action</th></tr></thead>
           <tbody>
-            <tr v-for="product in products" :key="product.id" class="border-t">
-              <td class="p-4"><div class="flex items-center gap-3"><img v-if="product.imageUrl" :src="product.imageUrl" class="h-12 w-12 rounded-lg object-cover" /><div><p class="font-bold">{{ product.name }}</p><p class="text-xs text-slate-500">{{ product.category?.name || 'Uncategorized' }}</p></div></div></td>
+            <tr v-for="product in products" :key="product.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70">
+              <td class="p-4"><div class="flex items-center gap-3"><img v-if="product.imageUrl" :src="product.imageUrl" class="h-10 w-10 border border-slate-200 object-cover" /><div><p class="font-bold">{{ product.name }}</p><p class="text-xs text-slate-500">{{ product.category?.name || 'Uncategorized' }}</p></div></div></td>
               <td class="p-4 font-mono text-xs">{{ product.sku || '—' }}</td>
               <td class="p-4 font-semibold">{{ Number(product.price || 0).toLocaleString() }} {{ product.currency || 'ETB' }}</td>
               <td class="p-4">{{ stockFor(product) }}</td>
-              <td class="p-4"><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold">{{ product.status }}</span></td>
+              <td class="p-4"><span class="inline-flex border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-semibold">{{ product.status }}</span></td>
               <td class="p-4"><button class="font-semibold text-indigo-600" @click="toggleStatus(product)">{{ product.status === 'active' ? 'Unpublish' : 'Publish' }}</button></td>
             </tr>
           </tbody>
