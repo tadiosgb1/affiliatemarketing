@@ -17,7 +17,7 @@ async function load() {
   error.value = ''
   try {
     const [productResponse, categoryResponse] = await Promise.all([
-      api.get('/products'),
+      api.get('/products/admin/all'),
       api.get('/categories'),
     ])
     products.value = productResponse.data?.data ?? productResponse.data?.products ?? []
