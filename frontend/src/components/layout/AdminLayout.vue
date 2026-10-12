@@ -17,6 +17,7 @@ const groups = [
   ] },
   { label: 'Operations', items: [
     { label: 'Inventory & stock', path: '/admin/inventory', icon: '▥' },
+    { label: 'Stock movements', path: '/admin/inventory-movements', icon: '↕' },
     { label: 'Warehouses', path: '/admin/warehouses', icon: '⌂' },
     { label: 'Suppliers', path: '/admin/suppliers', icon: '♧' },
     { label: 'Supplier catalog', path: '/admin/supplier-products', icon: '▧' },
