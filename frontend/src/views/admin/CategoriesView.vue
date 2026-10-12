@@ -7,7 +7,7 @@ const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
 const success = ref('')
-const form = ref({ name: '', description: '' })
+const form = ref({ name: '', description: '', parentId: '' })
 
 async function loadCategories() {
   loading.value = true
@@ -36,10 +36,11 @@ async function createCategory() {
     const response = await api.post('/categories', {
       name,
       description: form.value.description.trim() || undefined,
+      parentId: form.value.parentId || undefined,
     })
     const created = response.data?.data
     if (created) categories.value.push(created)
-    form.value = { name: '', description: '' }
+    form.value = { name: '', description: '', parentId: '' }
     success.value = 'Category created successfully.'
     if (!created) await loadCategories()
   } catch (err) {
@@ -80,6 +81,14 @@ onMounted(loadCategories)
         />
       </div>
       <div>
+        <label for="category-parent" class="mb-1 block text-sm font-semibold">Parent category (optional)</label>
+        <select id="category-parent" v-model="form.parentId" class="w-full rounded-xl border bg-white px-3 py-2.5 outline-none focus:border-indigo-500">
+          <option value="">Top-level category</option>
+          <option v-for="parent in categories.filter(category => !category.parentId)" :key="parent.id" :value="parent.id">{{ parent.name }}</option>
+        </select>
+        <p class="mt-1 text-xs text-slate-500">Choose a parent to create a subcategory.</p>
+      </div>
+      <div>
         <label for="category-description" class="mb-1 block text-sm font-semibold">Description (optional)</label>
         <input
           id="category-description"
@@ -115,14 +124,14 @@ onMounted(loadCategories)
         <table class="w-full text-left text-sm">
           <thead class="bg-slate-50 text-slate-500">
             <tr>
-              <th class="p-4 font-semibold">Name</th>
+              <th class="p-4 font-semibold">Category</th>
               <th class="p-4 font-semibold">Description</th>
               <th class="p-4 font-semibold">Slug</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="category in categories" :key="category.id" class="border-t">
-              <td class="p-4 font-semibold">{{ category.name }}</td>
+              <td class="p-4 font-semibold"><span v-if="category.parentId" class="mr-2 text-slate-400">↳</span>{{ category.name }}<span class="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium">{{ category.parentId ? "Subcategory" : "Main category" }}</span></td>
               <td class="p-4 text-slate-600">{{ category.description || '—' }}</td>
               <td class="p-4 text-slate-500">{{ category.slug || '—' }}</td>
             </tr>
