@@ -33,7 +33,7 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const response = await api.get('/products/admin/all')
+    const response = await api.get('/products/admin/all?limit=200')
     products.value = Array.isArray(response.data?.data) ? response.data.data : []
   } catch (err) {
     error.value = err.response?.data?.message || 'Product variants could not be loaded. Check your admin session and API connection.'
