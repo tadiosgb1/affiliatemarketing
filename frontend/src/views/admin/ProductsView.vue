@@ -16,7 +16,6 @@ const selectedImage = ref(null)
 const imagePreview = ref('')
 const paginatedProducts = computed(() => products.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 const form = ref({ name: '', categoryId: '', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 })
-const topCategories = computed(() => categories.value.filter(category => !category.parentId))
 
 async function load() {
   loading.value = true
@@ -59,24 +58,6 @@ async function createProduct() {
         sku: sku + '-DEFAULT', price, status: 'active', inventory: [],
       }]))
     if (selectedImage.value) payload.append('image', selectedImage.value)
-    /* const payload = {
-      name,
-      categoryId: form.value.categoryId,
-      description: form.value.description.trim(),
-      sku,
-      price,
-      currency: form.value.currency || 'ETB',
-      imageUrl: form.value.imageUrl.trim() || undefined,
-      status: 'active',
-      affiliateEnabled: true,
-      variants: [{
-        sku: sku + '-DEFAULT',
-        price,
-        status: 'active',
-        inventory: [],
-      }],
-    }
-    */
     const response = await api.post('/products', payload, { headers: { 'Content-Type': 'multipart/form-data' } })
     const created = response.data?.data
     if (created) products.value.unshift(created)
@@ -104,6 +85,12 @@ async function toggleStatus(product) {
   } catch (err) {
     error.value = err.response?.data?.message || 'Could not update product status.'
   }
+}
+
+function onImageChange(event) {
+  const file = event.target.files?.[0] || null
+  selectedImage.value = file
+  imagePreview.value = file ? URL.createObjectURL(file) : ''
 }
 
 function stockFor(product) {
@@ -153,7 +140,7 @@ onMounted(load)
       </div>
       <div class="md:col-span-2">
         <label class="mb-1 block text-sm font-semibold">Product image</label>
-        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="w-full rounded-xl border px-3 py-2.5" @change="event => { const file = event.target.files?.[0]; selectedImage = file || null; imagePreview = file ? URL.createObjectURL(file) : '' }" />
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="w-full rounded-xl border px-3 py-2.5" @change="onImageChange" />
         <img v-if="imagePreview" :src="imagePreview" alt="Product image preview" class="mt-3 h-24 w-24 border border-slate-200 object-cover" />
       </div>
       <div class="md:col-span-2">
