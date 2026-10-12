@@ -1,6 +1,9 @@
 module.exports=(sequelize,D)=>sequelize.define('Company',{
 id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},
 name:{type:D.STRING(200),allowNull:false},
+platformName:{type:D.STRING(120)},
+tagline:{type:D.STRING(180)},
+primaryColor:{type:D.STRING(7),defaultValue:'#4f46e5'},
 legalName:{type:D.STRING(200)},
 registrationNumber:{type:D.STRING(100)},
 taxNumber:{type:D.STRING(100)},
