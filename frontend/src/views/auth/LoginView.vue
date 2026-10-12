@@ -46,7 +46,7 @@ async function submit() {
         </div>
         <div>
           <label for="login-password" class="mb-1 block text-sm font-semibold">Password</label>
-          <input id="login-password" v-model="password" type="password" autocomplete="current-password" minlength="8" required class="w-full rounded-xl border px-3 py-2.5 outline-none focus:border-indigo-500" />
+          <input id="login-password" v-model="password" type="password" autocomplete="current-password" required class="w-full rounded-xl border px-3 py-2.5 outline-none focus:border-indigo-500" />
         </div>
         <button type="submit" :disabled="loading" class="w-full rounded-xl bg-slate-950 px-4 py-3 font-bold text-white disabled:opacity-60">
           {{ loading ? 'Signing in…' : 'Sign in' }}
