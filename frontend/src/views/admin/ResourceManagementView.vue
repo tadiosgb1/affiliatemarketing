@@ -37,7 +37,7 @@ const resources = {
     fields: [
       { key: 'name', label: 'Attribute name', required: true, placeholder: 'e.g. Colour' },
       { key: 'type', label: 'Value type', type: 'select', options: [{ label: 'Selectable options', value: 'select' }, { label: 'Text', value: 'text' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Colour', value: 'color' }] },
-      { key: 'valuesText', label: 'Options (comma-separated)', placeholder: 'Black, White, Blue' },
+      { key: 'valuesText', label: 'Initial options (comma-separated)', placeholder: 'Black, White, Blue' },
     ],
     columns: [{ key: 'name', label: 'Attribute' }, { key: 'type', label: 'Type' }, { key: 'values', label: 'Options', kind: 'values' }],
     searchKeys: ['name', 'type'],
