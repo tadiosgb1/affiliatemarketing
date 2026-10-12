@@ -10,7 +10,7 @@ const roleSlugs=computed(()=> (auth.user?.roles||[]).map(role=>typeof role==='st
 const canManage=computed(()=>['admin','company_staff'].includes(String(auth.user?.role||'').toLowerCase())||roleSlugs.value.some(role=>!['customer','affiliate'].includes(role))||(auth.user?.permissions||[]).some(permission=>permission.endsWith('.manage')||permission==='dashboard.view'))
 onMounted(async()=>{
  try{
-  const response=await api.get('/company')
+  const response=await api.get('/company/brand')
   brand.value={...brand.value,...(response.data?.data||{})}
   if(/^#[0-9a-f]{6}$/i.test(brand.value.primaryColor||''))document.documentElement.style.setProperty('--platform-primary',brand.value.primaryColor)
  }catch{/* Use fallback branding until a company profile is configured. */}
