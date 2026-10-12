@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../../services/api'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const route = useRoute()
 const rows = ref([])
@@ -9,6 +10,9 @@ const loading = ref(true)
 const error = ref('')
 const search = ref('')
 const statusFilter = ref('all')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedRows = computed(() => filteredRows.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 const configs = {
   'affiliate-links': { title: 'Affiliate links', eyebrow: 'Growth & partnerships', description: 'Monitor tracking links, traffic and attributed conversions.', endpoint: '/affiliate-links/admin/all', columns: [{key:'code',label:'Tracking code'},{key:'affiliate',label:'Affiliate'},{key:'program',label:'Program'},{key:'clicks',label:'Clicks'},{key:'conversions',label:'Conversions'},{key:'isActive',label:'Status',kind:'active'}] },
   carts: { title: 'Customer carts', eyebrow: 'Customer activity', description: 'Review shopping carts and their line items to understand active shopping activity.', endpoint: '/cart/admin/all', columns: [{key:'user',label:'Customer',kind:'customer'},{key:'items',label:'Items',kind:'items'},{key:'updatedAt',label:'Last updated',kind:'date'}] },
@@ -58,7 +62,8 @@ async function load() {
   catch(err) { error.value=err.response?.data?.message||'Could not load this report. Confirm the API is running and your admin session is valid.';rows.value=[] }
   finally {loading.value=false}
 }
-watch(key,()=>{search.value='';statusFilter.value='all';load()})
+watch(key,()=>{search.value='';statusFilter.value='all';currentPage.value=1;load()})
+watch([search,statusFilter],()=>{currentPage.value=1})
 onMounted(load)
 </script>
 
@@ -82,8 +87,9 @@ onMounted(load)
       </div>
       <div v-if="loading" class="space-y-3 p-5"><div v-for="n in 5" :key="n" class="h-9 animate-pulse rounded-md bg-slate-100"></div></div>
       <div v-else-if="!filteredRows.length" class="px-6 py-14 text-center"><div class="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-lg text-slate-500">⌕</div><p class="mt-3 text-[13px] font-semibold text-slate-800">No matching records</p><p class="mt-1 text-[12px] text-slate-500">Try changing your search or status filter.</p></div>
-      <div v-else class="overflow-x-auto"><table class="min-w-[760px] text-left"><thead><tr><th v-for="column in config.columns" :key="column.key">{{ column.label }}</th></tr></thead><tbody><tr v-for="row in filteredRows" :key="row.id"><td v-for="column in config.columns" :key="column.key"><span v-if="column.kind==='active'||column.kind==='status'" class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ring-1 ring-inset" :class="statusClass(row,column)">{{ valueFor(row,column) }}</span><span v-else :class="['affiliate','program','amount','code'].includes(column.key)?'font-semibold text-slate-900':''">{{ valueFor(row,column) }}</span></td></tr></tbody></table></div>
+      <div v-else class="overflow-x-auto"><table class="min-w-[760px] text-left"><thead><tr><th v-for="column in config.columns" :key="column.key">{{ column.label }}</th></tr></thead><tbody><tr v-for="row in paginatedRows" :key="row.id"><td v-for="column in config.columns" :key="column.key"><span v-if="column.kind==='active'||column.kind==='status'" class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ring-1 ring-inset" :class="statusClass(row,column)">{{ valueFor(row,column) }}</span><span v-else :class="['affiliate','program','amount','code'].includes(column.key)?'font-semibold text-slate-900':''">{{ valueFor(row,column) }}</span></td></tr></tbody></table></div>
       <div class="border-t border-slate-100 bg-slate-50/70 px-5 py-3 text-[11px] text-slate-400">Read-only management report · Values are returned by the backend.</div>
     </div>
+    <AdminPagination v-if="!loading && filteredRows.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="filteredRows.length" />
   </section>
 </template>
