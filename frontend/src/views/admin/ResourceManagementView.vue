@@ -10,6 +10,7 @@ const error = ref('')
 const success = ref('')
 const rows = ref([])
 const products = ref([])
+const suppliers = ref([])
 const showForm = ref(false)
 const search = ref('')
 const form = ref({})
@@ -68,6 +69,21 @@ const resources = {
     columns: [{ key: 'orderNumber', label: 'Purchase order' }, { key: 'supplier', label: 'Supplier', kind: 'supplier' }, { key: 'status', label: 'Status', kind: 'status' }, { key: 'totalCost', label: 'Total cost', kind: 'money' }, { key: 'expectedAt', label: 'Expected', kind: 'date' }],
     searchKeys: ['orderNumber', 'status', 'currency'],
   },
+  'supplier-products': {
+    title: 'Supplier catalog', group: 'Inventory', endpoint: '/supplier-products', description: 'Connect supplier records to product variants and maintain procurement pricing.',
+    fields: [
+      { key: 'supplierId', label: 'Supplier', type: 'supplier', required: true },
+      { key: 'variantId', label: 'Product variant', type: 'variant', required: true },
+      { key: 'supplierSku', label: 'Supplier SKU', placeholder: 'Supplier item code' },
+      { key: 'costPrice', label: 'Unit cost', type: 'number', min: 0, step: '0.01', required: true },
+      { key: 'currency', label: 'Currency', type: 'select', options: [{ label: 'ETB', value: 'ETB' }, { label: 'USD', value: 'USD' }] },
+      { key: 'leadTimeDays', label: 'Lead time (days)', type: 'number', min: 0, step: 1 },
+      { key: 'minimumOrderQty', label: 'Minimum order quantity', type: 'number', min: 1, step: 1 },
+      { key: 'isPrimary', label: 'Primary supplier', type: 'select', options: [{ label: 'No', value: false }, { label: 'Yes', value: true }] },
+    ],
+    columns: [{ key: 'supplier', label: 'Supplier', kind: 'supplier' }, { key: 'variant', label: 'Product variant', kind: 'variant' }, { key: 'supplierSku', label: 'Supplier SKU' }, { key: 'costPrice', label: 'Unit cost', kind: 'money' }, { key: 'leadTimeDays', label: 'Lead time' }, { key: 'isPrimary', label: 'Primary', kind: 'primary' }],
+    searchKeys: ['supplierSku', 'currency'],
+  },
   'affiliate-programs': {
     title: 'Affiliate programs', group: 'Growth', endpoint: '/affiliate-programs', description: 'Configure commission rules for products promoted by affiliates.',
     fields: [
@@ -102,7 +118,12 @@ function resetForm() {
       : field.key === 'commissionRate' ? 5
       : field.key === 'cookieDays' ? 30
       : field.key === 'status' ? 'active'
-      : field.key === 'productId' ? ''
+      : ['productId', 'supplierId', 'variantId'].includes(field.key) ? ''
+      : field.key === 'currency' ? 'ETB'
+      : field.key === 'minimumOrderQty' ? 1
+      : field.key === 'costPrice' ? 0
+      : field.key === 'leadTimeDays' ? 0
+      : field.key === 'isPrimary' ? false
       : ''
   })
   form.value = next
@@ -113,10 +134,12 @@ async function load() {
   error.value = ''
   try {
     const requests = [api.get(config.value.endpoint)]
-    if (key.value === 'affiliate-programs') requests.push(api.get('/products'))
+    if (['affiliate-programs', 'supplier-products'].includes(key.value)) requests.push(api.get('/products'))
+    if (key.value === 'supplier-products') requests.push(api.get('/suppliers'))
     const responses = await Promise.all(requests)
     rows.value = normalizeRows(responses[0].data?.data)
     if (responses[1]) products.value = normalizeRows(responses[1].data?.data ?? responses[1].data?.products)
+    if (responses[2]) suppliers.value = normalizeRows(responses[2].data?.data)
   } catch (err) {
     error.value = err.response?.data?.message || 'This module could not load. Check the backend connection and your management permissions.'
   } finally {
@@ -139,6 +162,12 @@ async function createRecord() {
       }
     })
     if (key.value === 'affiliate-programs' && !payload.productId) delete payload.productId
+    if (key.value === 'supplier-products') {
+      payload.costPrice = Number(payload.costPrice)
+      payload.minimumOrderQty = Number(payload.minimumOrderQty || 1)
+      payload.leadTimeDays = Number(payload.leadTimeDays || 0)
+      payload.isPrimary = payload.isPrimary === true || payload.isPrimary === 'true'
+    }
     await api.post(config.value.endpoint, payload)
     success.value = config.value.title.replace(/s$/, '') + ' created successfully.'
     showForm.value = false
@@ -156,6 +185,8 @@ function display(row, column) {
   if (column.kind === 'values') return Array.isArray(value) ? value.map(item => item.label || item.value).join(', ') || '—' : '—'
   if (column.kind === 'supplier') return value?.name || '—'
   if (column.kind === 'product') return value?.name || (row.productId ? products.value.find(p => p.id === row.productId)?.name : 'All products') || 'All products'
+  if (column.kind === 'variant') return value?.sku || (row.variant?.product?.name ? row.variant.product.name + ' · ' + (row.variant.sku || '') : '—')
+  if (column.kind === 'primary') return row.isPrimary ? 'Yes' : 'No'
   if (column.kind === 'commission') return row.commissionType === 'fixed' ? (row.fixedCommission ? row.fixedCommission + ' ETB fixed' : 'Fixed amount') : (row.commissionRate ?? 0) + '%'
   if (column.kind === 'status') return String(value || 'draft').replaceAll('_', ' ')
   if (column.kind === 'money') return new Intl.NumberFormat(undefined, { style: 'currency', currency: row.currency || 'ETB', maximumFractionDigits: 2 }).format(Number(value) || 0)
@@ -196,6 +227,8 @@ onMounted(() => { resetForm(); load() })
             <option v-for="option in field.options" :key="option.value" :value="option.value">{{ option.label }}</option>
           </select>
           <select v-else-if="field.type === 'product'" :id="'resource-' + field.key" v-model="form[field.key]" class="w-full"><option value="">{{ field.placeholder }}</option><option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }}</option></select>
+          <select v-else-if="field.type === 'supplier'" :id="'resource-' + field.key" v-model="form[field.key]" :required="field.required" class="w-full"><option value="">Select supplier</option><option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">{{ supplier.name }}</option></select>
+          <select v-else-if="field.type === 'variant'" :id="'resource-' + field.key" v-model="form[field.key]" :required="field.required" class="w-full"><option value="">Select product variant</option><option v-for="variant in products.flatMap(product => (product.variants || []).map(variant => ({ ...variant, productName: product.name })))" :key="variant.id" :value="variant.id">{{ variant.productName }} · {{ variant.sku }}</option></select>
           <input v-else :id="'resource-' + field.key" v-model="form[field.key]" :type="field.type || 'text'" :required="field.required" :min="field.min" :step="field.step" :placeholder="field.placeholder" class="w-full" />
         </div>
       </div>
