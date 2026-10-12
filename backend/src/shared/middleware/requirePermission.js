@@ -13,7 +13,7 @@ const requirePermission=(key)=>async(req,res,next)=>{
     if(legacy==='admin'||slugs.includes('admin'))return next();
     if(!assignments.length){
       const legacyMap={company_staff:'catalog.manage',customer:'shop.access',affiliate:'affiliate.access'};
-      if(legacy==='company_staff'&&['catalog.manage','inventory.manage','procurement.manage'].includes(key))return next();
+      if(legacy==='company_staff'&&['catalog.view','catalog.manage','inventory.view','inventory.manage','procurement.view','procurement.manage','orders.view','orders.manage','payments.view','finance.view','affiliates.manage','company.manage'].includes(key))return next();
     }
     const roleIds=assignments.map(item=>item.roleId);
     if(roleIds.length){
