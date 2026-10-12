@@ -105,13 +105,7 @@ watch(() => route.fullPath, () => { mobileOpen.value = false; profileOpen.value 
       <header class="sticky top-0 z-30 flex h-[66px] items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-7">
         <div class="flex min-w-0 items-center gap-3">
           <button type="button" class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 lg:hidden" aria-label="Open navigation" @click="mobileOpen = true">☰</button>
-          <nav aria-label="Breadcrumb" class="flex min-w-0 items-center gap-2 overflow-hidden text-[12px]">
-            <template v-for="(crumb, index) in breadcrumbItems" :key="crumb.path">
-              <span v-if="index" class="text-slate-300">/</span>
-              <RouterLink v-if="index < breadcrumbItems.length - 1" :to="crumb.path" class="whitespace-nowrap text-slate-400 transition hover:text-indigo-700">{{ crumb.label }}</RouterLink>
-              <span v-else class="truncate font-semibold text-slate-800">{{ crumb.label }}</span>
-            </template>
-          </nav>
+          <div class="min-w-0"></div>
         </div>
         <div class="ml-3 flex shrink-0 items-center gap-2">
           <div class="relative">
