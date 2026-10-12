@@ -202,8 +202,8 @@ async function one(Model, where, defaults) {
   });
 
   console.log('Seed complete: demo users and records for all 28 backend models.');
-  console.log('Demo accounts: admin@marketflow.local, customer@marketflow.local (customer can also be an affiliate).');
-  console.log('Shared demo password: ' + (process.env.DEMO_SEED_PASSWORD || 'DemoPass123!'));
+  console.log('Demo accounts: admin@gmail.com and customer@gmail.com (customer can also be an affiliate).');
+  console.log('Shared demo password: 1234');
   await sequelize.close();
 })().catch(async error => {
   console.error('Seed failed:', error);
