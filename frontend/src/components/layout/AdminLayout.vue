@@ -18,6 +18,7 @@ const groups = [
     { label: 'Inventory & stock', path: '/admin/inventory', icon: 'IN' },
     { label: 'Warehouses', path: '/admin/warehouses', icon: 'WH' },
     { label: 'Suppliers', path: '/admin/suppliers', icon: 'SU' },
+    { label: 'Supplier catalog', path: '/admin/supplier-products', icon: 'SC' },
     { label: 'Purchase orders', path: '/admin/purchase-orders', icon: 'PO' },
     { label: 'Orders', path: '/admin/orders', icon: 'OR' },
     { label: 'Payments', path: '/admin/payments', icon: 'PA' },
