@@ -1,8 +1,12 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import api from '../../services/api'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const payments = ref([])
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedPayments = computed(() => payments.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 const loading = ref(true)
 const error = ref('')
 
@@ -74,7 +78,7 @@ onMounted(loadPayments)
             </tr>
           </thead>
           <tbody>
-            <tr v-for="payment in payments" :key="payment.id" class="border-t">
+            <tr v-for="payment in paginatedPayments" :key="payment.id" class="border-t">
               <td class="p-4 font-mono text-xs">{{ payment.orderId || '—' }}</td>
               <td class="p-4">{{ (payment.method || '—').replaceAll('_', ' ') }}</td>
               <td class="p-4">{{ payment.amount ?? '—' }} {{ payment.currency || '' }}</td>
@@ -85,6 +89,7 @@ onMounted(loadPayments)
           </tbody>
         </table>
       </div>
+      <AdminPagination v-if="!loading && payments.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="payments.length" />
     </div>
   </section>
 </template>
