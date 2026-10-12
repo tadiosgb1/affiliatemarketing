@@ -1,7 +1,8 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import api from '../../services/api'
 import { auth } from '../../stores'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const users = ref([])
 const loading = ref(true)
@@ -10,6 +11,9 @@ const success = ref('')
 const search = ref('')
 const roleFilter = ref('all')
 const savingId = ref('')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedUsers = computed(() => filteredUsers.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 const roles = [
   { value: 'customer', label: 'Customer' },
   { value: 'affiliate', label: 'Affiliate' },
@@ -66,6 +70,7 @@ function toggleActive(user) {
   updateUser(user, { isActive: !active }, active ? 'Account deactivated.' : 'Account activated.')
 }
 function statusClass(active) { return active ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600' }
+watch([search, roleFilter], () => { currentPage.value = 1 })
 onMounted(loadUsers)
 </script>
 
@@ -90,7 +95,7 @@ onMounted(loadUsers)
       <div v-else-if="filteredUsers.length" class="overflow-x-auto">
         <table class="w-full min-w-[880px] text-left text-[12px]">
           <thead class="bg-slate-50/80 text-slate-500"><tr><th class="px-4 py-3">User</th><th class="px-4 py-3">Contact</th><th class="px-4 py-3">Role</th><th class="px-4 py-3">Account state</th><th class="px-4 py-3">Joined</th><th class="px-4 py-3">Actions</th></tr></thead>
-          <tbody><tr v-for="user in filteredUsers" :key="user.id" class="border-t border-slate-100 transition hover:bg-slate-50/70">
+          <tbody><tr v-for="user in paginatedUsers" :key="user.id" class="border-t border-slate-100 transition hover:bg-slate-50/70">
             <td class="px-4 py-3.5"><div class="flex items-center gap-2.5"><div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-[11px] font-bold text-indigo-700">{{ String(user.name || user.email || 'U').slice(0,1).toUpperCase() }}</div><div class="min-w-0"><p class="max-w-[200px] truncate font-semibold text-slate-900">{{ user.name || 'Unnamed user' }}</p><p class="mt-0.5 font-mono text-[10px] text-slate-400">ID {{ shortId(user.id) }}</p></div></div></td>
             <td class="px-4 py-3.5"><p class="text-slate-700">{{ user.email || '—' }}</p><p class="mt-0.5 text-[11px] text-slate-400">{{ user.phone || 'No phone number' }}</p></td>
             <td class="px-4 py-3.5"><select :value="user.role" :disabled="savingId === user.id || user.id === auth.user?.id" :aria-label="'Role for ' + user.name" class="min-h-9 w-[155px] rounded-md px-2 py-1 text-[11px]" @change="changeRole(user, $event.target.value)"><option v-for="role in roles" :key="role.value" :value="role.value">{{ role.label }}</option></select></td>
@@ -100,6 +105,7 @@ onMounted(loadUsers)
           </tr></tbody>
         </table>
       </div>
+      <AdminPagination v-if="!loading && filteredUsers.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="filteredUsers.length" />
       <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-400">Passwords are never returned by the user-management API. Your own admin role and account are protected from changes here.</div>
     </div>
   </section>
