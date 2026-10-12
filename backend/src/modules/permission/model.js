@@ -1,0 +1,1 @@
+module.exports=(sequelize,D)=>sequelize.define('Permission',{id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},key:{type:D.STRING(120),allowNull:false,unique:true},name:{type:D.STRING(120),allowNull:false},module:{type:D.STRING(80),allowNull:false},description:{type:D.STRING(255)}},{tableName:'permissions'});
