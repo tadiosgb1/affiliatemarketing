@@ -7,7 +7,7 @@ const route = useRoute()
 const router = useRouter()
 const mobileOpen = ref(false)
 const groups = [
-  { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: 'OV' }, { label: 'Users & access', path: '/admin/users', icon: 'US' }] },
+  { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: 'OV' }, { label: 'Users & access', path: '/admin/users', icon: 'US', adminOnly: true }] },
   { label: 'Catalog', items: [
     { label: 'Products', path: '/admin/products', icon: 'PR' },
     { label: 'Categories', path: '/admin/categories', icon: 'CA' },
@@ -20,12 +20,13 @@ const groups = [
     { label: 'Suppliers', path: '/admin/suppliers', icon: 'SU' },
     { label: 'Supplier catalog', path: '/admin/supplier-products', icon: 'SC' },
     { label: 'Purchase orders', path: '/admin/purchase-orders', icon: 'PO' },
-    { label: 'Orders', path: '/admin/orders', icon: 'OR' },
-    { label: 'Payments', path: '/admin/payments', icon: 'PA' },
+    { label: 'Orders', path: '/admin/orders', icon: 'OR', adminOnly: true },
+    { label: 'Payments', path: '/admin/payments', icon: 'PA', adminOnly: true },
   ] },
   { label: 'Growth', items: [{ label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: 'AF' }] },
-  { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: 'CO' }] },
+  { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: 'CO', adminOnly: true }] },
 ]
+const visibleGroups = computed(() => groups.map(group => ({ ...group, items: group.items.filter(item => !item.adminOnly || auth.user?.role === 'admin') })).filter(group => group.items.length))
 const pageTitle = computed(() => groups.flatMap(group => group.items).find(item => item.path === route.path)?.label || 'Administration')
 const initials = computed(() => (auth.user?.name || auth.user?.email || 'Admin').trim().slice(0, 1).toUpperCase())
 function isActive(path) {
@@ -48,7 +49,7 @@ function signOut() {
       </div>
       <div class="min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-5">
         <p class="px-3 text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Management</p>
-        <nav v-for="group in groups" :key="group.label" class="mt-4">
+        <nav v-for="group in visibleGroups" :key="group.label" class="mt-4">
           <p v-if="group.label !== 'Workspace'" class="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.13em] text-slate-500">{{ group.label }}</p>
           <RouterLink v-for="item in group.items" :key="item.path" :to="item.path" @click="mobileOpen = false" :aria-current="isActive(item.path) ? 'page' : undefined" :class="isActive(item.path) ? 'bg-indigo-500/15 text-white before:bg-indigo-400' : 'text-slate-400 before:bg-transparent hover:bg-white/[.045] hover:text-slate-100'" class="relative mb-1 flex min-h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium transition-colors before:absolute before:inset-y-2 before:left-0 before:w-[3px] before:rounded-r-full">
             <span :class="isActive(item.path) ? 'border-indigo-400/30 bg-indigo-400/15 text-indigo-200' : 'border-white/[.08] bg-white/[.035] text-slate-400'" class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-[9px] font-bold tracking-wide">{{ item.icon }}</span>
