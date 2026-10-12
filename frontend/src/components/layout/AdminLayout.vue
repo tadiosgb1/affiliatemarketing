@@ -8,7 +8,7 @@ const router = useRouter()
 const mobileOpen = ref(false)
 const profileOpen = ref(false)
 const notificationsOpen = ref(false)
-const openGroups = ref(['Catalog', 'Inventory', 'Sales', 'Growth'])
+const openGroups = ref([])
 const groups = [
   { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: '▦' }, { label: 'Users & access', path: '/admin/users', icon: '♙', adminOnly: true }] },
   { label: 'Catalog', items: [
@@ -87,10 +87,10 @@ watch(() => route.fullPath, () => { mobileOpen.value = false; profileOpen.value 
             <RouterLink v-for="item in group.items" :key="item.path" :to="item.path" class="mb-1 flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold transition-colors" :class="isActive(item.path) ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'"><span class="w-4 text-center text-[14px]">{{ item.icon }}</span>{{ item.label }}</RouterLink>
           </div>
           <div v-else class="mt-1">
-            <button type="button" class="flex min-h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[11px] font-bold uppercase tracking-[.08em] transition-colors" :class="groupIsActive(group) ? 'text-indigo-800' : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'" :aria-expanded="openGroups.includes(group.label) || groupIsActive(group)" @click="toggleGroup(group.label)">
+            <button type="button" class="flex min-h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[12px] font-bold tracking-[.01em] transition-colors"  :class="groupIsActive(group) ? 'text-indigo-900' : 'text-slate-700 hover:bg-white/80 hover:text-slate-950'"  :aria-expanded="openGroups.includes(group.label)" @click="toggleGroup(group.label)">
               <span class="flex-1">{{ group.label }}</span><span class="text-[12px] transition-transform" :class="openGroups.includes(group.label) || groupIsActive(group) ? 'rotate-90' : ''">›</span>
             </button>
-            <div v-if="openGroups.includes(group.label) || groupIsActive(group)" class="ml-2 border-l border-slate-300/80 pl-2">
+            <div v-if="openGroups.includes(group.label)" class="ml-2 border-l border-slate-300/80 pl-2">
               <RouterLink v-for="item in group.items" :key="item.path" :to="item.path" :aria-current="isActive(item.path) ? 'page' : undefined" class="mb-0.5 flex min-h-9 items-center gap-2.5 rounded-md px-2.5 text-[12px] font-medium transition-colors" :class="isActive(item.path) ? 'bg-white font-semibold text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'"><span class="w-4 text-center text-[13px]">{{ item.icon }}</span><span class="flex-1">{{ item.label }}</span><span v-if="isActive(item.path)" class="h-1.5 w-1.5 rounded-full bg-indigo-600"></span></RouterLink>
             </div>
           </div>
