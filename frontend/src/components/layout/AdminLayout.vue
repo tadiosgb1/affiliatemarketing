@@ -12,6 +12,7 @@ const groups = [
     { label: 'Products', path: '/admin/products', icon: 'PR' },
     { label: 'Categories', path: '/admin/categories', icon: 'CA' },
     { label: 'Brands', path: '/admin/brands', icon: 'BR' },
+    { label: 'Product variants', path: '/admin/variants', icon: 'VA' },
     { label: 'Attributes', path: '/admin/attributes', icon: 'AT' },
   ] },
   { label: 'Operations', items: [
