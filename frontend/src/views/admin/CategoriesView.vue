@@ -8,6 +8,7 @@ const saving = ref(false)
 const error = ref('')
 const success = ref('')
 const form = ref({ name: '', description: '', parentId: '' })
+const showForm = ref(false)
 
 async function loadCategories() {
   loading.value = true
@@ -42,6 +43,7 @@ async function createCategory() {
     if (created) categories.value.push(created)
     form.value = { name: '', description: '', parentId: '' }
     success.value = 'Category created successfully.'
+    showForm.value = false
     if (!created) await loadCategories()
   } catch (err) {
     error.value = err.response?.data?.message || 'Could not create category. Make sure you are signed in with management access.'
@@ -55,10 +57,9 @@ onMounted(loadCategories)
 
 <template>
   <section class="space-y-6">
-    <header>
-      <p class="text-sm font-bold uppercase tracking-wider text-indigo-600">Catalog</p>
-      <h1 class="mt-1 text-3xl font-black">Categories</h1>
-      <p class="mt-2 text-slate-500">Organize products into clear, browsable groups.</p>
+    <header class="flex items-center justify-between border-b border-slate-200 pb-3">
+      <h1 class="text-sm font-semibold text-slate-800">Categories</h1>
+      <button type="button" class="h-9 bg-indigo-600 px-3.5 text-[12px] font-semibold text-white hover:bg-indigo-700" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ Add category' }}</button>
     </header>
 
     <p v-if="error" role="alert" class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -68,7 +69,7 @@ onMounted(loadCategories)
       {{ success }}
     </p>
 
-    <form class="grid gap-4 rounded-2xl border bg-white p-5 md:grid-cols-2" @submit.prevent="createCategory">
+    <form v-if="showForm" class="grid gap-4 border border-slate-200 bg-white p-5 md:grid-cols-2" @submit.prevent="createCategory">
       <div>
         <label for="category-name" class="mb-1 block text-sm font-semibold">Category name</label>
         <input
@@ -108,7 +109,7 @@ onMounted(loadCategories)
       </div>
     </form>
 
-    <div class="overflow-hidden rounded-2xl border bg-white">
+    <div class="overflow-hidden border border-slate-200 bg-white">
       <div class="flex items-center justify-between border-b p-4">
         <h2 class="font-bold">All categories</h2>
         <button type="button" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800" @click="loadCategories">
@@ -124,16 +125,16 @@ onMounted(loadCategories)
         <table class="w-full text-left text-sm">
           <thead class="bg-slate-50 text-slate-500">
             <tr>
-              <th class="p-4 font-semibold">Category</th>
+              <th class="px-4 py-3 font-semibold">Category</th>
               <th class="p-4 font-semibold">Description</th>
               <th class="p-4 font-semibold">Slug</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="category in categories" :key="category.id" class="border-t">
+            <tr v-for="category in categories" :key="category.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70">
               <td class="p-4 font-semibold"><span v-if="category.parentId" class="mr-2 text-slate-400">↳</span>{{ category.name }}<span class="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium">{{ category.parentId ? "Subcategory" : "Main category" }}</span></td>
-              <td class="p-4 text-slate-600">{{ category.description || '—' }}</td>
-              <td class="p-4 text-slate-500">{{ category.slug || '—' }}</td>
+              <td class="px-4 py-3 text-slate-600">{{ category.description || '—' }}</td>
+              <td class="px-4 py-3 text-slate-500">{{ category.slug || '—' }}</td>
             </tr>
           </tbody>
         </table>
