@@ -1,0 +1,1 @@
+module.exports=(sequelize,D)=>sequelize.define('RolePermission',{id:{type:D.UUID,defaultValue:D.UUIDV4,primaryKey:true},roleId:{type:D.UUID,allowNull:false},permissionId:{type:D.UUID,allowNull:false}},{tableName:'role_permissions',indexes:[{unique:true,fields:['role_id','permission_id']},{fields:['permission_id']}]});
