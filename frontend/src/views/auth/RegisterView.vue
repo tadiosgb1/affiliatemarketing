@@ -7,6 +7,7 @@ import { setAuth } from '../../stores'
 const router = useRouter()
 const name = ref('')
 const email = ref('')
+const phone = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
@@ -18,6 +19,7 @@ async function submit() {
     const response = await api.post('/auth/register', {
       name: name.value.trim(),
       email: email.value.trim(),
+      phone: phone.value.trim() || undefined,
       password: password.value,
     })
     const data = response.data?.data
@@ -49,6 +51,11 @@ async function submit() {
         <div>
           <label for="register-email" class="mb-1 block text-sm font-semibold">Email</label>
           <input id="register-email" v-model="email" type="email" autocomplete="email" required class="w-full rounded-xl border px-3 py-2.5 outline-none focus:border-indigo-500" />
+        </div>
+        <div>
+          <label for="register-phone" class="mb-1 block text-sm font-semibold">Phone number (optional)</label>
+          <input id="register-phone" v-model="phone" type="tel" autocomplete="tel" placeholder="+251 9..." class="w-full rounded-xl border px-3 py-2.5 outline-none focus:border-indigo-500" />
+          <p class="mt-1 text-xs text-slate-500">Add a phone number if you also want to sign in with it.</p>
         </div>
         <div>
           <label for="register-password" class="mb-1 block text-sm font-semibold">Password</label>
