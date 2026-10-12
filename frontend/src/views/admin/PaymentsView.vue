@@ -46,7 +46,7 @@ onMounted(loadPayments)
     <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Payments</span></p>
     <header>
       
-      <h1 class="text-sm font-semibold text-slate-800">Payments</h1>
+      
       
     </header>
 
