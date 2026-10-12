@@ -19,14 +19,24 @@ async function one(Model, where, defaults) {
   await sequelize.sync({ alter: process.env.NODE_ENV !== 'production' });
   const passwordHash = await bcrypt.hash(process.env.DEMO_SEED_PASSWORD || '1234', 12);
 
-  // Demo accounts: change the shared demo password before exposing this database publicly.
-  const admin = await one(User, { email: 'admin@marketflow.local' }, {
-    name: 'MarketFlow Admin', email: 'admin@marketflow.local', phone: '+251911000001',
-    passwordHash, role: 'admin', isAffiliate: false, isActive: true,
+  // Demo accounts for local development. Change these credentials before public deployment.
+  async function ensureDemoUser(email, legacyEmail, defaults) {
+    let user = await User.findOne({ where: { email } });
+    if (!user && legacyEmail) user = await User.findOne({ where: { email: legacyEmail } });
+    if (user) {
+      await user.update({ ...defaults, email, passwordHash });
+      return user;
+    }
+    return User.create({ ...defaults, email, passwordHash });
+  }
+
+  const admin = await ensureDemoUser('admin@gmail.com', 'admin@marketflow.local', {
+    name: 'MarketFlow Admin', phone: '+251911000001',
+    role: 'admin', isAffiliate: false, isActive: true,
   });
-  const customer = await one(User, { email: 'customer@marketflow.local' }, {
-    name: 'Demo Customer', email: 'customer@marketflow.local', phone: '+251911000003',
-    passwordHash, role: 'customer', isAffiliate: true, isActive: true,
+  const customer = await ensureDemoUser('customer@gmail.com', 'customer@marketflow.local', {
+    name: 'Demo Customer', phone: '+251911000003',
+    role: 'customer', isAffiliate: true, isActive: true,
   });
 
   // A buyer/customer can also be an affiliate. Merge the old demo affiliate account
