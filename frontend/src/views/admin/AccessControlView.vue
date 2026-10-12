@@ -35,7 +35,7 @@ async function saveRolePermissions(){
 }
 async function loadUserRoles(){
  if(!selectedUserId.value){userRoleIds.value=[];return}
- try{const response=await api.get('/access-control/roles');const allRoles=response.data?.data||[];const roleIds=allRoles.filter(role=>(role.users||[]).some(user=>user.id===selectedUserId.value)).map(role=>role.id);userRoleIds.value=roleIds}catch{userRoleIds.value=[]}
+ try{const response=await api.get('/access-control/users/'+selectedUserId.value+'/roles');userRoleIds.value=(response.data?.data||[]).map(assignment=>assignment.roleId)}catch{userRoleIds.value=[]}
 }
 async function saveUserRoles(){
  if(!selectedUserId.value){error.value='Choose a user first.';return}
