@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import api from '../../services/api'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const products = ref([])
 const categories = ref([])
@@ -9,6 +10,11 @@ const saving = ref(false)
 const error = ref('')
 const success = ref('')
 const showForm = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const selectedImage = ref(null)
+const imagePreview = ref('')
+const paginatedProducts = computed(() => products.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 const form = ref({ name: '', categoryId: '', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 })
 const topCategories = computed(() => categories.value.filter(category => !category.parentId))
 
@@ -40,7 +46,20 @@ async function createProduct() {
     if (!name || !form.value.categoryId || !sku || !Number.isFinite(price) || price < 0) {
       throw new Error('Enter a product name, category, SKU and a valid non-negative price.')
     }
-    const payload = {
+    const payload = new FormData()
+    payload.append('name', name)
+    payload.append('categoryId', form.value.categoryId)
+    payload.append('description', form.value.description.trim())
+    payload.append('sku', sku)
+    payload.append('price', String(price))
+    payload.append('currency', form.value.currency || 'ETB')
+    payload.append('status', 'active')
+    payload.append('affiliateEnabled', 'true')
+    payload.append('variants', JSON.stringify([{
+        sku: sku + '-DEFAULT', price, status: 'active', inventory: [],
+      }]))
+    if (selectedImage.value) payload.append('image', selectedImage.value)
+    /* const payload = {
       name,
       categoryId: form.value.categoryId,
       description: form.value.description.trim(),
@@ -57,10 +76,13 @@ async function createProduct() {
         inventory: [],
       }],
     }
-    const response = await api.post('/products', payload)
+    */
+    const response = await api.post('/products', payload, { headers: { 'Content-Type': 'multipart/form-data' } })
     const created = response.data?.data
     if (created) products.value.unshift(created)
     form.value = { name: '', categoryId: '', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 }
+    selectedImage.value = null
+    imagePreview.value = ''
     showForm.value = false
     success.value = 'Product saved to the backend. Add inventory from your stock workflow as needed.'
     await load()
@@ -130,8 +152,9 @@ onMounted(load)
         </div>
       </div>
       <div class="md:col-span-2">
-        <label class="mb-1 block text-sm font-semibold">Image URL (optional)</label>
-        <input v-model="form.imageUrl" type="url" class="w-full rounded-xl border px-3 py-2.5" placeholder="https://…" />
+        <label class="mb-1 block text-sm font-semibold">Product image</label>
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" class="w-full rounded-xl border px-3 py-2.5" @change="event => { const file = event.target.files?.[0]; selectedImage = file || null; imagePreview = file ? URL.createObjectURL(file) : '' }" />
+        <img v-if="imagePreview" :src="imagePreview" alt="Product image preview" class="mt-3 h-24 w-24 border border-slate-200 object-cover" />
       </div>
       <div class="md:col-span-2">
         <label class="mb-1 block text-sm font-semibold">Description</label>
@@ -149,7 +172,7 @@ onMounted(load)
         <table class="w-full text-left text-sm">
           <thead class="border-b border-slate-200 bg-slate-50 text-slate-500"><tr><th class="p-4">Product</th><th class="p-4">SKU</th><th class="p-4">Price</th><th class="p-4">Stock</th><th class="p-4">Status</th><th class="p-4">Action</th></tr></thead>
           <tbody>
-            <tr v-for="product in products" :key="product.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70">
+            <tr v-for="product in paginatedProducts" :key="product.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70">
               <td class="p-4"><div class="flex items-center gap-3"><img v-if="product.imageUrl" :src="product.imageUrl" class="h-10 w-10 border border-slate-200 object-cover" /><div><p class="font-bold">{{ product.name }}</p><p class="text-xs text-slate-500">{{ product.category?.name || 'Uncategorized' }}</p></div></div></td>
               <td class="p-4 font-mono text-xs">{{ product.sku || '—' }}</td>
               <td class="p-4 font-semibold">{{ Number(product.price || 0).toLocaleString() }} {{ product.currency || 'ETB' }}</td>
@@ -161,5 +184,6 @@ onMounted(load)
         </table>
       </div>
     </div>
+    <AdminPagination v-if="!showForm && !loading && products.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="products.length" />
   </section>
 </template>
