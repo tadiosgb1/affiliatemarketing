@@ -17,7 +17,7 @@ async function one(Model, where, defaults) {
 (async () => {
   await sequelize.authenticate();
   await sequelize.sync({ alter: process.env.NODE_ENV !== 'production' });
-  const passwordHash = await bcrypt.hash(process.env.DEMO_SEED_PASSWORD || 'DemoPass123!', 12);
+  const passwordHash = await bcrypt.hash(process.env.DEMO_SEED_PASSWORD || '1234', 12);
 
   // Demo accounts: change the shared demo password before exposing this database publicly.
   const admin = await one(User, { email: 'admin@marketflow.local' }, {
