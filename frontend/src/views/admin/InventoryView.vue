@@ -66,6 +66,7 @@ onMounted(load)
 
 <template>
   <section class="space-y-6">
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Stock levels</span></p>
     <header class="flex items-center justify-between border-b border-slate-200 pb-3">
       <h1 class="text-sm font-semibold text-slate-800">Stock levels</h1>
       <div class="flex gap-2"><button class="h-9 border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-700" @click="load">Refresh</button><button class="h-9 bg-indigo-600 px-3.5 text-[12px] font-semibold text-white" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ Adjust stock' }}</button></div>
