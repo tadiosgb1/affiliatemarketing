@@ -67,3 +67,15 @@ exports.mine = async (req, res, next) => {
     return next(error);
   }
 };
+
+exports.listAll = async (req, res) => {
+  const links = await AffiliateLink.findAll({
+    include: [
+      { association: 'affiliate', attributes: ['id', 'name', 'email'] },
+      { model: AffiliateProgram, as: 'program', include: [{ model: Product, as: 'product', attributes: ['id', 'name'] }] },
+    ],
+    order: [['createdAt', 'DESC']],
+    limit: 500,
+  });
+  return res.json({ success: true, data: links });
+};
