@@ -1,1 +1,169 @@
-<script setup>import {ref,onMounted} from 'vue';import api from '../../services/api';const products=ref([]),loading=ref(true);onMounted(async()=>{try{products.value=(await api.get('/products',{params:{includeInactive:true}})).data.products||[]}catch(e){}finally{loading.value=false}})</script><template><section><div class="flex items-end justify-between"><div><p class="text-sm font-bold text-indigo-600">Catalog</p><h1 class="mt-1 text-3xl font-black">Products</h1></div><button class="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white">New product</button></div><div class="mt-6 overflow-hidden rounded-2xl border bg-white"><table class="w-full text-left text-sm"><thead class="bg-slate-50 text-slate-500"><tr><th class="p-4">Product</th><th>SKU</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead><tbody><tr v-for="p in products" :key="p.id" class="border-t"><td class="p-4 font-bold">{{p.name}}</td><td>{{p.sku||'—'}}</td><td>{{Number(p.price).toLocaleString()}} {{p.currency}}</td><td>{{p.stock}}</td><td>{{p.status}}</td></tr></tbody></table></div></section></template>
+<script setup>
+import { computed, onMounted, ref } from 'vue'
+import api from '../../services/api'
+
+const products = ref([])
+const categories = ref([])
+const loading = ref(true)
+const saving = ref(false)
+const error = ref('')
+const success = ref('')
+const showForm = ref(false)
+const form = ref({ name: '', categoryId: '', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 })
+const topCategories = computed(() => categories.value.filter(category => !category.parentId))
+
+async function load() {
+  loading.value = true
+  error.value = ''
+  try {
+    const [productResponse, categoryResponse] = await Promise.all([
+      api.get('/products'),
+      api.get('/categories'),
+    ])
+    products.value = productResponse.data?.data ?? productResponse.data?.products ?? []
+    categories.value = categoryResponse.data?.data ?? categoryResponse.data?.categories ?? []
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Could not load catalog data. Check the backend and your management access.'
+  } finally {
+    loading.value = false
+  }
+}
+
+async function createProduct() {
+  saving.value = true
+  error.value = ''
+  success.value = ''
+  try {
+    const name = form.value.name.trim()
+    const sku = form.value.sku.trim() || name.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40)
+    const price = Number(form.value.price)
+    if (!name || !form.value.categoryId || !sku || !Number.isFinite(price) || price < 0) {
+      throw new Error('Enter a product name, category, SKU and a valid non-negative price.')
+    }
+    const payload = {
+      name,
+      categoryId: form.value.categoryId,
+      description: form.value.description.trim(),
+      sku,
+      price,
+      currency: form.value.currency || 'ETB',
+      imageUrl: form.value.imageUrl.trim() || undefined,
+      status: 'active',
+      affiliateEnabled: true,
+      variants: [{
+        sku: sku + '-DEFAULT',
+        price,
+        status: 'active',
+        inventory: [],
+      }],
+    }
+    const response = await api.post('/products', payload)
+    const created = response.data?.data
+    if (created) products.value.unshift(created)
+    form.value = { name: '', categoryId: '', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 }
+    showForm.value = false
+    success.value = 'Product saved to the backend. Add inventory from your stock workflow as needed.'
+    await load()
+  } catch (err) {
+    error.value = err.response?.data?.message || err.message || 'Could not create product.'
+  } finally {
+    saving.value = false
+  }
+}
+
+async function toggleStatus(product) {
+  const nextStatus = product.status === 'active' ? 'draft' : 'active'
+  error.value = ''
+  success.value = ''
+  try {
+    await api.patch('/products/' + product.id, { status: nextStatus })
+    product.status = nextStatus
+    success.value = 'Product status updated.'
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Could not update product status.'
+  }
+}
+
+function stockFor(product) {
+  const variants = product.variants || []
+  return variants.reduce((total, variant) => total + (variant.inventory || []).reduce((sum, row) => sum + Number(row.quantityOnHand || 0), 0), 0)
+}
+
+onMounted(load)
+</script>
+
+<template>
+  <section class="space-y-6">
+    <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div>
+        <p class="text-sm font-bold uppercase tracking-wider text-indigo-600">Catalog management</p>
+        <h1 class="mt-1 text-3xl font-black">Products</h1>
+        <p class="mt-2 text-slate-500">Create and publish products in the customer storefront.</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="rounded-xl border bg-white px-4 py-2.5 font-bold" @click="load">Refresh</button>
+        <button class="rounded-xl bg-slate-950 px-4 py-2.5 font-bold text-white" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ New product' }}</button>
+      </div>
+    </header>
+
+    <p v-if="error" role="alert" class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ error }}</p>
+    <p v-if="success" role="status" class="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">{{ success }}</p>
+
+    <form v-if="showForm" class="grid gap-4 rounded-2xl border bg-white p-5 md:grid-cols-2" @submit.prevent="createProduct">
+      <div>
+        <label class="mb-1 block text-sm font-semibold">Product name</label>
+        <input v-model="form.name" required maxlength="180" class="w-full rounded-xl border px-3 py-2.5" placeholder="e.g. Everyday cotton T-shirt" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold">Category</label>
+        <select v-model="form.categoryId" required class="w-full rounded-xl border bg-white px-3 py-2.5">
+          <option value="" disabled>Select a category</option>
+          <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.parentId ? '— ' : '' }}{{ category.name }}</option>
+        </select>
+        <p v-if="!categories.length" class="mt-1 text-xs text-amber-700">Create a category first.</p>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold">SKU</label>
+        <input v-model="form.sku" maxlength="80" class="w-full rounded-xl border px-3 py-2.5" placeholder="Auto-generated if blank" />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold">Price</label>
+        <div class="flex gap-2">
+          <input v-model.number="form.price" type="number" min="0" step="0.01" required class="min-w-0 flex-1 rounded-xl border px-3 py-2.5" />
+          <select v-model="form.currency" class="rounded-xl border bg-white px-3 py-2.5"><option>ETB</option><option>USD</option></select>
+        </div>
+      </div>
+      <div class="md:col-span-2">
+        <label class="mb-1 block text-sm font-semibold">Image URL (optional)</label>
+        <input v-model="form.imageUrl" type="url" class="w-full rounded-xl border px-3 py-2.5" placeholder="https://…" />
+      </div>
+      <div class="md:col-span-2">
+        <label class="mb-1 block text-sm font-semibold">Description</label>
+        <textarea v-model="form.description" rows="3" class="w-full rounded-xl border px-3 py-2.5" placeholder="Product details customers should know"></textarea>
+      </div>
+      <div class="md:col-span-2">
+        <button type="submit" :disabled="saving || !categories.length" class="rounded-xl bg-indigo-600 px-5 py-2.5 font-bold text-white disabled:opacity-50">{{ saving ? 'Saving…' : 'Create and publish product' }}</button>
+      </div>
+    </form>
+
+    <div class="overflow-hidden rounded-2xl border bg-white">
+      <p v-if="loading" class="p-6 text-sm text-slate-500">Loading products from the backend…</p>
+      <p v-else-if="!products.length" class="p-6 text-sm text-slate-500">No products found. Create a category, then add your first product.</p>
+      <div v-else class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 text-slate-500"><tr><th class="p-4">Product</th><th class="p-4">SKU</th><th class="p-4">Price</th><th class="p-4">Stock</th><th class="p-4">Status</th><th class="p-4">Action</th></tr></thead>
+          <tbody>
+            <tr v-for="product in products" :key="product.id" class="border-t">
+              <td class="p-4"><div class="flex items-center gap-3"><img v-if="product.imageUrl" :src="product.imageUrl" class="h-12 w-12 rounded-lg object-cover" /><div><p class="font-bold">{{ product.name }}</p><p class="text-xs text-slate-500">{{ product.category?.name || 'Uncategorized' }}</p></div></div></td>
+              <td class="p-4 font-mono text-xs">{{ product.sku || '—' }}</td>
+              <td class="p-4 font-semibold">{{ Number(product.price || 0).toLocaleString() }} {{ product.currency || 'ETB' }}</td>
+              <td class="p-4">{{ stockFor(product) }}</td>
+              <td class="p-4"><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold">{{ product.status }}</span></td>
+              <td class="p-4"><button class="font-semibold text-indigo-600" @click="toggleStatus(product)">{{ product.status === 'active' ? 'Unpublish' : 'Publish' }}</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</template>
