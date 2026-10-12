@@ -17,48 +17,79 @@
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
   font-size: 14px;
-  background: #f6f8fc;
+  background: #f7f8fb;
   color: #172033;
+  --ui-border: #e2e7ef;
+  --ui-muted: #667085;
+  --ui-ink: #182230;
+  --ui-focus: #6366f1;
 }
 * { box-sizing: border-box; }
-html { min-width: 320px; background: #f6f8fc; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: #f6f8fc; color: #172033; }
+html { min-width: 320px; background: #f7f8fb; scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #f7f8fb; color: #172033; letter-spacing: -0.008em; }
 button, input, select, textarea { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
-::selection { background: #dfe4ff; color: #25206e; }
+button:disabled { cursor: not-allowed; }
+::selection { background: #e0e7ff; color: #312e81; }
 
 @layer base {
+  h1, h2, h3, h4 { letter-spacing: -0.035em; }
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
   textarea {
+    display: block;
+    width: 100%;
+    min-width: 0;
     min-height: 42px;
-    border: 1px solid #d8deea;
-    border-radius: 9px;
+    border: 1px solid #d6dce7;
+    border-radius: 8px;
     background-color: #fff;
-    color: #172033;
-    padding: 9px 12px;
+    color: #182230;
+    padding: 10px 12px;
     font-size: 13px;
-    line-height: 1.45;
-    box-shadow: 0 1px 2px rgb(15 23 42 / 3%);
+    font-weight: 450;
+    line-height: 1.4;
+    box-shadow: 0 1px 2px rgb(16 24 40 / 4%);
     transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
   }
-  textarea { min-height: 96px; resize: vertical; }
+  textarea { min-height: 100px; resize: vertical; }
   input::placeholder, textarea::placeholder { color: #98a2b3; opacity: 1; }
+  input:hover:not(:disabled), select:hover:not(:disabled), textarea:hover:not(:disabled) { border-color: #b9c2d0; }
   input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: #818cf8;
-    box-shadow: 0 0 0 3px rgb(99 102 241 / 13%);
+    box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
   }
   input:disabled, select:disabled, textarea:disabled {
     cursor: not-allowed;
-    background: #f4f6fa;
+    background: #f5f7fa;
     color: #98a2b3;
   }
+  input[type="checkbox"], input[type="radio"] { accent-color: #4f46e5; }
   button:focus-visible, a:focus-visible {
-    outline: 3px solid rgb(99 102 241 / 35%);
+    outline: 3px solid rgb(99 102 241 / 30%);
     outline-offset: 2px;
   }
-  table { border-collapse: separate; border-spacing: 0; }
-  th { font-size: 11px; font-weight: 650; letter-spacing: .035em; text-transform: uppercase; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; }
+  th { font-size: 10px; font-weight: 700; letter-spacing: .075em; text-transform: uppercase; color: #667085; }
   td, th { vertical-align: middle; }
+  th { white-space: nowrap; }
+}
+
+/* Shared admin components: consistent field, table, panel and action styling. */
+.admin-page { width: 100%; max-width: 1500px; margin-inline: auto; }
+.admin-panel { border: 1px solid var(--ui-border); border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgb(16 24 40 / 3%); }
+.admin-field-label { display: block; margin-bottom: 6px; color: #344054; font-size: 12px; font-weight: 600; }
+.admin-table-wrap { overflow: hidden; border: 1px solid var(--ui-border); border-radius: 12px; background: #fff; }
+.admin-table-wrap thead { background: #f8fafc; }
+.admin-table-wrap th { padding: 12px 16px; border-bottom: 1px solid #e8ecf2; text-align: left; }
+.admin-table-wrap td { padding: 13px 16px; border-bottom: 1px solid #eef1f5; color: #475467; font-size: 12px; }
+.admin-table-wrap tbody tr:last-child td { border-bottom: 0; }
+.admin-table-wrap tbody tr:hover { background: #fafbfc; }
+.admin-primary-btn { min-height: 38px; border-radius: 8px; padding: 9px 14px; background: #3730a3; color: white; font-size: 12px; font-weight: 650; transition: background .15s ease, transform .15s ease; }
+.admin-primary-btn:hover { background: #312e81; }
+.admin-secondary-btn { min-height: 38px; border: 1px solid #d8dee8; border-radius: 8px; padding: 8px 13px; background: white; color: #344054; font-size: 12px; font-weight: 600; }
+.admin-secondary-btn:hover { background: #f8fafc; border-color: #c5ccd7; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
