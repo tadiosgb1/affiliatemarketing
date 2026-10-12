@@ -57,6 +57,7 @@ onMounted(loadCategories)
 
 <template>
   <section class="space-y-6">
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Categories</span></p>
     <header class="flex items-center justify-between border-b border-slate-200 pb-3">
       <h1 class="text-sm font-semibold text-slate-800">Categories</h1>
       <button type="button" class="h-9 bg-indigo-600 px-3.5 text-[12px] font-semibold text-white hover:bg-indigo-700" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ Add category' }}</button>
