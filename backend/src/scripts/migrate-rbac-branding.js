@@ -1,5 +1,6 @@
 require('dotenv').config();
 const {sequelize,Role,Permission,RolePermission}=require('../database/models');
+const {DataTypes}=require('sequelize');
 const permissions=[
  ['dashboard.view','View dashboard','workspace'],['users.view','View users','users'],['users.manage','Manage users and access','users'],
  ['catalog.view','View catalog','catalog'],['catalog.manage','Manage products, categories, attributes and variants','catalog'],
@@ -24,11 +25,10 @@ const roles=[
  await sequelize.authenticate();
  const qi=sequelize.getQueryInterface();
  let companyColumns={};try{companyColumns=await qi.describeTable('company')}catch{}
- const D=sequelize.Sequelize;
  if(Object.keys(companyColumns).length){
-  if(!companyColumns.platform_name)await qi.addColumn('company','platform_name',{type:D.STRING(120),allowNull:true});
-  if(!companyColumns.tagline)await qi.addColumn('company','tagline',{type:D.STRING(180),allowNull:true});
-  if(!companyColumns.primary_color)await qi.addColumn('company','primary_color',{type:D.STRING(7),allowNull:false,defaultValue:'#4f46e5'});
+  if(!companyColumns.platform_name)await qi.addColumn('company','platform_name',{type:DataTypes.STRING(120),allowNull:true});
+  if(!companyColumns.tagline)await qi.addColumn('company','tagline',{type:DataTypes.STRING(180),allowNull:true});
+  if(!companyColumns.primary_color)await qi.addColumn('company','primary_color',{type:DataTypes.STRING(7),allowNull:false,defaultValue:'#4f46e5'});
  }
  await sequelize.sync();
  const permissionRows={};
