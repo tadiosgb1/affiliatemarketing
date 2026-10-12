@@ -73,7 +73,7 @@ onMounted(loadUsers)
   <section class="space-y-5">
     <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Users</span></p>
     <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-      <div><h2 class="text-sm font-semibold text-slate-800">User management</h2></div>
+      <div></div>
       <button type="button" class="h-10 rounded-lg border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50" :disabled="loading" @click="loadUsers">↻ Refresh users</button>
     </header>
     <div v-if="error" role="alert" class="flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800"><span>{{ error }}</span><button type="button" class="font-semibold underline" @click="loadUsers">Retry</button></div>
