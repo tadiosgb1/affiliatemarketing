@@ -24,6 +24,7 @@ const groups = [
     { label: 'Payments', path: '/admin/payments', icon: 'PA' },
   ] },
   { label: 'Growth', items: [{ label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: 'AF' }] },
+  { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: 'CO' }] },
 ]
 const pageTitle = computed(() => groups.flatMap(group => group.items).find(item => item.path === route.path)?.label || 'Administration')
 const initials = computed(() => (auth.user?.name || auth.user?.email || 'Admin').trim().slice(0, 1).toUpperCase())
