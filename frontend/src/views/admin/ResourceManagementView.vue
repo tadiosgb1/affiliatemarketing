@@ -85,7 +85,7 @@ const resources = {
     searchKeys: ['supplierSku', 'currency'],
   },
   'affiliate-programs': {
-    title: 'Affiliate programs', group: 'Growth', endpoint: '/affiliate-programs', description: 'Configure commission rules for products promoted by affiliates.',
+    title: 'Affiliate programs', group: 'Growth', endpoint: '/affiliate-programs', listEndpoint: '/affiliate-programs/admin/all', description: 'Configure commission rules for products promoted by affiliates.',
     fields: [
       { key: 'name', label: 'Program name', required: true, placeholder: 'e.g. Standard product commission' },
       { key: 'productId', label: 'Product (optional)', type: 'product', placeholder: 'All products' },
@@ -133,7 +133,7 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const requests = [api.get(config.value.endpoint)]
+    const requests = [api.get(config.value.listEndpoint || config.value.endpoint)]
     if (['affiliate-programs', 'supplier-products'].includes(key.value)) requests.push(api.get('/products'))
     if (key.value === 'supplier-products') requests.push(api.get('/suppliers'))
     const responses = await Promise.all(requests)
