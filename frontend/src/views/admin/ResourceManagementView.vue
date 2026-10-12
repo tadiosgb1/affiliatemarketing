@@ -220,17 +220,16 @@ onMounted(() => { resetForm(); load() })
 
 <template>
   <section class="space-y-5">
-    <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-      <div><p class="text-[11px] font-bold uppercase tracking-[.15em] text-indigo-600">{{ config.group }} management</p><h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ config.title }}</h2><p class="mt-1.5 max-w-2xl text-[13px] leading-5 text-slate-500">{{ config.description }}</p></div>
-      <div class="flex gap-2">
-        <button type="button" class="h-10 rounded-lg border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50" :disabled="loading" @click="load">Refresh</button>
-        <button v-if="!config.readOnly" type="button" class="h-10 rounded-lg bg-slate-900 px-4 text-[12px] font-semibold text-white shadow-sm transition hover:bg-slate-700" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ Add record' }}</button>
+    <header class="flex flex-col justify-end gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center">
+      <div class="flex gap-2 sm:ml-auto">
+        <button type="button" class="h-9 border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 hover:bg-slate-50" :disabled="loading" @click="load">Refresh</button>
+        <button v-if="!config.readOnly" type="button" class="h-9 bg-indigo-600 px-4 text-[12px] font-semibold text-white hover:bg-indigo-700" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ Add record' }}</button>
       </div>
     </header>
     <div v-if="error" role="alert" class="flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800"><span>{{ error }}</span><button type="button" class="shrink-0 font-semibold underline" @click="load">Retry</button></div>
     <div v-if="success" role="status" class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-800">{{ success }}</div>
 
-    <form v-if="showForm" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm" @submit.prevent="createRecord">
+    <form v-if="showForm" class="border border-slate-200 bg-white p-5" @submit.prevent="createRecord">
       <div class="mb-4 flex items-start justify-between"><div><h3 class="text-[14px] font-bold text-slate-900">Add {{ config.title.toLowerCase().replace(/s$/, '') }}</h3><p class="mt-1 text-[12px] text-slate-500">Fields marked required must be completed.</p></div></div>
       <div class="grid gap-x-4 gap-y-4 sm:grid-cols-2 xl:grid-cols-3">
         <div v-for="field in fields" :key="field.key" :class="field.type === 'textarea' ? 'sm:col-span-2' : ''">
@@ -248,13 +247,13 @@ onMounted(() => { resetForm(); load() })
       <div class="mt-5 flex justify-end gap-2 border-t border-slate-100 pt-4"><button type="button" class="h-9 rounded-lg border border-slate-200 px-3.5 text-[12px] font-semibold text-slate-600 hover:bg-slate-50" @click="showForm = false">Cancel</button><button type="submit" :disabled="saving" class="h-9 rounded-lg bg-indigo-600 px-4 text-[12px] font-semibold text-white hover:bg-indigo-700 disabled:opacity-60">{{ saving ? 'Saving…' : 'Save record' }}</button></div>
     </form>
 
-    <div class="grid gap-3 sm:grid-cols-2"><article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-[12px] font-medium text-slate-500">Total {{ config.title.toLowerCase() }}</p><p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ loading ? '—' : rows.length }}</p></article><article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-[12px] font-medium text-slate-500">Visible records</p><p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ loading ? '—' : visibleRows.length }}</p></article></div>
+    <div class="grid gap-0 border-y border-slate-200 bg-white sm:grid-cols-2"><article class="border-b border-slate-200 p-4 sm:border-b-0 sm:border-r"><p class="text-[12px] font-medium text-slate-500">Total {{ config.title.toLowerCase() }}</p><p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ loading ? '—' : rows.length }}</p></article><article class="p-4"><p class="text-[12px] font-medium text-slate-500">Visible records</p><p class="mt-2 text-2xl font-bold tracking-tight text-slate-900">{{ loading ? '—' : visibleRows.length }}</p></article></div>
 
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div class="overflow-hidden border border-slate-200 bg-white">
       <div class="flex flex-col gap-3 border-b border-slate-100 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"><div><h3 class="text-[13px] font-bold text-slate-900">{{ config.title }} register</h3><p class="mt-0.5 text-[11px] text-slate-500">{{ visibleRows.length }} {{ countLabel }}</p></div><input v-model="search" type="search" :placeholder="'Search ' + config.title.toLowerCase() + '…'" class="w-full sm:max-w-[260px]" /></div>
       <div v-if="loading" class="space-y-3 p-5"><div v-for="n in 4" :key="n" class="h-10 animate-pulse rounded-md bg-slate-50"></div></div>
       <div v-else-if="!error && !visibleRows.length" class="px-6 py-12 text-center"><p class="text-[13px] font-semibold text-slate-800">No records found</p><p class="mt-1 text-[12px] text-slate-500">{{ rows.length ? 'Try a different search.' : 'Create your first record to get started.' }}</p></div>
-      <div v-else-if="visibleRows.length" class="overflow-x-auto"><table class="w-full min-w-[650px] text-left text-[12px]"><thead class="bg-slate-50/80 text-slate-500"><tr><th v-for="column in config.columns" :key="column.key" class="px-4 py-3">{{ column.label }}</th></tr></thead><tbody><tr v-for="row in visibleRows" :key="row.id" class="border-t border-slate-100 transition hover:bg-slate-50/70"><td v-for="column in config.columns" :key="column.key" class="px-4 py-3.5 text-slate-600"><span v-if="['active','status'].includes(column.kind)" class="inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize" :class="badgeClass(row,column)">{{ display(row,column) }}</span><span v-else :class="column.key === 'name' || column.key === 'orderNumber' ? 'font-semibold text-slate-900' : ''">{{ display(row,column) }}</span></td></tr></tbody></table></div>
+      <div v-else-if="visibleRows.length" class="overflow-x-auto"><table class="w-full min-w-[650px] text-left text-[12px]"><thead class="bg-slate-50/80 text-slate-500"><tr><th v-for="column in config.columns" :key="column.key" class="px-4 py-3">{{ column.label }}</th></tr></thead><tbody><tr v-for="row in visibleRows" :key="row.id" class="border-t border-slate-100 transition hover:bg-slate-50/70"><td v-for="column in config.columns" :key="column.key" class="px-4 py-3.5 text-slate-600"><span v-if="['active','status'].includes(column.kind)" class="inline-flex border px-2 py-1 text-[10px] font-semibold capitalize" :class="badgeClass(row,column)">{{ display(row,column) }}</span><span v-else :class="column.key === 'name' || column.key === 'orderNumber' ? 'font-semibold text-slate-900' : ''">{{ display(row,column) }}</span></td></tr></tbody></table></div>
       <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-400">Connected to {{ config.endpoint }} · Record access follows the backend's current permissions.</div>
     </div>
   </section>
