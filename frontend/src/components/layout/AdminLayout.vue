@@ -15,23 +15,23 @@ const profileOpen = ref(false)
 const notificationsOpen = ref(false)
 const openGroups = ref([])
 const groups = [
-  { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: '▦' }, { label: 'Users & access', path: '/admin/users', icon: '♙', adminOnly: true }] },
+  { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: '▦', permission: 'dashboard.view' }, { label: 'Users & access', path: '/admin/users', icon: '♙', adminOnly: true }] },
   { label: 'Catalog', items: [
-    { label: 'Products', path: '/admin/products', icon: '▣' },
-    { label: 'Categories', path: '/admin/categories', icon: '▤' },
-    { label: 'Brands', path: '/admin/brands', icon: '◈' },
-    { label: 'Variants', path: '/admin/variants', icon: '◇' },
-    { label: 'Attributes', path: '/admin/attributes', icon: '☷' },
+    { label: 'Products', path: '/admin/products', icon: '▣', permission: 'catalog.view' },
+    { label: 'Categories', path: '/admin/categories', icon: '▤', permission: 'catalog.view' },
+    { label: 'Brands', path: '/admin/brands', icon: '◈', permission: 'catalog.view' },
+    { label: 'Variants', path: '/admin/variants', icon: '◇', permission: 'catalog.view' },
+    { label: 'Attributes', path: '/admin/attributes', icon: '☷', permission: 'catalog.view' },
   ] },
   { label: 'Inventory', items: [
-    { label: 'Stock levels', path: '/admin/inventory', icon: '▥' },
-    { label: 'Stock movements', path: '/admin/inventory-movements', icon: '↕' },
-    { label: 'Warehouses', path: '/admin/warehouses', icon: '⌂' },
+    { label: 'Stock levels', path: '/admin/inventory', icon: '▥', permission: 'inventory.view' },
+    { label: 'Stock movements', path: '/admin/inventory-movements', icon: '↕', permission: 'inventory.view' },
+    { label: 'Warehouses', path: '/admin/warehouses', icon: '⌂', permission: 'inventory.view' },
   ] },
   { label: 'Procurement', items: [
-    { label: 'Suppliers', path: '/admin/suppliers', icon: '♧' },
-    { label: 'Supplier catalog', path: '/admin/supplier-products', icon: '▧' },
-    { label: 'Purchase orders', path: '/admin/purchase-orders', icon: '▤' },
+    { label: 'Suppliers', path: '/admin/suppliers', icon: '♧', permission: 'procurement.view' },
+    { label: 'Supplier catalog', path: '/admin/supplier-products', icon: '▧', permission: 'procurement.view' },
+    { label: 'Purchase orders', path: '/admin/purchase-orders', icon: '▤', permission: 'procurement.view' },
   ] },
   { label: 'Sales', items: [
     { label: 'Orders', path: '/admin/orders', icon: '▱', permission: 'orders.view' },
@@ -39,14 +39,14 @@ const groups = [
     { label: 'Payments', path: '/admin/payments', icon: '◉', permission: 'payments.view' },
   ] },
   { label: 'Growth', items: [
-    { label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: '↗' },
+    { label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: '↗', permission: 'affiliates.manage' },
     { label: 'Affiliate links', path: '/admin/affiliate-links', icon: '⌁', permission: 'affiliates.manage' },
     { label: 'Commissions', path: '/admin/commissions', icon: ',
     { label: 'Payouts', path: '/admin/payouts', icon: '⇄', permission: 'finance.manage' },
   ] },
   { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: '⚙', permission: 'company.manage' }, { label: 'Roles & permissions', path: '/admin/access-control', icon: '♙', adminOnly: true }] },
 ]
-const visibleGroups = computed(() => { const isAdmin = String(auth.user?.role || '').toLowerCase() === 'admin' || (auth.user?.roles || []).some(role => (typeof role === 'string' ? role : role.slug) === 'admin'); const permissions = auth.user?.permissions || []; return groups.map(group => ({ ...group, items: group.items.filter(item => (!item.adminOnly || isAdmin) && (!item.permission || isAdmin || permissions.includes(item.permission))) })).filter(group => group.items.length) })
+const visibleGroups = computed(() => { const isAdmin = String(auth.user?.role || '').toLowerCase() === 'admin' || (auth.user?.roles || []).some(role => (typeof role === 'string' ? role : role.slug) === 'admin'); const permissions = auth.user?.permissions || []; const legacyStaff = String(auth.user?.role || '').toLowerCase() === 'company_staff'; return groups.map(group => ({ ...group, items: group.items.filter(item => (!item.adminOnly || isAdmin) && (!item.permission || isAdmin || legacyStaff || permissions.includes(item.permission))) })).filter(group => group.items.length) })
 const initials = computed(() => (auth.user?.name || auth.user?.email || 'Admin').trim().slice(0, 1).toUpperCase())
 const breadcrumbItems = computed(() => {
   const current = route.path.split('/').filter(Boolean)
