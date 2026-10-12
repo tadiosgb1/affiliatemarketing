@@ -72,7 +72,7 @@ exports.listAll = async (req, res) => {
   const links = await AffiliateLink.findAll({
     include: [
       { association: 'affiliate', attributes: ['id', 'name', 'email'] },
-      { model: AffiliateProgram, as: 'program', include: [{ model: Product, as: 'product', attributes: ['id', 'name'] }] },
+      { model: AffiliateProgram, as: 'program' },
     ],
     order: [['createdAt', 'DESC']],
     limit: 500,
