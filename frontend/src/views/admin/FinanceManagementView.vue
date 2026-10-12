@@ -63,8 +63,8 @@ onMounted(load)
 </script>
 
 <template>
-  <section
-    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">{{ config.title }}</span></p> class="admin-page space-y-6">
+  <section class="admin-page space-y-6">
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">{{ config.title }}</span></p>
     <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div><p class="text-[11px] font-bold uppercase tracking-[.13em] text-indigo-600">{{ config.eyebrow }}</p><h2 class="mt-1 text-[26px] font-bold leading-tight text-slate-900">{{ config.title }}</h2><p class="mt-2 max-w-2xl text-[13px] leading-5 text-slate-500">{{ config.description }}</p></div>
       <button type="button" class="admin-secondary-btn inline-flex items-center justify-center gap-2" :disabled="loading" @click="load"><span aria-hidden="true">↻</span>{{ loading ? 'Refreshing…' : 'Refresh data' }}</button>
