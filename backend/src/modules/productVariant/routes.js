@@ -1,1 +1,1 @@
-const r=require('express').Router();const c=require('./controller');const a=require('../../shared/middleware/auth');const h=require('../../shared/utils/async');r.get('/:id',h(c.get));r.patch('/:id',a.requireAuth,h(c.update));module.exports=r;
+const r=require('express').Router();const c=require('./controller');const a=require('../../shared/middleware/auth');const h=require('../../shared/utils/async');r.post('/',a.requireAuth,h(c.create));r.get('/:id',h(c.get));r.patch('/:id',a.requireAuth,h(c.update));module.exports=r;
