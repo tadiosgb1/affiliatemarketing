@@ -10,7 +10,7 @@ const platformBrand = ref({ platformName: '', name: '', logoUrl: '', tagline: ''
 const brandTitle = computed(() => platformBrand.value.platformName || platformBrand.value.name || 'MarketFlow')
 async function loadPlatformBrand() {
   try {
-    const response = await api.get('/company')
+    const response = await api.get('/company/brand')
     platformBrand.value = { ...platformBrand.value, ...(response.data?.data || {}) }
   } catch { /* Use fallback branding until company settings are available. */ }
 }
