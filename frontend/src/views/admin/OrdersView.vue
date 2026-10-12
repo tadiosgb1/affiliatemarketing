@@ -1,12 +1,16 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import api from '../../services/api'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const orders = ref([])
 const loading = ref(true)
 const error = ref('')
 const search = ref('')
 const statusFilter = ref('all')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedOrders = computed(() => filteredOrders.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 
 async function loadOrders() {
   loading.value = true
@@ -39,6 +43,7 @@ const statusClass = value => {
   if (['cancelled', 'rejected', 'failed'].includes(status)) return 'bg-rose-50 text-rose-700 ring-rose-600/15'
   return 'bg-amber-50 text-amber-700 ring-amber-600/15'
 }
+watch([search, statusFilter], () => { currentPage.value = 1 })
 onMounted(loadOrders)
 </script>
 
@@ -80,7 +85,7 @@ onMounted(loadOrders)
         <table class="w-full min-w-[720px] text-left text-[12px]">
           <thead class="bg-slate-50/80 text-slate-500"><tr><th class="px-4 py-3">Order</th><th class="px-4 py-3">Customer ID</th><th class="px-4 py-3">Items</th><th class="px-4 py-3">Order total</th><th class="px-4 py-3">Payment state</th><th class="px-4 py-3">Placed</th></tr></thead>
           <tbody>
-            <tr v-for="order in filteredOrders" :key="order.id" class="border-t border-slate-100 transition hover:bg-slate-50/70">
+            <tr v-for="order in paginatedOrders" :key="order.id" class="border-t border-slate-100 transition hover:bg-slate-50/70">
               <td class="px-4 py-3.5"><p class="font-semibold text-slate-900">{{ order.orderNumber || 'Order ' + String(order.id).slice(0, 8) }}</p><p class="mt-0.5 font-mono text-[10px] text-slate-400">{{ String(order.id).slice(0, 16) }}</p></td>
               <td class="px-4 py-3.5 font-mono text-[11px] text-slate-500">{{ order.userId ? String(order.userId).slice(0, 12) : '—' }}</td>
               <td class="px-4 py-3.5 text-slate-600">{{ Array.isArray(order.items) ? order.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0) : '—' }}</td>
@@ -91,7 +96,7 @@ onMounted(loadOrders)
           </tbody>
         </table>
       </div>
-      <div class="flex flex-col gap-1 border-t border-slate-100 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-400 sm:flex-row sm:items-center sm:justify-between"><span>Showing {{ filteredOrders.length }} of {{ orders.length }} loaded orders</span><span>Order data is read from the backend; this page does not alter order or payment status.</span></div>
+      <AdminPagination v-if="!loading && filteredOrders.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="filteredOrders.length" />
     </div>
   </section>
 </template>
