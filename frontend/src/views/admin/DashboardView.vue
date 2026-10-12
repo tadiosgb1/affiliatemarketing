@@ -6,6 +6,7 @@ import api from '../../services/api'
 const loading = ref(true)
 const refreshing = ref(false)
 const error = ref('')
+const serviceErrors = ref([])
 const products = ref([])
 const categories = ref([])
 const orders = ref([])
@@ -54,22 +55,30 @@ async function loadDashboard(isRefresh = false) {
   if (isRefresh) refreshing.value = true
   else loading.value = true
   error.value = ''
+  serviceErrors.value = []
   try {
-    const results = await Promise.all([
-      api.get('/products/admin/all'),
-      api.get('/categories'),
-      api.get('/orders/admin/all'),
-      api.get('/payments/admin/all'),
-      api.get('/inventory'),
-    ])
-    products.value = rows(results[0])
-    categories.value = rows(results[1])
-    orders.value = rows(results[2])
-    payments.value = rows(results[3])
-    inventory.value = rows(results[4])
+    const services = [
+      { label: 'Products', request: api.get('/products/admin/all'), assign: value => { products.value = rows(value) } },
+      { label: 'Categories', request: api.get('/categories'), assign: value => { categories.value = rows(value) } },
+      { label: 'Orders', request: api.get('/orders/admin/all'), assign: value => { orders.value = rows(value) } },
+      { label: 'Payments', request: api.get('/payments/admin/all'), assign: value => { payments.value = rows(value) } },
+      { label: 'Inventory', request: api.get('/inventory'), assign: value => { inventory.value = rows(value) } },
+    ]
+    const results = await Promise.allSettled(services.map(service => service.request))
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') services[index].assign(result.value)
+      else {
+        const status = result.reason?.response?.status
+        const message = result.reason?.response?.data?.message || result.reason?.message || 'Request failed'
+        serviceErrors.value.push(services[index].label + ': ' + (status ? status + ' — ' : '') + message)
+      }
+    })
+    if (serviceErrors.value.length === services.length) {
+      error.value = 'The dashboard could not reach any data service. Check that the backend is running, your session is valid, and the database is connected.'
+    }
     lastUpdated.value = new Date()
   } catch (err) {
-    error.value = err.response?.data?.message || (err.response?.status === 401 ? 'Your session expired. Sign in again to load live analytics.' : 'Some dashboard data could not be loaded. Check the API and admin permissions, then retry.')
+    error.value = err.response?.data?.message || err.message || 'Dashboard data could not be loaded.'
   } finally {
     loading.value = false
     refreshing.value = false
@@ -95,6 +104,11 @@ onMounted(() => loadDashboard())
 
     <div v-if="error" role="alert" class="flex items-start justify-between gap-3 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
       <span>{{ error }}</span><button class="font-semibold underline" @click="loadDashboard(true)">Retry</button>
+    </div>
+    <div v-if="serviceErrors.length && !error" class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+      <p class="font-semibold">Some services could not be loaded. The other metrics remain available.</p>
+      <ul class="mt-1 list-inside list-disc space-y-0.5"><li v-for="item in serviceErrors" :key="item">{{ item }}</li></ul>
+      <button class="mt-2 font-semibold underline" @click="loadDashboard(true)">Retry failed services</button>
     </div>
 
     <div v-if="loading" class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
