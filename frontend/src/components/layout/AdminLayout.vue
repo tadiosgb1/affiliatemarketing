@@ -11,12 +11,18 @@ const groups = [
   { label: 'Catalog', items: [
     { label: 'Products', path: '/admin/products', icon: 'PR' },
     { label: 'Categories', path: '/admin/categories', icon: 'CA' },
+    { label: 'Brands', path: '/admin/brands', icon: 'BR' },
+    { label: 'Attributes', path: '/admin/attributes', icon: 'AT' },
   ] },
   { label: 'Operations', items: [
     { label: 'Inventory & stock', path: '/admin/inventory', icon: 'IN' },
+    { label: 'Warehouses', path: '/admin/warehouses', icon: 'WH' },
+    { label: 'Suppliers', path: '/admin/suppliers', icon: 'SU' },
+    { label: 'Purchase orders', path: '/admin/purchase-orders', icon: 'PO' },
     { label: 'Orders', path: '/admin/orders', icon: 'OR' },
     { label: 'Payments', path: '/admin/payments', icon: 'PA' },
   ] },
+  { label: 'Growth', items: [{ label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: 'AF' }] },
 ]
 const pageTitle = computed(() => groups.flatMap(group => group.items).find(item => item.path === route.path)?.label || 'Administration')
 const initials = computed(() => (auth.user?.name || auth.user?.email || 'Admin').trim().slice(0, 1).toUpperCase())
@@ -38,7 +44,7 @@ function signOut() {
         <div class="min-w-0 flex-1"><p class="text-[15px] font-bold tracking-[-.03em] text-white">MarketFlow</p><p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[.15em] text-slate-400">Commerce platform</p></div>
         <button type="button" class="rounded-md px-2 py-1 text-slate-400 hover:bg-white/10 lg:hidden" aria-label="Close menu" @click="mobileOpen = false">×</button>
       </div>
-      <div class="px-3 pb-4 pt-5">
+      <div class="min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-5">
         <p class="px-3 text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Management</p>
         <nav v-for="group in groups" :key="group.label" class="mt-4">
           <p v-if="group.label !== 'Workspace'" class="mb-2 px-3 text-[10px] font-semibold uppercase tracking-[.13em] text-slate-500">{{ group.label }}</p>
