@@ -1,6 +1,7 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import api from '../../services/api'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const products = ref([])
 const loading = ref(true)
@@ -10,6 +11,9 @@ const success = ref('')
 const search = ref('')
 const statusFilter = ref('all')
 const editingId = ref('')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedVariants = computed(() => visibleVariants.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 const editForm = ref({ price: '', compareAtPrice: '', costPrice: '', status: 'active', barcode: '' })
 
 const variants = computed(() => products.value.flatMap(product => (product.variants || []).map(variant => ({
@@ -74,6 +78,7 @@ async function saveVariant(variant) {
     saving.value = false
   }
 }
+watch([search, statusFilter], () => { currentPage.value = 1 })
 onMounted(load)
 </script>
 
@@ -92,11 +97,12 @@ onMounted(load)
       <div v-if="loading" class="space-y-3 p-5"><div v-for="n in 5" :key="n" class="h-12 animate-pulse rounded-md bg-slate-50"></div></div>
       <div v-else-if="!error && !visibleVariants.length" class="px-6 py-12 text-center"><p class="text-[13px] font-semibold text-slate-800">No variants found</p><p class="mt-1 text-[12px] text-slate-500">Create product variants from the product management workflow.</p></div>
       <div v-else-if="visibleVariants.length" class="overflow-x-auto"><table class="w-full min-w-[820px] text-left text-[12px]"><thead class="bg-slate-50/80 text-slate-500"><tr><th class="px-4 py-3">Product / SKU</th><th class="px-4 py-3">Barcode</th><th class="px-4 py-3">Selling price</th><th class="px-4 py-3">Cost price</th><th class="px-4 py-3">Stock</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Action</th></tr></thead><tbody>
-        <template v-for="variant in visibleVariants" :key="variant.id">
+        <template v-for="variant in paginatedVariants" :key="variant.id">
           <tr class="border-t border-slate-100 transition hover:bg-slate-50/70"><td class="px-4 py-3.5"><p class="font-semibold text-slate-900">{{ variant.productName }}</p><p class="mt-0.5 font-mono text-[10px] text-slate-400">{{ variant.sku }}</p></td><td class="px-4 py-3.5 font-mono text-[11px] text-slate-500">{{ variant.barcode || '—' }}</td><td class="px-4 py-3.5 font-semibold text-slate-900">{{ formatMoney(variant.price) }}</td><td class="px-4 py-3.5 text-slate-600">{{ variant.costPrice == null ? '—' : formatMoney(variant.costPrice) }}</td><td class="px-4 py-3.5 text-slate-600">{{ variant.stock }}</td><td class="px-4 py-3.5"><span class="inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold" :class="variant.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'">{{ variant.status || 'active' }}</span></td><td class="px-4 py-3.5"><button type="button" class="rounded-md border border-slate-200 px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50" @click="editingId === variant.id ? cancelEdit() : edit(variant)">{{ editingId === variant.id ? 'Cancel' : 'Edit variant' }}</button></td></tr>
           <tr v-if="editingId === variant.id" class="border-t border-indigo-100 bg-indigo-50/40"><td colspan="7" class="px-4 py-4"><form class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" @submit.prevent="saveVariant(variant)"><div><label class="mb-1 block text-[11px] font-semibold text-slate-700">Selling price</label><input v-model="editForm.price" type="number" min="0" step="0.01" required class="w-full" /></div><div><label class="mb-1 block text-[11px] font-semibold text-slate-700">Compare-at price</label><input v-model="editForm.compareAtPrice" type="number" min="0" step="0.01" class="w-full" /></div><div><label class="mb-1 block text-[11px] font-semibold text-slate-700">Cost price</label><input v-model="editForm.costPrice" type="number" min="0" step="0.01" class="w-full" /></div><div><label class="mb-1 block text-[11px] font-semibold text-slate-700">Barcode</label><input v-model="editForm.barcode" class="w-full" /></div><div><label class="mb-1 block text-[11px] font-semibold text-slate-700">Status</label><select v-model="editForm.status" class="w-full"><option value="active">Active</option><option value="inactive">Inactive</option></select></div><div class="flex items-end justify-end gap-2 sm:col-span-2 xl:col-span-5"><button type="button" class="h-9 rounded-lg border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-600" @click="cancelEdit">Cancel</button><button type="submit" :disabled="saving" class="h-9 rounded-lg bg-indigo-600 px-4 text-[12px] font-semibold text-white disabled:opacity-60">{{ saving ? 'Saving…' : 'Save variant' }}</button></div></form></td></tr>
         </template>
       </tbody></table></div>
+      <AdminPagination v-if="!loading && visibleVariants.length && !editingId" v-model:page="currentPage" v-model:page-size="pageSize" :total="visibleVariants.length" />
       <div class="border-t border-slate-100 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-400">Variant records are read from product catalog data. Changes save through the product-variant API.</div>
     </div>
   </section>
