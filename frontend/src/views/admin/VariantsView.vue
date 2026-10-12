@@ -81,7 +81,7 @@ onMounted(load)
   <section class="space-y-5">
     <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Product variants</span></p>
     <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-      <div><h2 class="text-sm font-semibold text-slate-800">Product variants</h2></div>
+      <div></div>
       <button type="button" class="h-10 rounded-lg border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50" :disabled="loading" @click="load">↻ Refresh variants</button>
     </header>
     <div v-if="error" role="alert" class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800">{{ error }}</div>
