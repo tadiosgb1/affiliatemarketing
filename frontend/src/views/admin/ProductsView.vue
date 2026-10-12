@@ -22,7 +22,7 @@ async function load() {
   error.value = ''
   try {
     const [productResponse, categoryResponse] = await Promise.all([
-      api.get('/products/admin/all'),
+      api.get('/products/admin/all?limit=200'),
       api.get('/categories'),
     ])
     products.value = productResponse.data?.data ?? productResponse.data?.products ?? []
@@ -87,6 +87,14 @@ async function toggleStatus(product) {
   }
 }
 
+function toggleProductForm() {
+  if (showForm.value) {
+    selectedImage.value = null
+    imagePreview.value = ''
+  }
+  showForm.value = !showForm.value
+}
+
 function onImageChange(event) {
   const file = event.target.files?.[0] || null
   selectedImage.value = file
@@ -107,7 +115,7 @@ onMounted(load)
     <header class="flex flex-col justify-end gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center">
       <div class="flex gap-2 sm:ml-auto">
         <button class="h-9 border border-slate-300 bg-white px-3.5 text-[12px] font-semibold text-slate-700 transition hover:bg-slate-50" @click="load">Refresh</button>
-        <button class="h-9 bg-indigo-600 px-3.5 text-[12px] font-semibold text-white transition hover:bg-indigo-700" @click="showForm = !showForm">{{ showForm ? 'Cancel' : '+ New product' }}</button>
+        <button class="h-9 bg-indigo-600 px-3.5 text-[12px] font-semibold text-white transition hover:bg-indigo-700" @click="toggleProductForm">{{ showForm ? 'Cancel' : '+ New product' }}</button>
       </div>
     </header>
 
