@@ -24,14 +24,22 @@ async function one(Model, where, defaults) {
     name: 'MarketFlow Admin', email: 'admin@marketflow.local', phone: '+251911000001',
     passwordHash, role: 'admin', isAffiliate: false, isActive: true,
   });
-  const affiliate = await one(User, { email: 'affiliate@marketflow.local' }, {
-    name: 'Demo Affiliate', email: 'affiliate@marketflow.local', phone: '+251911000002',
-    passwordHash, role: 'affiliate', isAffiliate: true, isActive: true,
-  });
   const customer = await one(User, { email: 'customer@marketflow.local' }, {
     name: 'Demo Customer', email: 'customer@marketflow.local', phone: '+251911000003',
     passwordHash, role: 'customer', isAffiliate: true, isActive: true,
   });
+
+  // A buyer/customer can also be an affiliate. Merge the old demo affiliate account
+  // into the customer account so re-running the seed does not maintain two identities.
+  const legacyAffiliate = await User.findOne({ where: { email: 'affiliate@marketflow.local' } });
+  if (legacyAffiliate && legacyAffiliate.id !== customer.id) {
+    await AffiliateLink.update({ affiliateId: customer.id }, { where: { affiliateId: legacyAffiliate.id } });
+    await Commission.update({ affiliateId: customer.id }, { where: { affiliateId: legacyAffiliate.id } });
+    await Payout.update({ affiliateId: customer.id }, { where: { affiliateId: legacyAffiliate.id } });
+    await legacyAffiliate.destroy();
+    console.log('Merged legacy affiliate demo account into customer account.');
+  }
+  const affiliate = customer;
 
   const company = await one(Company, { name: 'MarketFlow' }, {
     name: 'MarketFlow', legalName: 'MarketFlow', country: 'Ethiopia',
@@ -184,7 +192,7 @@ async function one(Model, where, defaults) {
   });
 
   console.log('Seed complete: demo users and records for all 28 backend models.');
-  console.log('Demo accounts: admin@marketflow.local, affiliate@marketflow.local, customer@marketflow.local');
+  console.log('Demo accounts: admin@marketflow.local, customer@marketflow.local (customer can also be an affiliate).');
   console.log('Shared demo password: ' + (process.env.DEMO_SEED_PASSWORD || 'DemoPass123!'));
   await sequelize.close();
 })().catch(async error => {
