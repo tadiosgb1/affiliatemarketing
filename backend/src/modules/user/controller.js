@@ -32,6 +32,11 @@ exports.listUsers=async(_req,res)=>{
  const users=await User.findAll({order:[['createdAt','DESC']],limit:500});
  res.json({success:true,data:await Promise.all(users.map(userWithAccess))});
 };
+async function callerCanManageAccess(req){
+ if(String(req.user?.role||'').toLowerCase()==='admin')return true;
+ const assignments=await UserRole.findAll({where:{userId:req.user.id},include:[{model:Role,as:'role',where:{isActive:true},include:[{model:Permission,as:'permissions',where:{key:'access.manage'},through:{attributes:[]}}]}]});
+ return assignments.length>0||assignments.some(item=>item.role?.slug==='admin');
+}
 exports.createUser=async(req,res)=>{
  const name=String(req.body.name||'').trim(),email=String(req.body.email||'').trim().toLowerCase(),phone=String(req.body.phone||'').trim()||null,password=String(req.body.password||'');
  if(name.length<2||name.length>120)return res.status(400).json({success:false,message:'Name must contain 2 to 120 characters'});
@@ -39,6 +44,7 @@ exports.createUser=async(req,res)=>{
  if(password.length<8)return res.status(400).json({success:false,message:'Password must be at least 8 characters'});
  if(await User.findOne({where:{[Op.or]:[{email},...(phone?[{phone}]:[])]}}))return res.status(409).json({success:false,message:'Email or phone number already registered'});
  const roleIds=Array.isArray(req.body.roleIds)?[...new Set(req.body.roleIds)]:[];
+ if(roleIds.length&&!(await callerCanManageAccess(req)))return res.status(403).json({success:false,message:'Access-management permission is required to assign roles.'});
  const roles=roleIds.length?await Role.findAll({where:{id:roleIds,isActive:true}}):[];
  if(roles.length!==roleIds.length)return res.status(400).json({success:false,message:'One or more selected roles are invalid or inactive'});
  const isAffiliate=Boolean(req.body.isAffiliate);
@@ -55,6 +61,7 @@ exports.updateUser=async(req,res)=>{
  const changes={};
  for(const key of allowed)if(Object.prototype.hasOwnProperty.call(req.body,key))changes[key]=req.body[key];
  if(changes.role&&!['customer','affiliate','company_staff','admin'].includes(changes.role))return res.status(400).json({success:false,message:'Invalid user role'});
+ if(changes.role==='admin'&&!(await callerCanManageAccess(req)))return res.status(403).json({success:false,message:'Access-management permission is required to grant administrator access.'});
  if(changes.name!==undefined&&(!String(changes.name).trim()||String(changes.name).trim().length>120))return res.status(400).json({success:false,message:'Name must contain 1 to 120 characters'});
  if(changes.email!==undefined)changes.email=String(changes.email).trim().toLowerCase();
  if(changes.phone!==undefined)changes.phone=String(changes.phone).trim()||null;
