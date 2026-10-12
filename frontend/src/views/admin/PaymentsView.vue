@@ -49,7 +49,8 @@ onMounted(loadPayments)
       <p class="mt-2 text-slate-500">Review customer payments and approve or reject submitted payments.</p>
     </header>
 
-    <p v-if="success" role="status" class="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">{{ success }}</p>\n    <p v-if="error" role="alert" class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ error }}</p>
+    <p v-if="success" role="status" class="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-700">{{ success }}</p>
+    <p v-if="error" role="alert" class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ error }}</p>
 
     <div class="overflow-hidden rounded-2xl border bg-white">
       <div class="flex items-center justify-between border-b p-4">
