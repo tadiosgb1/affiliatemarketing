@@ -25,7 +25,7 @@ const router = createRouter({
 })
 
 router.beforeEach(to => {
-  const isManager = ['admin', 'company_staff'].includes(auth.user?.role)
+  const isManager = ['admin', 'company_staff'].includes(String(auth.user?.role || '').toLowerCase())
   if (to.matched.some(record => record.meta.management) && !isManager) {
     return auth.user ? '/shop' : '/login'
   }
