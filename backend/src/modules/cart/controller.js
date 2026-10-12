@@ -1,1 +1,13 @@
 const {Cart,CartItem,Product,ProductVariant,Inventory,Warehouse}=require('../../database/models');exports.get=async(req,res)=>{let c=await Cart.findOne({where:{userId:req.user.id},include:[{model:CartItem,as:'items',include:[{model:Product,as:'product'},{model:ProductVariant,as:'variant',include:[{model:Inventory,as:'inventory',include:[{model:Warehouse,as:'warehouse'}]}]}]}]});if(!c)c=await Cart.create({userId:req.user.id});res.json({success:true,data:c})};exports.add=async(req,res)=>{const p=await Product.findOne({where:{id:req.body.productId,status:'active'}});if(!p)return res.status(404).json({success:false,message:'Product not found'});const variant=await ProductVariant.findOne({where:{id:req.body.variantId,productId:p.id,status:'active'},include:[{model:Inventory,as:'inventory'}]});if(!variant)return res.status(404).json({success:false,message:'Product variant not found'});const available=variant.inventory.reduce((n,x)=>n+Number(x.quantityOnHand)-Number(x.reservedQuantity),0);const q=Number(req.body.quantity||1);if(!Number.isInteger(q)||q<1||q>available)return res.status(400).json({success:false,message:'Invalid quantity or insufficient stock'});let c=await Cart.findOne({where:{userId:req.user.id}});if(!c)c=await Cart.create({userId:req.user.id});const [i,created]=await CartItem.findOrCreate({where:{cartId:c.id,variantId:variant.id},defaults:{productId:p.id,quantity:q}});if(!created){if(i.quantity+q>available)return res.status(400).json({success:false,message:'Insufficient stock'});await i.update({quantity:i.quantity+q})}res.status(201).json({success:true,data:i})};exports.remove=async(req,res)=>{const i=await CartItem.findOne({where:{id:req.params.id},include:[{model:Cart,as:'cart',where:{userId:req.user.id}}]});if(!i)return res.status(404).json({success:false,message:'Cart item not found'});await i.destroy();res.status(204).send()};
+exports.listAll = async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ success: false, message: 'Admin access required' });
+  const carts = await Cart.findAll({
+    include: [
+      { association: 'user', attributes: ['id', 'name', 'email'] },
+      { model: CartItem, as: 'items', include: [{ model: Product, as: 'product', attributes: ['id', 'name'] }, { model: ProductVariant, as: 'variant', attributes: ['id', 'sku'] }] },
+    ],
+    order: [['updatedAt', 'DESC']],
+    limit: 500,
+  });
+  return res.json({ success: true, data: carts });
+};
