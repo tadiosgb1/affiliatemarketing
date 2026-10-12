@@ -43,11 +43,12 @@ onMounted(loadOrders)
 </script>
 
 <template>
-  <section class="space-y-5">
+  <section
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Orders</span></p> class="space-y-5">
     <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div>
         <p class="text-[11px] font-bold uppercase tracking-[.15em] text-indigo-600">Commerce operations</p>
-        <h2 class="mt-1 text-2xl font-bold tracking-tight text-slate-900">Orders</h2>
+        <h2 class="text-sm font-semibold text-slate-800">Orders</h2>
         <p class="mt-1.5 max-w-2xl text-[13px] leading-5 text-slate-500">Review recent customer orders, their totals and payment state.</p>
       </div>
       <button type="button" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-60" :disabled="loading" @click="loadOrders"><span>↻</span>{{ loading ? 'Refreshing…' : 'Refresh orders' }}</button>
