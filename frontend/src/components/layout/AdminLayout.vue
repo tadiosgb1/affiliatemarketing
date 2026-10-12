@@ -133,7 +133,7 @@ watch(() => route.fullPath, () => { mobileOpen.value = false; profileOpen.value 
         </div>
       </header>
       <main class="mx-auto min-h-[calc(100vh-110px)] max-w-[1500px] px-4 py-5 sm:px-7 sm:py-6 lg:px-8"><slot /></main>
-      <footer class="border-t border-slate-200/80 bg-white px-4 py-3 text-[10px] text-slate-400 sm:px-7 lg:px-8">MarketFlow · Commerce operations</footer>
+      <footer class="border-t border-slate-200/80 bg-white px-4 py-3 text-[10px] text-slate-400 sm:px-7 lg:px-8">{{ brandTitle }} · {{ platformBrand.tagline || 'Commerce operations' }}</footer>
     </div>
   </div>
 </template>
