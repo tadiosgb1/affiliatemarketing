@@ -121,7 +121,7 @@ input:focus, select:focus, textarea:focus {
 /* Runtime brand color from Company Profile. */
 :root { --platform-primary: #4f46e5; --platform-primary-soft: color-mix(in srgb, var(--platform-primary) 10%, white); }
 .bg-indigo-600, .bg-indigo-700 { background-color: var(--platform-primary) !important; }
-.hover\\:bg-indigo-700:hover { background-color: var(--platform-primary) !important; }
+[class~="hover:bg-indigo-700"]:hover { background-color: var(--platform-primary) !important; }
 .text-indigo-600, .text-indigo-700 { color: var(--platform-primary) !important; }
 .border-indigo-600 { border-color: var(--platform-primary) !important; }
 .bg-indigo-50 { background-color: var(--platform-primary-soft) !important; }
