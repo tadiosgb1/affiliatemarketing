@@ -81,8 +81,8 @@ watch(() => route.fullPath, () => { mobileOpen.value = false; profileOpen.value 
     <button v-if="mobileOpen" type="button" class="fixed inset-0 z-40 bg-slate-950/40 lg:hidden" aria-label="Close navigation overlay" @click="mobileOpen = false"></button>
     <aside :class="mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" class="fixed inset-y-0 left-0 z-50 flex w-[250px] flex-col border-r border-[#dce3ed] bg-[#eaf0f8] text-slate-700 transition-transform duration-200">
       <div class="flex h-[66px] shrink-0 items-center gap-3 border-b border-slate-200 px-5">
-        <div class="flex h-9 w-9 items-center justify-center rounded-md bg-indigo-600 text-sm font-extrabold text-white">M</div>
-        <div class="min-w-0 flex-1"><p class="text-[15px] font-bold tracking-tight text-slate-900">MarketFlow</p><p class="mt-0.5 text-[10px] font-semibold uppercase tracking-[.12em] text-slate-500">Commerce</p></div>
+        <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md bg-indigo-600 text-sm font-extrabold text-white" :style="{ backgroundColor: platformBrand.primaryColor || '#4f46e5' }"><img v-if="platformBrand.logoUrl" :src="platformBrand.logoUrl" :alt="brandTitle + ' logo'" class="h-full w-full bg-white object-contain" /><span v-else>{{ brandTitle.slice(0, 1).toUpperCase() }}</span></div>
+        <div class="min-w-0 flex-1"><p class="truncate text-[15px] font-bold tracking-tight text-slate-900">{{ brandTitle }}</p><p class="mt-0.5 truncate text-[10px] font-semibold uppercase tracking-[.12em] text-slate-500">{{ platformBrand.tagline || 'Commerce' }}</p></div>
         <button type="button" class="rounded px-2 py-1 text-slate-500 hover:bg-white lg:hidden" aria-label="Close menu" @click="mobileOpen = false">×</button>
       </div>
       <nav class="min-h-0 flex-1 overflow-y-auto px-3 py-4">
