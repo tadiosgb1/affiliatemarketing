@@ -219,7 +219,8 @@ onMounted(() => { resetForm(); load() })
 </script>
 
 <template>
-  <section class="space-y-5">
+  <section
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">{{ config.title }}</span></p> class="space-y-5">
     <header class="flex flex-col justify-end gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center">
       <div class="flex gap-2 sm:ml-auto">
         <button type="button" class="h-9 border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 hover:bg-slate-50" :disabled="loading" @click="load">Refresh</button>
