@@ -23,4 +23,25 @@ const requirePermission=(key)=>async(req,res,next)=>{
     return res.status(403).json({success:false,code:'PERMISSION_DENIED',message:'You do not have permission to perform this action.'});
   }catch(error){return next(error)}
 };
-module.exports={requirePermission};
+const requireAnyPermission=(keys)=>async(req,res,next)=>{
+ try{
+  const userId=req.user?.id;
+  if(!userId)return res.status(401).json({success:false,message:'Authentication required'});
+  for(const key of keys){
+   const override=await UserPermission.findOne({where:{userId},include:[{model:Permission,as:'permission',where:{key}}]});
+   if(override?.effect==='grant')return next();
+  }
+  const assignments=await UserRole.findAll({where:{userId},include:[{model:Role,as:'role',where:{isActive:true}}]});
+  const slugs=assignments.map(item=>item.role?.slug).filter(Boolean);
+  const legacy=String(req.user.role||'').toLowerCase();
+  if(legacy==='admin'||slugs.includes('admin'))return next();
+  const roleIds=assignments.map(item=>item.roleId);
+  if(roleIds.length){
+   const grant=await RolePermission.findOne({where:{roleId:{[Op.in]:roleIds}},include:[{model:Permission,as:'permission',where:{key:{[Op.in]:keys}}}]});
+   if(grant)return next();
+  }
+  if(!assignments.length&&legacy==='company_staff'&&keys.some(key=>['catalog.view','catalog.manage','inventory.view','inventory.manage','procurement.view','procurement.manage','orders.view','orders.manage','payments.view','finance.view','affiliates.manage','company.manage'].includes(key)))return next();
+  return res.status(403).json({success:false,code:'PERMISSION_DENIED',message:'You do not have permission to perform this action.'});
+ }catch(error){return next(error)}
+};
+module.exports={requirePermission,requireAnyPermission};
