@@ -15,13 +15,16 @@ async function loadPlatformBrand() {
   } catch { /* Use fallback branding until company settings are available. */ }
 }
 onMounted(loadPlatformBrand)
+watch(() => platformBrand.value.primaryColor, color => {
+  if (typeof document !== 'undefined' && /^#[0-9a-f]{6}$/i.test(color || '')) document.documentElement.style.setProperty('--platform-primary', color)
+}, { immediate: true })
 
 const mobileOpen = ref(false)
 const profileOpen = ref(false)
 const notificationsOpen = ref(false)
 const openGroups = ref([])
 const groups = [
-  { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: '▦', permission: 'dashboard.view' }, { label: 'Users & access', path: '/admin/users', icon: '♙', adminOnly: true }] },
+  { label: 'Workspace', items: [{ label: 'Overview', path: '/admin', icon: '▦', permission: 'dashboard.view' }, { label: 'Users & access', path: '/admin/users', icon: '♙', permission: 'users.view' }] },
   { label: 'Catalog', items: [
     { label: 'Products', path: '/admin/products', icon: '▣', permission: 'catalog.view' },
     { label: 'Categories', path: '/admin/categories', icon: '▤', permission: 'catalog.view' },
@@ -50,7 +53,7 @@ const groups = [
     { label: 'Commissions', path: '/admin/commissions', icon: '$', permission: 'finance.view' },
     { label: 'Payouts', path: '/admin/payouts', icon: '⇄', permission: 'finance.manage' },
   ] },
-  { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: '⚙', permission: 'company.manage' }, { label: 'Roles & permissions', path: '/admin/access-control', icon: '♙', adminOnly: true }] },
+  { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: '⚙', permission: 'company.manage' }, { label: 'Roles & permissions', path: '/admin/access-control', icon: '♙', permission: 'access.manage' }] },
 ]
 const visibleGroups = computed(() => {
   const isAdmin = String(auth.user?.role || '').toLowerCase() === 'admin' || (auth.user?.roles || []).some(role => (typeof role === 'string' ? role : role.slug) === 'admin')
@@ -58,7 +61,7 @@ const visibleGroups = computed(() => {
   const legacyStaff = String(auth.user?.role || '').toLowerCase() === 'company_staff'
   return groups.map(group => ({
     ...group,
-    items: group.items.filter(item => (!item.adminOnly || isAdmin) && (!item.permission || isAdmin || legacyStaff || permissions.includes(item.permission))),
+    items: group.items.filter(item => (!item.permission || isAdmin || legacyStaff || permissions.includes(item.permission))),
   })).filter(group => group.items.length)
 })
 const initials = computed(() => (auth.user?.name || auth.user?.email || 'Admin').trim().slice(0, 1).toUpperCase())
@@ -86,7 +89,7 @@ watch(() => route.fullPath, () => {
     <button v-if="mobileOpen" type="button" class="fixed inset-0 z-40 bg-slate-950/40 lg:hidden" aria-label="Close navigation overlay" @click="mobileOpen = false"></button>
     <aside :class="mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" class="fixed inset-y-0 left-0 z-50 flex w-[250px] flex-col border-r border-[#dce3ed] bg-[#eaf0f8] text-slate-700 transition-transform duration-200">
       <div class="flex h-[66px] shrink-0 items-center gap-3 border-b border-slate-200 px-5">
-        <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md bg-indigo-600 text-sm font-extrabold text-white" :style="{ backgroundColor: platformBrand.primaryColor || '#4f46e5' }">
+        <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md text-sm font-extrabold text-white" :style="{ backgroundColor: platformBrand.primaryColor || '#4f46e5' }">
           <img v-if="platformBrand.logoUrl" :src="platformBrand.logoUrl" :alt="brandTitle + ' logo'" class="h-full w-full bg-white object-contain" />
           <span v-else>{{ brandTitle.slice(0, 1).toUpperCase() }}</span>
         </div>
