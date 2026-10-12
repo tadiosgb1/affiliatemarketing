@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { auth, cartCount, logout } from '../../stores'
 import api from '../../services/api'
@@ -8,13 +8,16 @@ const brand=ref({platformName:'',name:'',tagline:'',logoUrl:'',primaryColor:'#4f
 const brandName=computed(()=>brand.value.platformName||brand.value.name||'MarketFlow')
 const roleSlugs=computed(()=> (auth.user?.roles||[]).map(role=>typeof role==='string'?role:role.slug))
 const canManage=computed(()=>['admin','company_staff'].includes(String(auth.user?.role||'').toLowerCase())||roleSlugs.value.some(role=>!['customer','affiliate'].includes(role))||(auth.user?.permissions||[]).some(permission=>permission.endsWith('.manage')||permission==='dashboard.view'))
+function onPlatformBrandUpdated(event){brand.value={...brand.value,...(event.detail||{})}}
 onMounted(async()=>{
+ window.addEventListener('platform-brand-updated',onPlatformBrandUpdated)
  try{
   const response=await api.get('/company/brand')
   brand.value={...brand.value,...(response.data?.data||{})}
   if(/^#[0-9a-f]{6}$/i.test(brand.value.primaryColor||''))document.documentElement.style.setProperty('--platform-primary',brand.value.primaryColor)
  }catch{/* Use fallback branding until a company profile is configured. */}
 })
+onUnmounted(()=>window.removeEventListener('platform-brand-updated',onPlatformBrandUpdated))
 </script>
 <template>
 <div class="min-h-screen">
