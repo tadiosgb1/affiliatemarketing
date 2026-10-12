@@ -19,7 +19,7 @@ const key = computed(() => route.path.split('/').filter(Boolean).at(-1))
 const config = computed(() => configs[key.value] || configs['affiliate-links'])
 const filteredRows = computed(() => rows.value.filter(row => {
   const term = search.value.trim().toLowerCase()
-  const haystack = [row.code,row.orderId,row.status,row.method,row.affiliate?.name,row.affiliate?.email,row.program?.name,row.amount].some(v => String(v ?? '').toLowerCase().includes(term))
+  const haystack = [row.code,row.orderId,row.status,row.type,row.method,row.warehouse?.name,row.variant?.product?.name,row.variant?.sku,row.creator?.name,row.affiliate?.name,row.affiliate?.email,row.program?.name,row.amount].some(v => String(v ?? '').toLowerCase().includes(term))
   const status = String(row.status || (row.isActive === false ? 'inactive' : 'active')).toLowerCase()
   return (!term || haystack) && (statusFilter.value === 'all' || status === statusFilter.value)
 }))
@@ -43,7 +43,7 @@ function valueFor(row,col) {
   return value===null||value===undefined||value===''?'—':String(value).replaceAll('_',' ')
 }
 function statusClass(row,col) {
-  const v=String(col.kind==='active'?(row.isActive===false?'inactive':'active'):row.status||'pending').toLowerCase()
+  const v=String(col.kind==='active'?(row.isActive===false?'inactive':'active'):col.key==='type'?row.type:row.status||'pending').toLowerCase()
   if(['active','approved','paid','completed'].includes(v))return 'bg-emerald-50 text-emerald-700 ring-emerald-600/10'
   if(['rejected','reversed','inactive','cancelled'].includes(v))return 'bg-slate-100 text-slate-600 ring-slate-500/10'
   if(['processing','pending','requested'].includes(v))return 'bg-amber-50 text-amber-700 ring-amber-600/10'
@@ -74,7 +74,7 @@ onMounted(load)
     <div class="admin-table-wrap">
       <div class="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div><h3 class="text-[13px] font-bold text-slate-900">Record register</h3><p class="mt-1 text-[11px] text-slate-500">{{ loading?'Loading records…':filteredRows.length+' records shown' }}</p></div>
-        <div class="flex flex-col gap-2 sm:flex-row"><input v-model="search" type="search" :placeholder="'Search '+config.title.toLowerCase()+'…'" class="sm:w-[240px]" /><select v-model="statusFilter" aria-label="Filter by status" class="sm:w-[150px]"><option value="all">All statuses</option><option value="active">Active</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="requested">Requested</option><option value="processing">Processing</option><option value="paid">Paid</option><option value="rejected">Rejected</option><option value="inactive">Inactive</option></select></div>
+        <div class="flex flex-col gap-2 sm:flex-row"><input v-model="search" type="search" :placeholder="'Search '+config.title.toLowerCase()+'…'" class="sm:w-[240px]" /><select v-if="key !== 'inventory-movements'" v-model="statusFilter" aria-label="Filter by status" class="sm:w-[150px]"><option value="all">All statuses</option><option value="active">Active</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="requested">Requested</option><option value="processing">Processing</option><option value="paid">Paid</option><option value="rejected">Rejected</option><option value="inactive">Inactive</option></select></div>
       </div>
       <div v-if="loading" class="space-y-3 p-5"><div v-for="n in 5" :key="n" class="h-9 animate-pulse rounded-md bg-slate-100"></div></div>
       <div v-else-if="!filteredRows.length" class="px-6 py-14 text-center"><div class="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-lg text-slate-500">⌕</div><p class="mt-3 text-[13px] font-semibold text-slate-800">No matching records</p><p class="mt-1 text-[12px] text-slate-500">Try changing your search or status filter.</p></div>
