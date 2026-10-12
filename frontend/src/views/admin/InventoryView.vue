@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import api from '../../services/api'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const rows = ref([])
 const warehouses = ref([])
@@ -11,6 +12,9 @@ const error = ref('')
 const success = ref('')
 const form = ref({ warehouseId: '', variantId: '', type: 'adjustment_in', quantity: 1, note: '' })
 const showForm = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedRows = computed(() => rows.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 const variants = computed(() => products.value.flatMap(product => (product.variants || []).map(variant => ({ ...variant, productName: product.name }))))
 
 async function load() {
@@ -88,8 +92,9 @@ onMounted(load)
       <p v-else-if="!rows.length" class="p-6 text-sm text-slate-500">No stock records found yet.</p>
       <div v-else class="overflow-x-auto"><table class="w-full text-left text-sm">
         <thead class="bg-slate-50 text-slate-500"><tr><th class="px-4 py-3">Product</th><th class="p-4">SKU</th><th class="p-4">Warehouse</th><th class="p-4">On hand</th><th class="p-4">Reserved</th><th class="p-4">Reorder level</th><th class="p-4">Status</th></tr></thead>
-        <tbody><tr v-for="row in rows" :key="row.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70"><td class="p-4 font-bold">{{ row.variant?.product?.name || 'Product' }}</td><td class="p-4 font-mono text-xs">{{ row.variant?.sku || '—' }}</td><td class="p-4">{{ row.warehouse?.name || '—' }}</td><td class="p-4 font-bold">{{ row.quantityOnHand }}</td><td class="p-4">{{ row.reservedQuantity || 0 }}</td><td class="p-4">{{ row.reorderLevel || 0 }}</td><td class="p-4"><span :class="Number(row.quantityOnHand) <= Number(row.reorderLevel || 0) ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'" class="rounded-full px-2.5 py-1 text-xs font-bold">{{ Number(row.quantityOnHand) <= Number(row.reorderLevel || 0) ? 'Low stock' : 'In stock' }}</span></td></tr></tbody>
+        <tbody><tr v-for="row in paginatedRows" :key="row.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70"><td class="p-4 font-bold">{{ row.variant?.product?.name || 'Product' }}</td><td class="p-4 font-mono text-xs">{{ row.variant?.sku || '—' }}</td><td class="p-4">{{ row.warehouse?.name || '—' }}</td><td class="p-4 font-bold">{{ row.quantityOnHand }}</td><td class="p-4">{{ row.reservedQuantity || 0 }}</td><td class="p-4">{{ row.reorderLevel || 0 }}</td><td class="p-4"><span :class="Number(row.quantityOnHand) <= Number(row.reorderLevel || 0) ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'" class="rounded-full px-2.5 py-1 text-xs font-bold">{{ Number(row.quantityOnHand) <= Number(row.reorderLevel || 0) ? 'Low stock' : 'In stock' }}</span></td></tr></tbody>
       </table></div>
     </div>
+    <AdminPagination v-if="!showForm && !loading && rows.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="rows.length" />
   </section>
 </template>
