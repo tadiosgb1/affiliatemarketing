@@ -1,10 +1,15 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { auth, logout } from '../../stores'
+import api from '../../services/api'
 
 const route = useRoute()
 const router = useRouter()
+const platformBrand = ref({ platformName: '', name: '', logoUrl: '', tagline: '', primaryColor: '#4f46e5' })
+const brandTitle = computed(() => platformBrand.value.platformName || platformBrand.value.name || 'MarketFlow')
+async function loadPlatformBrand() { try { const response = await api.get('/company'); platformBrand.value = { ...platformBrand.value, ...(response.data?.data || {}) } } catch { /* Keep the fallback brand until company setup is complete. */ } }
+onMounted(loadPlatformBrand)
 const mobileOpen = ref(false)
 const profileOpen = ref(false)
 const notificationsOpen = ref(false)
