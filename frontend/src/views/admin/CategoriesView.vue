@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import api from '../../services/api'
+import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const categories = ref([])
 const loading = ref(true)
@@ -9,6 +10,9 @@ const error = ref('')
 const success = ref('')
 const form = ref({ name: '', description: '', parentId: '' })
 const showForm = ref(false)
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedCategories = computed(() => categories.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
 
 async function loadCategories() {
   loading.value = true
@@ -132,7 +136,7 @@ onMounted(loadCategories)
             </tr>
           </thead>
           <tbody>
-            <tr v-for="category in categories" :key="category.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70">
+            <tr v-for="category in paginatedCategories" :key="category.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70">
               <td class="p-4 font-semibold"><span v-if="category.parentId" class="mr-2 text-slate-400">↳</span>{{ category.name }}<span class="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium">{{ category.parentId ? "Subcategory" : "Main category" }}</span></td>
               <td class="px-4 py-3 text-slate-600">{{ category.description || '—' }}</td>
               <td class="px-4 py-3 text-slate-500">{{ category.slug || '—' }}</td>
@@ -141,5 +145,6 @@ onMounted(loadCategories)
         </table>
       </div>
     </div>
+    <AdminPagination v-if="!showForm && !loading && categories.length" v-model:page="currentPage" v-model:page-size="pageSize" :total="categories.length" />
   </section>
 </template>
