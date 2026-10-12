@@ -10,6 +10,7 @@ const error = ref('')
 const sections = [
   { title: 'Products', description: 'Create, edit and publish products, pricing, variants and stock.', path: '/admin/products', icon: '▦' },
   { title: 'Categories & subcategories', description: 'Build the category tree customers browse in the storefront.', path: '/admin/categories', icon: '▤' },
+  { title: 'Inventory & stock', description: 'Monitor warehouse stock and record incoming or outgoing stock movements.', path: '/admin/inventory', icon: '▣' },
   { title: 'Payments', description: 'Review payment records and statuses.', path: '/admin/payments', icon: '↗' },
   { title: 'Affiliate program', description: 'Open affiliate links, commissions and referral tools.', path: '/affiliate', icon: '◎' },
   { title: 'Customer storefront', description: 'Preview the shopping experience customers see.', path: '/shop', icon: '⌂' },
