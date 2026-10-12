@@ -23,4 +23,5 @@ const requirePermission=(key)=>async(req,res,next)=>{
     return res.status(403).json({success:false,code:'PERMISSION_DENIED',message:'You do not have permission to perform this action.'});
   }catch(error){return next(error)}
 };
-module.exports={requirePermission};
+const requireAnyPermission=(keys)=>async(req,res,next)=>{for(const key of keys){let allowed=false;const middleware=requirePermission(key);await new Promise(resolve=>middleware(req,{status:code=>({json:body=>{if(code===403)resolve();else resolve();return body}})},error=>{if(!error)allowed=true;resolve()}));if(allowed)return next();}return res.status(403).json({success:false,code:'PERMISSION_DENIED',message:'You do not have permission to perform this action.'});};
+module.exports={requirePermission,requireAnyPermission};
