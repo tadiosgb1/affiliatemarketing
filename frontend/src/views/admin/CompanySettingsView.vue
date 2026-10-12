@@ -62,8 +62,11 @@ async function saveCompany() {
     })
     if (selectedLogo.value) payload.append('logo', selectedLogo.value)
     const options = { headers: { 'Content-Type': 'multipart/form-data' } }
-    if (configured.value) await api.patch('/company', payload, options)
-    else await api.post('/company', payload, options)
+    const response = configured.value ? await api.patch('/company', payload, options) : await api.post('/company', payload, options)
+    const savedBrand = response.data?.data || { ...form.value }
+    Object.assign(form.value, savedBrand)
+    if (savedBrand.primaryColor && /^#[0-9a-f]{6}$/i.test(savedBrand.primaryColor)) document.documentElement.style.setProperty('--platform-primary', savedBrand.primaryColor)
+    window.dispatchEvent(new CustomEvent('platform-brand-updated', { detail: savedBrand }))
     selectedLogo.value = null
     configured.value = true
     success.value = 'Company profile saved successfully.'
