@@ -41,7 +41,7 @@ const groups = [
   { label: 'Growth', items: [
     { label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: '↗', permission: 'affiliates.manage' },
     { label: 'Affiliate links', path: '/admin/affiliate-links', icon: '⌁', permission: 'affiliates.manage' },
-    { label: 'Commissions', path: '/admin/commissions', icon: '
+    { label: 'Commissions', path: '/admin/commissions', icon: '$', permission: 'finance.view' },
     { label: 'Payouts', path: '/admin/payouts', icon: '⇄', permission: 'finance.manage' },
   ] },
   { label: 'Settings', items: [{ label: 'Company profile', path: '/admin/company', icon: '⚙', permission: 'company.manage' }, { label: 'Roles & permissions', path: '/admin/access-control', icon: '♙', adminOnly: true }] },
