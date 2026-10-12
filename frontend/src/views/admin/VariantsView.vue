@@ -4,6 +4,10 @@ import api from '../../services/api'
 import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const products = ref([])
+const attributes = ref([])
+const showCreateForm = ref(false)
+const createForm = ref({ productId: '', sku: '', barcode: '', price: '', compareAtPrice: '', costPrice: '' })
+const variantOptions = ref({})
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
@@ -33,13 +37,29 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const response = await api.get('/products/admin/all?limit=200')
+    const [response, attributeResponse] = await Promise.all([api.get('/products/admin/all?limit=200'), api.get('/attributes')])
     products.value = Array.isArray(response.data?.data) ? response.data.data : []
+    attributes.value = Array.isArray(attributeResponse.data?.data) ? attributeResponse.data.data : []
   } catch (err) {
     error.value = err.response?.data?.message || 'Product variants could not be loaded. Check your admin session and API connection.'
   } finally {
     loading.value = false
   }
+}
+function resetCreateForm() { createForm.value = { productId: '', sku: '', barcode: '', price: '', compareAtPrice: '', costPrice: '' }; variantOptions.value = {} }
+function cancelCreate() { showCreateForm.value = false; resetCreateForm() }
+async function createVariant() {
+  saving.value = true; error.value = ''; success.value = ''
+  try {
+    const product = products.value.find(item => item.id === createForm.value.productId)
+    if (!product) throw new Error('Choose a product first.')
+    const payload = { productId: product.id, sku: createForm.value.sku.trim(), barcode: createForm.value.barcode.trim() || null, price: Number(createForm.value.price), compareAtPrice: createForm.value.compareAtPrice === '' ? null : Number(createForm.value.compareAtPrice), costPrice: createForm.value.costPrice === '' ? null : Number(createForm.value.costPrice), options: Object.entries(variantOptions.value).filter(([, attributeValueId]) => attributeValueId).map(([attributeId, attributeValueId]) => ({ attributeId, attributeValueId })) }
+    if (!payload.sku || !Number.isFinite(payload.price) || payload.price < 0) throw new Error('Enter a unique SKU and a valid selling price.')
+    for (const value of [payload.compareAtPrice, payload.costPrice]) if (value !== null && (!Number.isFinite(value) || value < 0)) throw new Error('All prices must be non-negative numbers.')
+    await api.post('/product-variants', payload)
+    success.value = 'Product variant created.'; showCreateForm.value = false; resetCreateForm(); await load()
+  } catch (err) { error.value = err.response?.data?.message || err.message || 'Could not create variant.' }
+  finally { saving.value = false }
 }
 function edit(variant) {
   editingId.value = variant.id
@@ -87,12 +107,13 @@ onMounted(load)
     <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Product variants</span></p>
     <header class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
       <div></div>
-      <button type="button" class="h-10 rounded-lg border border-slate-200 bg-white px-3.5 text-[12px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50" :disabled="loading" @click="load">↻ Refresh variants</button>
+      <div class="flex gap-2"><button type="button" class="h-10 border border-slate-200 bg-white px-3 text-[12px] font-semibold text-slate-700 hover:bg-slate-50" :disabled="loading" @click="load">Refresh</button><button type="button" class="h-10 bg-indigo-600 px-3.5 text-[12px] font-semibold text-white hover:bg-indigo-700" @click="showCreateForm = !showCreateForm">{{ showCreateForm ? 'Cancel' : '+ New variant' }}</button></div>
     </header>
     <div v-if="error" role="alert" class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800">{{ error }}</div>
     <div v-if="success" role="status" class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] text-emerald-800">{{ success }}</div>
-    <div class="grid gap-3 sm:grid-cols-3"><article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-[12px] font-medium text-slate-500">Variants</p><p class="mt-2 text-2xl font-bold text-slate-900">{{ loading ? '—' : variants.length }}</p></article><article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-[12px] font-medium text-slate-500">Active variants</p><p class="mt-2 text-2xl font-bold text-slate-900">{{ loading ? '—' : variants.filter(item => item.status === 'active').length }}</p></article><article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-[12px] font-medium text-slate-500">Visible variants</p><p class="mt-2 text-2xl font-bold text-slate-900">{{ loading ? '—' : visibleVariants.length }}</p></article></div>
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <form v-if="showCreateForm" class="grid gap-4 border border-slate-200 bg-white p-5 md:grid-cols-3" @submit.prevent="createVariant"><div class="md:col-span-3"><label class="mb-1 block text-[12px] font-semibold">Product</label><select v-model="createForm.productId" required class="w-full"><option value="" disabled>Select product</option><option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }} · {{ product.sku }}</option></select></div><div><label class="mb-1 block text-[12px] font-semibold">Variant SKU</label><input v-model="createForm.sku" required maxlength="100" class="w-full" placeholder="e.g. TSHIRT-BLUE-M" /></div><div><label class="mb-1 block text-[12px] font-semibold">Barcode</label><input v-model="createForm.barcode" class="w-full" /></div><div><label class="mb-1 block text-[12px] font-semibold">Selling price (ETB)</label><input v-model="createForm.price" type="number" min="0" step="0.01" required class="w-full" /></div><div><label class="mb-1 block text-[12px] font-semibold">Compare-at price</label><input v-model="createForm.compareAtPrice" type="number" min="0" step="0.01" class="w-full" /></div><div><label class="mb-1 block text-[12px] font-semibold">Cost price</label><input v-model="createForm.costPrice" type="number" min="0" step="0.01" class="w-full" /></div><div v-for="attribute in attributes.filter(item => item.type === 'select' || item.type === 'color')" :key="attribute.id"><label class="mb-1 block text-[12px] font-semibold">{{ attribute.name }}</label><select v-model="variantOptions[attribute.id]" class="w-full"><option value="">No selection</option><option v-for="option in attribute.values || []" :key="option.id" :value="option.id">{{ option.label || option.value }}</option></select></div><div class="flex justify-end gap-2 border-t border-slate-100 pt-4 md:col-span-3"><button type="button" class="h-9 border border-slate-200 px-3 text-[12px] font-semibold" @click="cancelCreate">Cancel</button><button type="submit" :disabled="saving" class="h-9 bg-indigo-600 px-4 text-[12px] font-semibold text-white disabled:opacity-50">{{ saving ? 'Saving…' : 'Create variant' }}</button></div></form>
+    <div v-if="!showCreateForm" class="grid gap-3 sm:grid-cols-3"><article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-[12px] font-medium text-slate-500">Variants</p><p class="mt-2 text-2xl font-bold text-slate-900">{{ loading ? '—' : variants.length }}</p></article><article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-[12px] font-medium text-slate-500">Active variants</p><p class="mt-2 text-2xl font-bold text-slate-900">{{ loading ? '—' : variants.filter(item => item.status === 'active').length }}</p></article><article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"><p class="text-[12px] font-medium text-slate-500">Visible variants</p><p class="mt-2 text-2xl font-bold text-slate-900">{{ loading ? '—' : visibleVariants.length }}</p></article></div>
+    <div v-if="!showCreateForm" class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div class="flex flex-col gap-3 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between"><div><h3 class="text-[13px] font-bold text-slate-900">Variant register</h3><p class="mt-1 text-[11px] text-slate-500">Prices are editable per variant; stock is read from inventory records.</p></div><div class="grid gap-2 sm:grid-cols-[minmax(200px,260px)_150px]"><input v-model="search" type="search" placeholder="Search product, SKU or barcode…" aria-label="Search variants" class="w-full" /><select v-model="statusFilter" aria-label="Filter variant status" class="w-full"><option value="all">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div></div>
       <div v-if="loading" class="space-y-3 p-5"><div v-for="n in 5" :key="n" class="h-12 animate-pulse rounded-md bg-slate-50"></div></div>
       <div v-else-if="!error && !visibleVariants.length" class="px-6 py-12 text-center"><p class="text-[13px] font-semibold text-slate-800">No variants found</p><p class="mt-1 text-[12px] text-slate-500">Create product variants from the product management workflow.</p></div>
