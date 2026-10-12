@@ -63,8 +63,8 @@ onMounted(loadCompany)
 </script>
 
 <template>
-  <section
-    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Company profile</span></p> class="space-y-5">
+  <section class="space-y-5">
+    <p class="mb-3 text-[12px] text-slate-500">Home / <span class="font-semibold text-slate-700">Company profile</span></p>
     <header class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
       <div><p class="text-[11px] font-bold uppercase tracking-[.15em] text-indigo-600">Store configuration</p><h2 class="text-sm font-semibold text-slate-800">Company profile</h2><p class="mt-1.5 max-w-2xl text-[13px] leading-5 text-slate-500">Maintain the business identity used by your commerce, inventory and affiliate operations.</p></div>
       <span class="inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold" :class="configured ? 'border-emerald-100 bg-emerald-50 text-emerald-700' : 'border-amber-100 bg-amber-50 text-amber-700'"><span class="h-1.5 w-1.5 rounded-full" :class="configured ? 'bg-emerald-500' : 'bg-amber-500'"></span>{{ configured ? 'Profile configured' : 'Setup required' }}</span>
