@@ -1,14 +1,15 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { useRouter, useRoute, RouterLink } from 'vue-router'
 import api from '../../services/api'
 import { setAuth } from '../../stores'
 
 const router = useRouter()
+const route = useRoute()
 const identifier = ref('')
 const password = ref('')
 const loading = ref(false)
-const error = ref('')
+const error = ref(route.query.session === 'expired' ? 'Your session expired or the token was rejected. Please sign in again.' : '')
 
 async function submit() {
   loading.value = true
