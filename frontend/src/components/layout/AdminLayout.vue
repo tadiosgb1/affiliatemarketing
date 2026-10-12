@@ -23,6 +23,7 @@ const groups = [
     { label: 'Supplier catalog', path: '/admin/supplier-products', icon: '▧' },
     { label: 'Purchase orders', path: '/admin/purchase-orders', icon: '▤' },
     { label: 'Orders', path: '/admin/orders', icon: '▱', adminOnly: true },
+    { label: 'Customer carts', path: '/admin/carts', icon: '▢', adminOnly: true },
     { label: 'Payments', path: '/admin/payments', icon: '◉', adminOnly: true },
   ] },
   { label: 'Growth & finance', items: [{ label: 'Affiliate programs', path: '/admin/affiliate-programs', icon: '↗' }, { label: 'Affiliate links', path: '/admin/affiliate-links', icon: '⌁' }, { label: 'Commissions', path: '/admin/commissions', icon: '
