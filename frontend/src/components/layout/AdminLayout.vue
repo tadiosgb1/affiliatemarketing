@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { auth, logout } from '../../stores'
 import api from '../../services/api'
@@ -14,7 +14,9 @@ async function loadPlatformBrand() {
     platformBrand.value = { ...platformBrand.value, ...(response.data?.data || {}) }
   } catch { /* Use fallback branding until company settings are available. */ }
 }
-onMounted(loadPlatformBrand)
+function onPlatformBrandUpdated(event) { platformBrand.value = { ...platformBrand.value, ...(event.detail || {}) } }
+onMounted(() => { loadPlatformBrand(); window.addEventListener('platform-brand-updated', onPlatformBrandUpdated) })
+onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatformBrandUpdated))
 watch(() => platformBrand.value.primaryColor, color => {
   if (typeof document !== 'undefined' && /^#[0-9a-f]{6}$/i.test(color || '')) document.documentElement.style.setProperty('--platform-primary', color)
 }, { immediate: true })
