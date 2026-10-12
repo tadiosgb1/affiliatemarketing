@@ -68,7 +68,8 @@ onMounted(loadPayments)
               <th class="p-4 font-semibold">Method</th>
               <th class="p-4 font-semibold">Amount</th>
               <th class="p-4 font-semibold">Status</th>
-              <th class="p-4 font-semibold">Created</th>\n              <th class="p-4 font-semibold">Review</th>
+              <th class="p-4 font-semibold">Created</th>
+              <th class="p-4 font-semibold">Review</th>
             </tr>
           </thead>
           <tbody>
