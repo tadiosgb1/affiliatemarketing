@@ -74,8 +74,9 @@ async function load() {
   }
 }
 function buy(product) {
-  const added = addToCart(product)
-  notice.value = added ? product.name + ' was added to your bag.' : 'This product has no active purchasable option yet. Open the product page to choose an available option.'
+  const activeVariant = (product.variants || []).find(variant => variant.status === 'active')
+  const added = activeVariant ? addToCart(product, activeVariant) : false
+  notice.value = added ? product.name + ' was added to your bag.' : 'This product has no active purchasable option yet. Open the product page for details.'
   adding.value = product.id
   window.setTimeout(() => { adding.value = '' }, 900)
 }
