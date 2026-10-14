@@ -36,53 +36,53 @@ async function submit() {
 </script>
 
 <template>
-  <main class="auth-screen min-h-screen bg-white">
+  <main class="auth-screen min-h-screen bg-[#faf9f6]">
     <div class="min-h-screen">
       <section class="flex min-h-screen items-center justify-center px-5 py-8 sm:px-10 lg:px-12 xl:px-20">
         <div class="w-full max-w-md">
           <div class="mb-8 flex items-center justify-between lg:hidden">
-            <RouterLink to="/" class="inline-flex items-center gap-2 text-lg font-black tracking-tight text-slate-950"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white">M</span>Market<span class="text-indigo-600">Flow</span></RouterLink>
-            <RouterLink to="/products" class="text-sm font-semibold text-slate-500 hover:text-indigo-600">Explore shop ↗</RouterLink>
+            <RouterLink to="/" class="inline-flex items-center gap-2 text-lg font-black tracking-tight text-stone-950"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-stone-950 text-white">M</span>Market<span class="text-stone-700">Flow</span></RouterLink>
+            <RouterLink to="/products" class="text-sm font-semibold text-stone-600 hover:text-stone-700">Explore shop ↗</RouterLink>
           </div>
-          <RouterLink to="/" class="mb-7 hidden items-center gap-2 text-sm font-semibold text-slate-500 transition hover:text-indigo-600 lg:inline-flex">← Back to storefront</RouterLink>
+          <RouterLink to="/" class="mb-7 hidden items-center gap-2 text-sm font-semibold text-stone-600 transition hover:text-stone-700 lg:inline-flex">← Back to storefront</RouterLink>
           <div class="mb-7">
-            <p class="text-sm font-bold text-indigo-600">JOIN MARKETFLOW</p>
-            <h1 class="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Create your account</h1>
-            <p class="mt-3 text-sm leading-6 text-slate-500">A few details and you’ll be ready to discover something great.</p>
+            <p class="text-sm font-bold text-stone-700">JOIN MARKETFLOW</p>
+            <h1 class="mt-3 text-3xl font-black tracking-tight text-stone-950 sm:text-4xl">Create your account</h1>
+            <p class="mt-3 text-sm leading-6 text-stone-600">A few details and you’ll be ready to discover something great.</p>
           </div>
 
           <p v-if="error" role="alert" class="mb-5 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-5 text-red-700"><span aria-hidden="true">!</span><span>{{ error }}</span></p>
 
           <form class="space-y-4" @submit.prevent="submit">
             <div>
-              <label for="register-name" class="mb-2 block text-sm font-semibold text-slate-700">Full name</label>
-              <input id="register-name" v-model="name" type="text" autocomplete="name" minlength="2" maxlength="120" required placeholder="Your full name" class="auth-input w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10" />
+              <label for="register-name" class="mb-2 block text-sm font-semibold text-stone-800">Full name</label>
+              <input id="register-name" v-model="name" type="text" autocomplete="name" minlength="2" maxlength="120" required placeholder="Your full name" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
             </div>
             <div>
-              <label for="register-email" class="mb-2 block text-sm font-semibold text-slate-700">Email address</label>
-              <input id="register-email" v-model="email" type="email" autocomplete="email" required placeholder="you@example.com" class="auth-input w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10" />
+              <label for="register-email" class="mb-2 block text-sm font-semibold text-stone-800">Email address</label>
+              <input id="register-email" v-model="email" type="email" autocomplete="email" required placeholder="you@example.com" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
             </div>
             <div>
-              <label for="register-phone" class="mb-2 block text-sm font-semibold text-slate-700">Phone number <span class="font-normal text-slate-400">(optional)</span></label>
-              <input id="register-phone" v-model="phone" type="tel" autocomplete="tel" placeholder="+251 9..." class="auth-input w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10" />
+              <label for="register-phone" class="mb-2 block text-sm font-semibold text-stone-800">Phone number <span class="font-normal text-stone-500">(optional)</span></label>
+              <input id="register-phone" v-model="phone" type="tel" autocomplete="tel" placeholder="+251 9..." class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
             </div>
             <div>
-              <label for="register-password" class="mb-2 block text-sm font-semibold text-slate-700">Create a password</label>
+              <label for="register-password" class="mb-2 block text-sm font-semibold text-stone-800">Create a password</label>
               <div class="relative">
-                <input id="register-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters" class="auth-input w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10" />
-                <button type="button" class="absolute inset-y-0 right-3 my-auto h-9 rounded-lg px-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-800" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button>
+                <input id="register-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
+                <button type="button" class="absolute inset-y-0 right-3 my-auto h-9 rounded-lg px-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-950" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button>
               </div>
-              <p class="mt-2 text-xs leading-5 text-slate-500">Choose at least 8 characters and keep your password private.</p>
+              <p class="mt-2 text-xs leading-5 text-stone-600">Choose at least 8 characters and keep your password private.</p>
             </div>
-            <button type="submit" :disabled="loading" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60">
+            <button type="submit" :disabled="loading" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-stone-950/10 transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60">
               <span v-if="loading" class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
               {{ loading ? 'Creating your account…' : 'Create account' }}
               <span v-if="!loading" aria-hidden="true">→</span>
             </button>
           </form>
 
-          <p class="mt-7 text-center text-sm text-slate-600">Already have an account? <RouterLink to="/login" class="font-bold text-indigo-600 hover:text-indigo-700">Sign in</RouterLink></p>
-          <p class="mt-7 text-center text-xs leading-5 text-slate-400">Your details are used to set up your MarketFlow account.</p>
+          <p class="mt-7 text-center text-sm text-stone-600">Already have an account? <RouterLink to="/login" class="font-bold text-stone-700 hover:text-stone-950">Sign in</RouterLink></p>
+          <p class="mt-7 text-center text-xs leading-5 text-stone-500">Your details are used to set up your MarketFlow account.</p>
         </div>
       </section>
     </div>
@@ -92,12 +92,26 @@ async function submit() {
 <style scoped>
 .auth-input { min-height: 50px; }
 
-/* Keep authentication copy readable even when the site's runtime brand color changes. */
-.auth-screen :deep(.text-indigo-600),
-.auth-screen :deep(.text-indigo-700) { color: #4338ca !important; }
-.auth-screen :deep(.text-slate-950) { color: #0f172a !important; }
-.auth-screen :deep(.text-slate-700) { color: #334155 !important; }
-.auth-screen :deep(.text-slate-600) { color: #475569 !important; }
-.auth-screen :deep(.text-slate-500) { color: #64748b !important; }
-.auth-screen :deep(.text-slate-400) { color: #64748b !important; }
+/* Match the storefront's warm neutral palette and guarantee readable controls. */
+.auth-screen { color: #1c1917; }
+.auth-screen :deep(button[type="submit"]) {
+  background-color: #1c1917 !important;
+  color: #ffffff !important;
+}
+.auth-screen :deep(button[type="submit"]:hover:not(:disabled)) {
+  background-color: #44403c !important;
+  color: #ffffff !important;
+}
+.auth-screen :deep(button[type="submit"]:disabled) {
+  background-color: #57534e !important;
+  color: #ffffff !important;
+}
+.auth-screen :deep(button[type="button"]) {
+  color: #44403c !important;
+  background-color: #ffffff !important;
+}
+.auth-screen :deep(a.text-stone-700),
+.auth-screen :deep(a.text-stone-950) { color: #292524 !important; }
+.auth-screen :deep(input) { color: #1c1917 !important; }
+.auth-screen :deep(input::placeholder) { color: #78716c !important; opacity: 1; }
 </style>
