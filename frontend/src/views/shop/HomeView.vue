@@ -77,7 +77,7 @@ onMounted(load)
 
     <section>
       <div class="flex items-end justify-between gap-4 border-b border-stone-200 pb-5">
-        <div><p class="text-[10px] font-extrabold uppercase tracking-[.25em] text-stone-500">Handpicked from the catalog</p><h2 class="mt-2 text-3xl font-black tracking-[-.05em] sm:text-4xl">Fresh finds.</h2><p class="mt-2 text-sm text-stone-500">Product data comes from your store backend.</p></div>
+        <div><p class="text-[10px] font-extrabold uppercase tracking-[.25em] text-stone-500">Handpicked from the catalog</p><h2 class="mt-2 text-3xl font-black tracking-[-.05em] sm:text-4xl">Fresh finds.</h2></div>
         <RouterLink to="/products" class="shrink-0 pb-1 text-[10px] font-extrabold uppercase tracking-wider underline underline-offset-4">View all ↗</RouterLink>
       </div>
       <p v-if="error" role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{{ error }} <button @click="load" class="ml-2 font-bold underline">Try again</button></p>
@@ -98,7 +98,7 @@ onMounted(load)
     </section>
 
     <section class="grid overflow-hidden rounded-2xl bg-[#e8e1d7] md:grid-cols-2">
-      <div class="flex flex-col justify-center p-7 sm:p-10 lg:p-14"><p class="text-[10px] font-extrabold uppercase tracking-[.25em] text-stone-500">A better way to discover</p><h2 class="mt-4 text-3xl font-black leading-tight tracking-[-.06em] sm:text-5xl">Your next favourite<br/>is closer than ever.</h2><p class="mt-4 max-w-md text-sm leading-6 text-stone-600">Explore the complete catalog, compare prices, choose options, and keep the things you love together in your shopping bag.</p><RouterLink to="/products" class="mt-7 inline-flex w-fit rounded-full bg-stone-950 px-6 py-3.5 text-[10px] font-extrabold uppercase tracking-wider text-white hover:bg-stone-700">Start exploring ↗</RouterLink></div>
+      <div class="flex flex-col justify-center p-7 sm:p-10 lg:p-14"><p class="text-[10px] font-extrabold uppercase tracking-[.25em] text-stone-500">A better way to discover</p><h2 class="mt-4 text-3xl font-black leading-tight tracking-[-.06em] sm:text-5xl">Your next favourite<br/>is closer than ever.</h2><p class="mt-4 max-w-md text-sm leading-6 text-stone-600">Explore the complete catalog, compare prices, choose options, and keep the things you love together in your cart.</p><RouterLink to="/products" class="mt-7 inline-flex w-fit rounded-full bg-stone-950 px-6 py-3.5 text-[10px] font-extrabold uppercase tracking-wider text-white hover:bg-stone-700">Start exploring ↗</RouterLink></div>
       <div class="relative min-h-64"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1400&q=85" alt="Modern retail store interior" loading="lazy" class="absolute inset-0 h-full w-full object-cover"/></div>
     </section>
   </div>
