@@ -37,24 +37,7 @@ async function submit() {
 
 <template>
   <main class="auth-screen min-h-screen bg-white">
-    <div class="grid min-h-screen lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-      <aside class="auth-story relative hidden overflow-hidden bg-slate-950 px-12 py-10 text-white lg:flex lg:flex-col xl:px-16">
-        <div class="auth-orb auth-orb-one"></div>
-        <div class="auth-orb auth-orb-two"></div>
-        <RouterLink to="/" class="relative z-10 inline-flex w-fit items-center gap-3 text-xl font-black tracking-tight"><span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500 text-lg">M</span>Market<span class="text-indigo-300">Flow</span></RouterLink>
-        <div class="relative z-10 my-auto max-w-xl py-16">
-          <p class="mb-5 text-xs font-bold uppercase tracking-[0.28em] text-indigo-300">Make room for better finds</p>
-          <h2 class="max-w-lg text-5xl font-black leading-[1.08] tracking-tight xl:text-6xl">Your next favorite thing starts here.</h2>
-          <p class="mt-6 max-w-md text-base leading-7 text-slate-300">Create your free account to explore the catalog, save the things you love, and keep your shopping journey organized.</p>
-          <div class="mt-10 space-y-4">
-            <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-indigo-200">✓</span><span class="text-sm text-slate-200">Discover products picked for everyday life</span></div>
-            <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-indigo-200">♡</span><span class="text-sm text-slate-200">Keep your favorite finds close</span></div>
-            <div class="flex items-center gap-3"><span class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-indigo-200">↗</span><span class="text-sm text-slate-200">One account for shopping and affiliate features</span></div>
-          </div>
-        </div>
-        <p class="relative z-10 text-xs text-slate-500">Thoughtful finds. A better everyday.</p>
-      </aside>
-
+    <div class="min-h-screen">
       <section class="flex min-h-screen items-center justify-center px-5 py-8 sm:px-10 lg:px-12 xl:px-20">
         <div class="w-full max-w-md">
           <div class="mb-8 flex items-center justify-between lg:hidden">
@@ -107,10 +90,5 @@ async function submit() {
 </template>
 
 <style scoped>
-.auth-story { isolation: isolate; }
-.auth-story::before { position: absolute; inset: 0; content: ""; background: radial-gradient(ellipse at 75% 30%, rgb(99 102 241 / 25%), transparent 48%), linear-gradient(145deg, transparent 35%, rgb(79 70 229 / 12%)); pointer-events: none; }
-.auth-orb { position: absolute; border: 1px solid rgb(255 255 255 / 9%); border-radius: 9999px; pointer-events: none; }
-.auth-orb-one { width: 34rem; height: 34rem; right: -14rem; top: 14%; }
-.auth-orb-two { width: 24rem; height: 24rem; right: -9rem; top: 23%; background: radial-gradient(circle, rgb(99 102 241 / 13%), transparent 68%); }
 .auth-input { min-height: 50px; }
 </style>
