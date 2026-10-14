@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import api from '../../services/api'
-import { addToCart } from '../../stores'
+import { addToCart, auth } from '../../stores'
 import LoadingState from '../../components/ui/LoadingState.vue'
 
 const route = useRoute()
@@ -88,7 +88,7 @@ function toggleCategory(item) {
   expandedCategoryIds.value = expandedCategoryIds.value.includes(id) ? expandedCategoryIds.value.filter(value => value !== id) : [...expandedCategoryIds.value, id]
 }
 async function shareProduct(product) {
-  const code = localStorage.getItem('affiliateCode') || localStorage.getItem('affiliate_code') || ''
+  const code = auth.user?.affiliateCode || auth.user?.affiliate_code || auth.user?.referralCode || auth.user?.referral_code || localStorage.getItem('affiliateCode') || localStorage.getItem('affiliate_code') || ''
   const url = new URL('/products/' + encodeURIComponent(product.slug || product.id), window.location.origin)
   if (code) url.searchParams.set('ref', code)
   const shareData = { title: product.name, text: 'Take a look at ' + product.name, url: url.toString() }
