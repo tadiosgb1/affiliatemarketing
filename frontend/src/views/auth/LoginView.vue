@@ -83,4 +83,13 @@ async function submit() {
 
 <style scoped>
 .auth-input { min-height: 50px; }
+
+/* Keep authentication copy readable even when the site's runtime brand color changes. */
+.auth-screen :deep(.text-indigo-600),
+.auth-screen :deep(.text-indigo-700) { color: #4338ca !important; }
+.auth-screen :deep(.text-slate-950) { color: #0f172a !important; }
+.auth-screen :deep(.text-slate-700) { color: #334155 !important; }
+.auth-screen :deep(.text-slate-600) { color: #475569 !important; }
+.auth-screen :deep(.text-slate-500) { color: #64748b !important; }
+.auth-screen :deep(.text-slate-400) { color: #64748b !important; }
 </style>
