@@ -2,9 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { auth } from '../stores'
 
 const routes = [
-  { path: '/', redirect: '/shop' },
-  { path: '/shop', component: () => import('../views/shop/ShopView.vue') },
+  { path: '/', component: () => import('../views/shop/HomeView.vue') },
+  { path: '/home', redirect: '/' },
+  { path: '/shop', redirect: '/products' },
+  { path: '/products', component: () => import('../views/shop/ShopView.vue') },
   { path: '/products/:slug', component: () => import('../views/shop/ProductView.vue') },
+  { path: '/categories', component: () => import('../views/shop/CategoriesView.vue') },
   { path: '/cart', component: () => import('../views/shop/CartView.vue') },
   { path: '/checkout', component: () => import('../views/shop/CheckoutView.vue') },
   { path: '/orders', component: () => import('../views/customer/OrdersView.vue') },
@@ -46,12 +49,8 @@ router.beforeEach(to => {
   const permissions = auth.user?.permissions || []
   const isManager = ['admin', 'company_staff'].includes(String(auth.user?.role || '').toLowerCase()) || roleSlugs.some(role => role !== 'customer' && role !== 'affiliate') || permissions.some(permission => permission.endsWith('.manage') || permission === 'dashboard.view')
   if (to.matched.some(record => record.meta.permission) && String(auth.user?.role || '').toLowerCase() !== 'admin' && !roleSlugs.includes('admin') && !permissions.includes(to.matched.find(record => record.meta.permission)?.meta.permission)) return '/admin'
-  if (to.matched.some(record => record.meta.management) && !isManager) {
-    return auth.user ? '/shop' : '/login'
-  }
-  if (['/login', '/register'].includes(to.path) && auth.user) {
-    return isManager ? '/admin' : '/shop'
-  }
+  if (to.matched.some(record => record.meta.management) && !isManager) return auth.user ? '/products' : '/login'
+  if (['/login', '/register'].includes(to.path) && auth.user) return isManager ? '/admin' : '/products'
 })
 
 export default router
