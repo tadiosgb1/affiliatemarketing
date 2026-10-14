@@ -121,7 +121,7 @@ onMounted(loadProduct)
         <h1 class="mt-3 text-3xl font-black leading-tight tracking-[-.055em] sm:text-4xl">{{ product.name }}</h1>
         <div class="mt-5 flex flex-wrap items-baseline gap-3"><p class="text-2xl font-black tracking-tight">{{ money(selectedVariant?.price ?? product.price) }} <span class="text-sm font-semibold">{{ product.currency || 'ETB' }}</span></p><p v-if="selectedVariant?.compareAtPrice || product.compareAtPrice" class="text-sm text-stone-400 line-through">{{ money(selectedVariant?.compareAtPrice || product.compareAtPrice) }} {{ product.currency || 'ETB' }}</p></div>
         <p v-if="stockCount !== null" class="mt-3 inline-flex items-center gap-2 text-xs font-semibold" :class="stockCount > 0 ? 'text-emerald-700' : 'text-red-600'"><span class="h-2 w-2 rounded-full" :class="stockCount > 0 ? 'bg-emerald-500' : 'bg-red-500'"></span>{{ stockCount > 0 ? stockCount + ' available' : 'Currently out of stock' }}</p>
-        <p class="mt-5 whitespace-pre-line text-sm leading-7 text-stone-600">{{ product.description || 'Explore the details below and choose an available option before adding this item to your bag.' }}</p>
+        <p class="mt-5 whitespace-pre-line text-sm leading-7 text-stone-600">{{ product.description || 'Explore the details below and choose an available option before adding this item to your cart.' }}</p>
 
         <div v-if="variants.length" class="mt-7 border-t border-stone-200 pt-6">
           <div class="flex items-center justify-between gap-3"><label for="product-variant" class="text-xs font-bold uppercase tracking-wider">Choose your option</label><span class="text-[10px] text-stone-400">{{ variants.length }} {{ variants.length === 1 ? 'option' : 'options' }}</span></div>
