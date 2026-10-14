@@ -17,7 +17,8 @@ const brand = ref({ platformName: '', name: '', tagline: '', logoUrl: '', primar
 const brandName = computed(() => brand.value.platformName || brand.value.name || 'MarketFlow')
 const roleSlugs = computed(() => (auth.user?.roles || []).map(role => typeof role === 'string' ? role : role.slug))
 const canManage = computed(() => ['admin', 'company_staff'].includes(String(auth.user?.role || '').toLowerCase()) || roleSlugs.value.some(item => !['customer', 'affiliate'].includes(item)) || (auth.user?.permissions || []).some(permission => permission.endsWith('.manage') || permission === 'dashboard.view'))
-const topCategories = computed(() => categories.value.filter(item => !item.parentId && !item.parent_id))
+const parentIdOf = item => item.parentId ?? item.parent_id ?? item.parent?.id ?? item.parentCategoryId ?? null
+const topCategories = computed(() => categories.value.filter(item => !parentIdOf(item)))
 const categoryProducts = computed(() => {
   if (!activeCategory.value) return products.value.slice(0, 6)
   const id = String(activeCategory.value.id)
@@ -75,14 +76,14 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
       </form>
       <div class="ml-auto flex shrink-0 items-center gap-2">
         <div class="relative">
-          <button @click="accountOpen = true; categoryOpen = false" @mouseenter="accountOpen = true" class="flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold hover:border-stone-950" aria-haspopup="true" :aria-expanded="accountOpen"><span class="text-lg">♙</span><span class="hidden lg:inline">{{ auth.user ? 'My account' : 'Sign in' }}</span><span class="hidden sm:inline">⌄</span></button>
+          <button @click="accountOpen = true; categoryOpen = false" @mouseenter="accountOpen = true" class="flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold hover:border-stone-950" aria-haspopup="true" :aria-expanded="accountOpen"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.8-3.4 3.2-5.2 7-5.2s6.2 1.8 7 5.2"/></svg><span class="hidden lg:inline">{{ auth.user ? 'My account' : 'Sign in' }}</span><svg class="h-3.5 w-3.5 transition-transform" :class="accountOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg></button>
           <div v-if="accountOpen" @mouseleave="accountOpen = false" class="absolute right-0 top-full mt-3 w-64 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl">
             <div class="border-b border-stone-100 px-3 pb-3"><p class="text-sm font-black">{{ auth.user ? (auth.user.name || auth.user.email || 'Welcome back') : 'Welcome to ' + brandName }}</p><p class="mt-1 text-xs text-stone-500">{{ auth.user ? 'Manage your shopping account' : 'Sign in to manage your orders and favourites' }}</p></div>
             <template v-if="auth.user">
               <RouterLink @click="closeMenus" to="/orders" class="mt-2 block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">My orders</RouterLink>
               <RouterLink @click="closeMenus" to="/messages" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">My messages</RouterLink>
               <RouterLink @click="closeMenus" to="/wishlist" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">My wishlist</RouterLink>
-              <RouterLink @click="closeMenus" to="/cart" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">Shopping bag</RouterLink>
+              <RouterLink @click="closeMenus" to="/cart" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">Cart</RouterLink>
               <RouterLink v-if="canManage" @click="closeMenus" to="/admin" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">Management</RouterLink>
               <button @click="signOut" class="mt-2 w-full rounded-lg border border-stone-200 px-3 py-2.5 text-left text-sm font-bold hover:bg-stone-50">Sign out</button>
             </template>
@@ -90,12 +91,12 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
           </div>
         </div>
         <RouterLink to="/wishlist" aria-label="My wishlist" class="hidden h-10 w-10 items-center justify-center rounded-full border border-stone-200 text-lg hover:border-stone-950 sm:flex">♡</RouterLink>
-        <RouterLink to="/cart" aria-label="Shopping bag" class="relative flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold transition hover:border-stone-950"><span class="text-lg">♧</span><span class="hidden sm:inline">Bag</span><span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-stone-950 px-1.5 text-[10px] text-white">{{ cartCount }}</span></RouterLink>
+        <RouterLink to="/cart" aria-label="Cart" class="relative flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold transition hover:border-stone-950"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="hidden sm:inline">Cart</span><span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-stone-950 px-1.5 text-[10px] text-white">{{ cartCount }}</span></RouterLink>
       </div>
     </div>
     <div class="border-t border-stone-100">
       <div class="mx-auto flex max-w-[1440px] items-center gap-7 px-4 sm:px-6 lg:px-10">
-        <button @click="categoryOpen = true; activeCategory = activeCategory || topCategories[0] || categories[0] || null; accountOpen = false" @mouseenter="categoryOpen = true; accountOpen = false" class="relative flex h-12 shrink-0 items-center gap-2 text-xs font-extrabold uppercase tracking-[.12em]" :class="categoryOpen ? 'text-stone-950' : 'text-stone-600 hover:text-stone-950'" aria-haspopup="true" :aria-expanded="categoryOpen">☷ Categories <span>⌄</span></button>
+        <button @click="categoryOpen = true; activeCategory = activeCategory || topCategories[0] || categories[0] || null; accountOpen = false" @mouseenter="categoryOpen = true; accountOpen = false" class="relative flex h-12 shrink-0 items-center gap-2 text-xs font-extrabold uppercase tracking-[.12em]" :class="categoryOpen ? 'text-stone-950' : 'text-stone-600 hover:text-stone-950'" aria-haspopup="true" :aria-expanded="categoryOpen"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg> Categories <svg class="h-3.5 w-3.5 transition-transform" :class="categoryOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg></button>
         <RouterLink to="/products" @click="closeMenus" class="text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950">New arrivals</RouterLink>
         <RouterLink to="/products" @click="closeMenus" class="text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950">All products</RouterLink>
         <RouterLink to="/affiliate" @click="closeMenus" class="hidden text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950 sm:block">Affiliate</RouterLink>
@@ -106,7 +107,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
       <div class="mx-auto grid min-h-[350px] max-w-[1440px] grid-cols-[260px_minmax(0,1fr)] px-6 lg:px-10">
         <div class="border-r border-stone-100 py-6 pr-4">
           <p class="mb-3 px-3 text-[10px] font-extrabold uppercase tracking-[.2em] text-stone-400">Shop by category</p>
-          <button v-for="item in (categories.length ? categories : [{ id: 'all', name: 'All products' }])" :key="item.id" @mouseenter="activeCategory = item" @focus="activeCategory = item" @click="router.push({ path: '/products', query: item.id === 'all' ? {} : { categoryId: item.id } }); closeMenus()" class="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition" :class="String(activeCategory?.id) === String(item.id) ? 'bg-stone-100 font-bold text-stone-950' : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'"><span>{{ item.name }}</span><span>›</span></button>
+          <button v-for="item in (topCategories.length ? topCategories : (categories.length ? categories : [{ id: 'all', name: 'All products' }]))" :key="item.id" @mouseenter="activeCategory = item" @focus="activeCategory = item" @click="router.push({ path: '/products', query: item.id === 'all' ? {} : { categoryId: item.id } }); closeMenus()" class="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition" :class="String(activeCategory?.id) === String(item.id) ? 'bg-stone-100 font-bold text-stone-950' : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'"><span>{{ item.name }}</span><svg class="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7.5 4.5 5 5-5 5"/></svg></button>
           <RouterLink to="/categories" @click="closeMenus" class="mt-4 inline-block px-3 text-xs font-bold underline underline-offset-4">View all categories ↗</RouterLink>
         </div>
         <div class="py-6 pl-7">
@@ -120,13 +121,13 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
     </div>
     <div v-if="mobile" class="border-t border-stone-200 bg-white px-4 py-4 md:hidden">
       <form class="mb-3 flex gap-2" role="search" @submit.prevent="submitSearch"><input v-model="searchText" aria-label="Search products" placeholder="Search products…" class="!min-h-11 !rounded-full !bg-stone-50"/><button class="rounded-full bg-stone-950 px-4 text-xs font-bold text-white">Search</button></form>
-      <button @click="categoryOpen = !categoryOpen" class="flex w-full justify-between rounded-lg px-3 py-3 text-left text-sm font-semibold">Categories <span>⌄</span></button>
+      <button @click="categoryOpen = !categoryOpen" class="flex w-full justify-between rounded-lg px-3 py-3 text-left text-sm font-semibold">Categories <svg class="h-4 w-4 transition-transform" :class="categoryOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m5 7.5 5 5 5-5"/></svg></button>
       <div v-if="categoryOpen" class="grid gap-1 rounded-lg bg-stone-50 p-2"><RouterLink v-for="item in categories" :key="item.id" @click="closeMenus" :to="{ path: '/products', query: { categoryId: item.id } }" class="rounded-md px-3 py-2 text-sm">{{ item.name }}</RouterLink><RouterLink @click="closeMenus" to="/categories" class="px-3 py-2 text-sm font-bold">View all categories</RouterLink></div>
       <RouterLink @click="mobile = false" to="/products" class="block rounded-lg px-3 py-3 text-sm font-semibold">All products</RouterLink>
       <RouterLink @click="mobile = false" to="/orders" class="block rounded-lg px-3 py-3 text-sm font-semibold">My orders</RouterLink>
       <RouterLink @click="mobile = false" to="/messages" class="block rounded-lg px-3 py-3 text-sm font-semibold">My messages</RouterLink>
       <RouterLink @click="mobile = false" to="/wishlist" class="block rounded-lg px-3 py-3 text-sm font-semibold">My wishlist</RouterLink>
-      <RouterLink @click="mobile = false" to="/cart" class="block rounded-lg px-3 py-3 text-sm font-semibold">Shopping bag ({{ cartCount }})</RouterLink>
+      <RouterLink @click="mobile = false" to="/cart" class="block rounded-lg px-3 py-3 text-sm font-semibold">Cart ({{ cartCount }})</RouterLink>
       <RouterLink v-if="!auth.user" @click="mobile = false" to="/login" class="block rounded-lg px-3 py-3 text-sm font-semibold">Sign in</RouterLink>
       <RouterLink v-if="!auth.user" @click="mobile = false" to="/register" class="block rounded-lg px-3 py-3 text-sm font-semibold">Create account</RouterLink>
       <button v-else @click="signOut; mobile = false" class="block rounded-lg px-3 py-3 text-sm font-semibold">Sign out</button>
@@ -137,7 +138,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
     <div class="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-10">
       <div class="sm:col-span-2"><p class="text-lg font-black tracking-tight">{{ brandName }}</p><p class="mt-3 max-w-sm text-sm leading-6 text-stone-500">{{ brand.tagline || 'Good finds for everyday life. Explore the collection and discover something you love.' }}</p></div>
       <div><p class="text-[10px] font-extrabold uppercase tracking-[.18em]">Explore</p><div class="mt-4 grid gap-3 text-sm text-stone-500"><RouterLink to="/categories">Categories</RouterLink><RouterLink to="/products">All products</RouterLink></div></div>
-      <div><p class="text-[10px] font-extrabold uppercase tracking-[.18em]">Your account</p><div class="mt-4 grid gap-3 text-sm text-stone-500"><RouterLink to="/orders">My orders</RouterLink><RouterLink to="/messages">My messages</RouterLink><RouterLink to="/wishlist">My wishlist</RouterLink><RouterLink to="/cart">Shopping bag</RouterLink><RouterLink to="/affiliate">Affiliate program</RouterLink></div></div>
+      <div><p class="text-[10px] font-extrabold uppercase tracking-[.18em]">Your account</p><div class="mt-4 grid gap-3 text-sm text-stone-500"><RouterLink to="/orders">My orders</RouterLink><RouterLink to="/messages">My messages</RouterLink><RouterLink to="/wishlist">My wishlist</RouterLink><RouterLink to="/cart">Cart</RouterLink><RouterLink to="/affiliate">Affiliate program</RouterLink></div></div>
     </div>
     <div class="border-t border-stone-100 py-4 text-center text-[10px] text-stone-400">© {{ new Date().getFullYear() }} {{ brandName }}. All rights reserved.</div>
   </footer>
