@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { addToCart } from '../../stores'
+import { addToCart, auth } from '../../stores'
 import api from '../../services/api'
 
 const route = useRoute()
@@ -42,6 +42,19 @@ const specificationEntries = computed(() => {
   return []
 })
 const attributes = computed(() => product.value?.attributeValues || [])
+const affiliateCode = computed(() => auth.user?.affiliateCode || auth.user?.affiliate_code || auth.user?.referralCode || auth.user?.referral_code || localStorage.getItem('affiliateCode') || localStorage.getItem('affiliate_code') || '')
+async function shareProduct() {
+  if (!product.value) return
+  const url = new URL('/products/' + encodeURIComponent(product.value.slug || product.value.id), window.location.origin)
+  if (affiliateCode.value) url.searchParams.set('ref', affiliateCode.value)
+  try {
+    if (navigator.share) await navigator.share({ title: product.value.name, text: 'Take a look at ' + product.value.name, url: url.toString() })
+    else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(url.toString()); notice.value = 'Product link copied to clipboard.' }
+    else window.prompt('Copy this product link', url.toString())
+  } catch (error) {
+    if (error?.name !== 'AbortError') notice.value = 'Unable to share this product right now.'
+  }
+}
 
 async function loadProduct() {
   loading.value = true
@@ -74,7 +87,7 @@ async function loadRelated() {
 function addSelectedToCart() {
   if (!product.value || !selectedVariant.value) { notice.value = 'This product is currently unavailable to purchase.'; return }
   const added = addToCart(product.value, selectedVariant.value)
-  notice.value = added ? 'Added to your shopping bag.' : 'Could not add this option. Please try another variant.'
+  notice.value = added ? 'Added to your cart.' : 'Could not add this option. Please try another variant.'
 }
 function toggleSaved() {
   const list = JSON.parse(localStorage.getItem('marketflow-wishlist') || '[]')
@@ -97,7 +110,7 @@ onMounted(loadProduct)
         <div class="relative overflow-hidden rounded-2xl bg-stone-100">
           <img v-if="selectedImage" :src="selectedImage" :alt="product.name" class="aspect-[4/5] w-full object-cover sm:aspect-[5/6]"/>
           <div v-else class="flex aspect-[4/5] flex-col items-center justify-center bg-gradient-to-br from-stone-100 to-[#e8dfd4] text-stone-400"><span class="text-7xl">✳</span><span class="mt-4 text-[10px] font-bold uppercase tracking-[.25em]">Product image</span></div>
-          <button @click="toggleSaved" :aria-pressed="saved" class="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-xl shadow-sm" :class="saved ? 'text-rose-600' : 'text-stone-700'">{{ saved ? '♥' : '♡' }}</button>
+          <div class="absolute right-4 top-4 flex gap-2"><button @click="shareProduct" :aria-label="'Share ' + product.name" title="Share product" class="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-stone-700 shadow-sm transition hover:bg-white hover:text-stone-950"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.6 6.6-4.2M8.7 13.4l6.6 4.2"/></svg></button><button @click="toggleSaved" :aria-pressed="saved" :aria-label="saved ? 'Remove from wishlist' : 'Add to wishlist'" class="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-xl shadow-sm transition hover:bg-white" :class="saved ? 'text-rose-600' : 'text-stone-700'">{{ saved ? '♥' : '♡' }}</button></div>
         </div>
         <div v-if="images.length > 1" class="mt-3 grid grid-cols-5 gap-2">
           <button v-for="(image, index) in images" :key="image" @click="selectedImage = image" :aria-label="'View product image ' + (index + 1)" class="overflow-hidden rounded-lg border-2" :class="selectedImage === image ? 'border-stone-950' : 'border-transparent opacity-70 hover:opacity-100'"><img :src="image" :alt="product.name + ' image ' + (index + 1)" class="aspect-[4/5] w-full object-cover"/></button>
@@ -119,12 +132,12 @@ onMounted(loadProduct)
         </div>
         <div v-else class="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-900">This product has no active variants configured yet. The store manager needs to add a purchasable option before checkout is possible.</div>
 
-        <p v-if="notice" role="status" class="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">{{ notice }} <RouterLink to="/cart" class="ml-2 underline">View bag</RouterLink></p>
-        <button :disabled="!selectedVariant || stockCount === 0" @click="addSelectedToCart" class="mt-5 w-full rounded-full bg-stone-950 px-6 py-4 text-xs font-extrabold uppercase tracking-[.15em] text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-40">{{ stockCount === 0 ? 'Out of stock' : 'Add to bag' }} <span class="ml-2">· {{ money(selectedVariant?.price ?? product.price) }} {{ product.currency || 'ETB' }}</span></button>
-        <RouterLink to="/cart" class="mt-3 block w-full rounded-full border border-stone-300 px-6 py-4 text-center text-xs font-extrabold uppercase tracking-[.15em] transition hover:border-stone-950">View shopping bag</RouterLink>
+        <p v-if="notice" role="status" class="mt-4 rounded-xl bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">{{ notice }} <RouterLink to="/cart" class="ml-2 underline">View cart</RouterLink></p>
+        <button :disabled="!selectedVariant || stockCount === 0" @click="addSelectedToCart" class="mt-5 w-full rounded-full bg-stone-950 px-6 py-4 text-xs font-extrabold uppercase tracking-[.15em] text-white transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-40">{{ stockCount === 0 ? 'Out of stock' : 'Add to cart' }} <span class="ml-2">· {{ money(selectedVariant?.price ?? product.price) }} {{ product.currency || 'ETB' }}</span></button>
+        <RouterLink to="/cart" class="mt-3 block w-full rounded-full border border-stone-300 px-6 py-4 text-center text-xs font-extrabold uppercase tracking-[.15em] transition hover:border-stone-950">View cart</RouterLink>
 
         <div class="mt-7 divide-y divide-stone-200 border-y border-stone-200">
-          <div class="flex gap-3 py-4"><span class="text-lg">↗</span><div><p class="text-xs font-bold">Order tracking</p><p class="mt-1 text-xs leading-5 text-stone-500">View order progress from your account after purchase.</p></div></div>
+          <div class="flex gap-3 py-4"><svg class="mt-0.5 h-4 w-4 shrink-0 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg><div><p class="text-xs font-bold">Order tracking</p><p class="mt-1 text-xs leading-5 text-stone-500">View order progress from your account after purchase.</p></div></div>
           <div class="flex gap-3 py-4"><span class="text-lg">♡</span><div><p class="text-xs font-bold">Save for later</p><p class="mt-1 text-xs leading-5 text-stone-500">Tap the heart to keep this item in your saved favourites on this device.</p></div></div>
         </div>
         <div v-if="attributes.length || specificationEntries.length" class="mt-7"><h2 class="text-sm font-black uppercase tracking-wider">Product details</h2><dl class="mt-3 divide-y divide-stone-100 border-y border-stone-200">
