@@ -100,6 +100,8 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
         <button aria-label="Search" class="-ml-12 z-10 w-12 rounded-full text-lg hover:bg-stone-100">↵</button>
       </form>
       <div class="ml-auto flex shrink-0 items-center gap-2">
+        <RouterLink to="/wishlist" aria-label="My wishlist" class="hidden h-10 w-10 items-center justify-center rounded-full border border-stone-200 text-lg hover:border-stone-950 sm:flex">♡</RouterLink>
+        <RouterLink to="/cart" aria-label="Cart" class="relative flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold transition hover:border-stone-950"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="hidden sm:inline">Cart</span><span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-stone-950 px-1.5 text-[10px] text-white">{{ cartCount }}</span></RouterLink>
         <div class="relative">
           <button @click="accountOpen = !accountOpen; categoryOpen = false" @mouseenter="accountOpen = true" class="flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold hover:border-stone-950" aria-haspopup="true" :aria-expanded="accountOpen"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.8-3.4 3.2-5.2 7-5.2s6.2 1.8 7 5.2"/></svg><span class="hidden lg:inline">{{ auth.user ? 'My account' : 'Sign in' }}</span><svg class="h-3.5 w-3.5 transition-transform" :class="accountOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg></button>
           <div v-if="accountOpen" @mouseleave="accountOpen = false" class="absolute right-0 top-full mt-3 w-64 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl">
@@ -115,8 +117,6 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
             <template v-else><RouterLink @click="closeMenus" to="/login" class="mt-2 block rounded-lg bg-stone-950 px-3 py-3 text-center text-sm font-bold text-white">Sign in</RouterLink><RouterLink @click="closeMenus" to="/register" class="mt-2 block rounded-lg px-3 py-2 text-center text-sm font-bold hover:bg-stone-50">Create account</RouterLink></template>
           </div>
         </div>
-        <RouterLink to="/wishlist" aria-label="My wishlist" class="hidden h-10 w-10 items-center justify-center rounded-full border border-stone-200 text-lg hover:border-stone-950 sm:flex">♡</RouterLink>
-        <RouterLink to="/cart" aria-label="Cart" class="relative flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold transition hover:border-stone-950"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="hidden sm:inline">Cart</span><span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-stone-950 px-1.5 text-[10px] text-white">{{ cartCount }}</span></RouterLink>
       </div>
     </div>
     <div class="border-t border-stone-100">
