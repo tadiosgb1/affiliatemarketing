@@ -21,6 +21,7 @@ const savedOnly = ref(false)
 const selectedBrand = ref('')
 const minRating = ref('0')
 const onSaleOnly = ref(false)
+const expandedCategoryIds = ref([])
 const page = ref(1)
 const pageSize = 12
 const adding = ref('')
@@ -62,6 +63,43 @@ const pageProducts = computed(() => filteredProducts.value.slice((page.value - 1
 const activeFilterCount = computed(() => [category.value, minPrice.value !== '', maxPrice.value !== '', inStockOnly.value, savedOnly.value, search.value.trim() !== '', selectedBrand.value, Number(minRating.value) > 0, onSaleOnly.value].filter(Boolean).length)
 const selectedCategoryName = computed(() => categories.value.find(item => String(item.id) === String(category.value))?.name || '')
 const brands = computed(() => [...new Set(products.value.map(item => item.brand?.name || item.brandName || item.brand).filter(value => typeof value === 'string' && value.trim()))].sort((a, b) => a.localeCompare(b)))
+const categoryParentId = item => item.parentId ?? item.parent_id ?? item.parent?.id ?? item.parentCategoryId ?? null
+const childrenOf = item => categories.value.filter(child => String(categoryParentId(child) ?? '') === String(item.id))
+const hasChildren = item => childrenOf(item).length > 0
+const categoryRows = computed(() => {
+  const rows = []
+  const roots = categories.value.filter(item => !categoryParentId(item))
+  const visit = (items, depth = 0, ancestors = new Set()) => {
+    for (const item of items) {
+      if (ancestors.has(String(item.id))) continue
+      rows.push({ item, depth })
+      if (expandedCategoryIds.value.includes(String(item.id))) {
+        const next = new Set(ancestors)
+        next.add(String(item.id))
+        visit(childrenOf(item), depth + 1, next)
+      }
+    }
+  }
+  visit(roots.length ? roots : categories.value.filter(item => !categories.value.some(parent => String(parent.id) === String(categoryParentId(item)))))
+  return rows
+})
+function toggleCategory(item) {
+  const id = String(item.id)
+  expandedCategoryIds.value = expandedCategoryIds.value.includes(id) ? expandedCategoryIds.value.filter(value => value !== id) : [...expandedCategoryIds.value, id]
+}
+async function shareProduct(product) {
+  const code = localStorage.getItem('affiliateCode') || localStorage.getItem('affiliate_code') || ''
+  const url = new URL('/products/' + encodeURIComponent(product.slug || product.id), window.location.origin)
+  if (code) url.searchParams.set('ref', code)
+  const shareData = { title: product.name, text: 'Take a look at ' + product.name, url: url.toString() }
+  try {
+    if (navigator.share) await navigator.share(shareData)
+    else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(url.toString()); notice.value = 'Product link copied to clipboard.' }
+    else { window.prompt('Copy this product link', url.toString()) }
+  } catch (error) {
+    if (error?.name !== 'AbortError') notice.value = 'Unable to share this product right now.'
+  }
+}
 
 async function load() {
   loading.value = true
@@ -83,7 +121,7 @@ async function load() {
 function buy(product) {
   const activeVariant = (product.variants || []).find(variant => variant.status === 'active')
   const added = activeVariant ? addToCart(product, activeVariant) : false
-  notice.value = added ? product.name + ' was added to your bag.' : 'This product has no active purchasable option yet. Open the product page for details.'
+  notice.value = added ? product.name + ' was added to your cart.' : 'This product has no active purchasable option yet. Open the product page for details.'
   adding.value = product.id
   window.setTimeout(() => { adding.value = '' }, 900)
 }
@@ -164,9 +202,17 @@ onMounted(load)
         </div>
         <div class="mt-5 border-t border-stone-100 pt-5">
           <p class="text-xs font-bold">Categories</p>
-          <div class="mt-3 max-h-64 space-y-3 overflow-y-auto">
-            <button @click="chooseCategory('')" class="flex w-full items-center justify-between text-left text-xs" :class="!category ? 'font-bold text-stone-950' : 'text-stone-500'"><span>All categories</span><span>›</span></button>
-            <button v-for="item in categories" :key="item.id" @click="chooseCategory(String(item.id))" class="flex w-full items-center justify-between gap-2 text-left text-xs" :class="String(category) === String(item.id) ? 'font-bold text-stone-950' : 'text-stone-500'"><span>{{ item.name }}</span><span>›</span></button>
+          <div class="mt-3 max-h-80 space-y-1 overflow-y-auto">
+            <button @click="chooseCategory('')" class="flex w-full items-center justify-between rounded-lg px-2 py-2.5 text-left text-xs" :class="!category ? 'bg-stone-100 font-bold text-stone-950' : 'text-stone-500 hover:bg-stone-50'"><span>All categories</span><span class="text-stone-400">All</span></button>
+            <div v-for="row in categoryRows" :key="row.item.id">
+              <div class="flex items-center gap-1 rounded-lg pr-2 transition" :class="String(category) === String(row.item.id) ? 'bg-stone-100' : 'hover:bg-stone-50'" :style="{ marginLeft: (row.depth * 12) + 'px' }">
+                <button v-if="hasChildren(row.item)" @click="toggleCategory(row.item)" :aria-label="(expandedCategoryIds.includes(String(row.item.id)) ? 'Collapse ' : 'Expand ') + row.item.name" :aria-expanded="expandedCategoryIds.includes(String(row.item.id))" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200">
+                  <svg class="h-3.5 w-3.5 transition-transform" :class="expandedCategoryIds.includes(String(row.item.id)) ? 'rotate-90' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m7 4 6 6-6 6"/></svg>
+                </button>
+                <span v-else class="w-8 shrink-0 text-center text-stone-300">·</span>
+                <button @click="chooseCategory(String(row.item.id))" class="min-w-0 flex-1 py-2.5 text-left text-xs" :class="String(category) === String(row.item.id) ? 'font-bold text-stone-950' : 'text-stone-600'"><span class="block truncate">{{ row.item.name }}</span></button>
+              </div>
+            </div>
           </div>
         </div>
       </aside>
@@ -180,7 +226,7 @@ onMounted(load)
             </select>
           </label>
         </div>
-        <p v-if="notice" role="status" class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-800">{{ notice }} <RouterLink to="/cart" class="ml-2 underline underline-offset-2">View bag →</RouterLink></p>
+        <p v-if="notice" role="status" class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-800">{{ notice }} <RouterLink to="/cart" class="ml-2 underline underline-offset-2">View cart →</RouterLink></p>
         <div v-if="error" role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"><p class="font-bold">Catalog unavailable</p><p class="mt-1">{{ error }}</p><button @click="load" class="mt-3 font-bold underline">Try again</button></div>
         <LoadingState v-if="loading"/>
         <div v-else-if="pageProducts.length" class="mt-5 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-3 xl:grid-cols-4">
@@ -191,10 +237,11 @@ onMounted(load)
                 <div v-else class="flex h-full items-center justify-center bg-gradient-to-br from-stone-100 to-[#e8dfd4] text-4xl text-stone-400">{{ ['✳','◇','◯','✦'][index % 4] }}</div>
               </div></RouterLink>
               <span class="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1.5 text-[9px] font-extrabold uppercase tracking-wider text-stone-700">Shop now</span>
+              <button @click="shareProduct(product)" :aria-label="'Share ' + product.name" title="Share product" class="absolute right-12 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-stone-700 shadow-sm hover:bg-white"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.6 6.6-4.2M8.7 13.4l6.6 4.2"/></svg></button>
               <button @click="toggleSaved(product)" :aria-label="isSaved(product) ? 'Remove from saved items' : 'Save item'" :aria-pressed="isSaved(product)" class="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-lg" :class="isSaved(product) ? 'text-rose-600' : 'text-stone-600'">{{ isSaved(product) ? '♥' : '♡' }}</button>
               <button @click="buy(product)" class="absolute bottom-2 left-2 right-2 rounded-full bg-white/95 px-3 py-3 text-[10px] font-extrabold uppercase tracking-wider text-stone-950 shadow-sm transition sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100">{{ adding === product.id ? 'Added ✓' : 'Quick add +' }}</button>
             </div>
-            <div class="pt-3"><p class="text-[9px] font-bold uppercase tracking-[.15em] text-stone-400">{{ product.category?.name || 'Store collection' }}</p><RouterLink :to="'/products/' + product.slug" class="mt-1.5 block min-h-10 text-xs font-semibold leading-5 text-stone-900 hover:text-stone-500 sm:text-sm">{{ product.name }}</RouterLink><p class="mt-2 text-sm font-black">{{ money(product.price) }} <span class="text-[10px] font-semibold text-stone-500">{{ product.currency || 'ETB' }}</span></p><button @click="buy(product)" class="mt-3 w-full rounded-full border border-stone-200 py-2.5 text-[10px] font-extrabold uppercase tracking-wider hover:border-stone-950 hover:bg-stone-950 hover:text-white sm:hidden">{{ adding === product.id ? 'Added ✓' : 'Add to bag +' }}</button></div>
+            <div class="pt-3"><p class="text-[9px] font-bold uppercase tracking-[.15em] text-stone-400">{{ product.category?.name || 'Store collection' }}</p><RouterLink :to="'/products/' + product.slug" class="mt-1.5 block min-h-10 text-xs font-semibold leading-5 text-stone-900 hover:text-stone-500 sm:text-sm">{{ product.name }}</RouterLink><p class="mt-2 text-sm font-black">{{ money(product.price) }} <span class="text-[10px] font-semibold text-stone-500">{{ product.currency || 'ETB' }}</span></p><button @click="buy(product)" class="mt-3 w-full rounded-full border border-stone-200 py-2.5 text-[10px] font-extrabold uppercase tracking-wider hover:border-stone-950 hover:bg-stone-950 hover:text-white sm:hidden">{{ adding === product.id ? 'Added ✓' : 'Add to cart +' }}</button></div>
           </article>
         </div>
         <div v-else-if="!error" class="mt-6 rounded-2xl border border-dashed border-stone-300 p-10 text-center"><p class="text-3xl text-stone-300">◇</p><h2 class="mt-3 text-lg font-black">No matching products</h2><p class="mt-2 text-sm text-stone-500">Try changing your search or filters to see more items.</p><button @click="clearFilters" class="mt-4 rounded-full bg-stone-950 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-white">Clear filters</button></div>
