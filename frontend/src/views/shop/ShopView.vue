@@ -18,6 +18,9 @@ const minPrice = ref('')
 const maxPrice = ref('')
 const inStockOnly = ref(false)
 const savedOnly = ref(false)
+const selectedBrand = ref('')
+const minRating = ref('0')
+const onSaleOnly = ref(false)
 const page = ref(1)
 const pageSize = 12
 const adding = ref('')
@@ -45,6 +48,9 @@ const filteredProducts = computed(() => {
     return true
   })
   if (savedOnly.value) result = result.filter(isSaved)
+  if (selectedBrand.value) result = result.filter(item => String(item.brand?.name || item.brandName || item.brand || '') === selectedBrand.value)
+  if (Number(minRating.value) > 0) result = result.filter(item => Number(item.averageRating ?? item.rating ?? item.reviewSummary?.average ?? 0) >= Number(minRating.value))
+  if (onSaleOnly.value) result = result.filter(item => Number(item.compareAtPrice ?? item.originalPrice ?? item.mrp ?? 0) > Number(item.price || 0))
   if (sort.value === 'price-low') result.sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
   if (sort.value === 'price-high') result.sort((a, b) => Number(b.price || 0) - Number(a.price || 0))
   if (sort.value === 'name') result.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')))
@@ -53,8 +59,9 @@ const filteredProducts = computed(() => {
 })
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredProducts.value.length / pageSize)))
 const pageProducts = computed(() => filteredProducts.value.slice((page.value - 1) * pageSize, page.value * pageSize))
-const activeFilterCount = computed(() => [category.value, minPrice.value !== '', maxPrice.value !== '', inStockOnly.value, savedOnly.value, search.value.trim() !== ''].filter(Boolean).length)
+const activeFilterCount = computed(() => [category.value, minPrice.value !== '', maxPrice.value !== '', inStockOnly.value, savedOnly.value, search.value.trim() !== '', selectedBrand.value, Number(minRating.value) > 0, onSaleOnly.value].filter(Boolean).length)
 const selectedCategoryName = computed(() => categories.value.find(item => String(item.id) === String(category.value))?.name || '')
+const brands = computed(() => [...new Set(products.value.map(item => item.brand?.name || item.brandName || item.brand).filter(value => typeof value === 'string' && value.trim()))].sort((a, b) => a.localeCompare(b)))
 
 async function load() {
   loading.value = true
@@ -96,10 +103,14 @@ function clearFilters() {
   maxPrice.value = ''
   inStockOnly.value = false
   savedOnly.value = false
+  selectedBrand.value = ''
+  minRating.value = '0'
+  onSaleOnly.value = false
   sort.value = 'featured'
   router.replace({ path: '/products' })
   load()
 }
+watch(() => route.query.q, next => { const value = String(next || ''); if (value !== search.value) { search.value = value; load() } })
 watch(() => route.query.categoryId, next => {
   const value = String(next || '')
   if (value !== category.value) { category.value = value; load() }
@@ -136,6 +147,20 @@ onMounted(load)
           <p class="text-xs font-bold">Availability</p>
           <label class="mt-3 flex cursor-pointer items-center gap-2 text-xs text-stone-600"><input v-model="inStockOnly" type="checkbox" class="!h-4 !w-4 !min-h-0"/> Available items</label>
           <label class="mt-3 flex cursor-pointer items-center gap-2 text-xs text-stone-600"><input v-model="savedOnly" type="checkbox" class="!h-4 !w-4 !min-h-0"/> My saved favourites ({{ wishlist.length }})</label>
+        </div>
+        <div v-if="brands.length" class="mt-5 border-t border-stone-100 pt-5">
+          <label class="text-xs font-bold" for="brand-filter">Brand</label>
+          <select id="brand-filter" v-model="selectedBrand" class="mt-3 !min-h-10 !w-full !rounded-lg !border-stone-200 !px-3 !text-xs"><option value="">All brands</option><option v-for="brand in brands" :key="brand" :value="brand">{{ brand }}</option></select>
+        </div>
+        <div class="mt-5 border-t border-stone-100 pt-5">
+          <p class="text-xs font-bold">Customer rating</p>
+          <div class="mt-3 grid gap-2">
+            <label v-for="rating in [{ value: '0', label: 'Any rating' }, { value: '4', label: '4 stars & up' }, { value: '3', label: '3 stars & up' }, { value: '2', label: '2 stars & up' }]" :key="rating.value" class="flex cursor-pointer items-center gap-2 text-xs text-stone-600"><input v-model="minRating" type="radio" :value="rating.value" class="!h-4 !w-4 !min-h-0"/> {{ rating.label }}</label>
+          </div>
+        </div>
+        <div class="mt-5 border-t border-stone-100 pt-5">
+          <p class="text-xs font-bold">Special offers</p>
+          <label class="mt-3 flex cursor-pointer items-center gap-2 text-xs text-stone-600"><input v-model="onSaleOnly" type="checkbox" class="!h-4 !w-4 !min-h-0"/> On sale</label>
         </div>
         <div class="mt-5 border-t border-stone-100 pt-5">
           <p class="text-xs font-bold">Categories</p>
