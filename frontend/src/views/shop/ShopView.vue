@@ -35,9 +35,14 @@ const filteredProducts = computed(() => {
   if (low !== null && Number.isFinite(low)) result = result.filter(item => Number(item.price || 0) >= low)
   if (high !== null && Number.isFinite(high)) result = result.filter(item => Number(item.price || 0) <= high)
   if (inStockOnly.value) result = result.filter(item => {
-    const stock = item.stockQuantity ?? item.inventoryQuantity ?? item.quantity ?? item.stock
+    const directStock = item.stockQuantity ?? item.inventoryQuantity ?? item.quantity ?? item.stock
+    const variantStock = (item.variants || []).reduce((sum, variant) => sum + (variant.inventory || []).reduce((n, inventory) => n + Number(inventory.quantityOnHand || 0), 0), 0)
+    const hasInventoryRecords = (item.variants || []).some(variant => Array.isArray(variant.inventory) && variant.inventory.length > 0)
     const available = item.isAvailable ?? item.inStock
-    return available === true || (available !== false && (stock === undefined || Number(stock) > 0))
+    if (available === false) return false
+    if (directStock !== undefined) return Number(directStock) > 0
+    if (hasInventoryRecords) return variantStock > 0
+    return true
   })
   if (savedOnly.value) result = result.filter(isSaved)
   if (sort.value === 'price-low') result.sort((a, b) => Number(a.price || 0) - Number(b.price || 0))
