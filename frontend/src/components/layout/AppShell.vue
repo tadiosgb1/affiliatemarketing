@@ -13,12 +13,37 @@ const searchText = ref(String(route.query.q || ''))
 const categories = ref([])
 const products = ref([])
 const activeCategory = ref(null)
+const expandedCategoryIds = ref([])
 const brand = ref({ platformName: '', name: '', tagline: '', logoUrl: '', primaryColor: '#171717' })
 const brandName = computed(() => brand.value.platformName || brand.value.name || 'MarketFlow')
 const roleSlugs = computed(() => (auth.user?.roles || []).map(role => typeof role === 'string' ? role : role.slug))
 const canManage = computed(() => ['admin', 'company_staff'].includes(String(auth.user?.role || '').toLowerCase()) || roleSlugs.value.some(item => !['customer', 'affiliate'].includes(item)) || (auth.user?.permissions || []).some(permission => permission.endsWith('.manage') || permission === 'dashboard.view'))
 const parentIdOf = item => item.parentId ?? item.parent_id ?? item.parent?.id ?? item.parentCategoryId ?? null
 const topCategories = computed(() => categories.value.filter(item => !parentIdOf(item)))
+const childrenOf = item => categories.value.filter(child => String(parentIdOf(child) ?? '') === String(item.id))
+const hasChildren = item => childrenOf(item).length > 0
+const megaCategoryRows = computed(() => {
+  const rows = []
+  const roots = topCategories.value
+  const visit = (items, depth = 0, ancestors = new Set()) => {
+    for (const item of items) {
+      if (ancestors.has(String(item.id))) continue
+      rows.push({ item, depth })
+      if (expandedCategoryIds.value.includes(String(item.id))) {
+        const next = new Set(ancestors)
+        next.add(String(item.id))
+        visit(childrenOf(item), depth + 1, next)
+      }
+    }
+  }
+  visit(roots.length ? roots : categories.value)
+  return rows
+})
+function toggleCategory(item) {
+  const id = String(item.id)
+  expandedCategoryIds.value = expandedCategoryIds.value.includes(id) ? expandedCategoryIds.value.filter(value => value !== id) : [...expandedCategoryIds.value, id]
+  activeCategory.value = item
+}
 const categoryProducts = computed(() => {
   if (!activeCategory.value) return products.value.slice(0, 6)
   const id = String(activeCategory.value.id)
@@ -76,7 +101,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
       </form>
       <div class="ml-auto flex shrink-0 items-center gap-2">
         <div class="relative">
-          <button @click="accountOpen = true; categoryOpen = false" @mouseenter="accountOpen = true" class="flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold hover:border-stone-950" aria-haspopup="true" :aria-expanded="accountOpen"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.8-3.4 3.2-5.2 7-5.2s6.2 1.8 7 5.2"/></svg><span class="hidden lg:inline">{{ auth.user ? 'My account' : 'Sign in' }}</span><svg class="h-3.5 w-3.5 transition-transform" :class="accountOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg></button>
+          <button @click="accountOpen = !accountOpen; categoryOpen = false" @mouseenter="accountOpen = true" class="flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold hover:border-stone-950" aria-haspopup="true" :aria-expanded="accountOpen"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.8-3.4 3.2-5.2 7-5.2s6.2 1.8 7 5.2"/></svg><span class="hidden lg:inline">{{ auth.user ? 'My account' : 'Sign in' }}</span><svg class="h-3.5 w-3.5 transition-transform" :class="accountOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg></button>
           <div v-if="accountOpen" @mouseleave="accountOpen = false" class="absolute right-0 top-full mt-3 w-64 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl">
             <div class="border-b border-stone-100 px-3 pb-3"><p class="text-sm font-black">{{ auth.user ? (auth.user.name || auth.user.email || 'Welcome back') : 'Welcome to ' + brandName }}</p><p class="mt-1 text-xs text-stone-500">{{ auth.user ? 'Manage your shopping account' : 'Sign in to manage your orders and favourites' }}</p></div>
             <template v-if="auth.user">
@@ -96,7 +121,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
     </div>
     <div class="border-t border-stone-100">
       <div class="mx-auto flex max-w-[1440px] items-center gap-7 px-4 sm:px-6 lg:px-10">
-        <button @click="categoryOpen = true; activeCategory = activeCategory || topCategories[0] || categories[0] || null; accountOpen = false" @mouseenter="categoryOpen = true; accountOpen = false" class="relative flex h-12 shrink-0 items-center gap-2 text-xs font-extrabold uppercase tracking-[.12em]" :class="categoryOpen ? 'text-stone-950' : 'text-stone-600 hover:text-stone-950'" aria-haspopup="true" :aria-expanded="categoryOpen"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg> Categories <svg class="h-3.5 w-3.5 transition-transform" :class="categoryOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg></button>
+        <button @click="categoryOpen = !categoryOpen; activeCategory = activeCategory || topCategories[0] || categories[0] || null; accountOpen = false" @mouseenter="categoryOpen = true; accountOpen = false" class="relative flex h-12 shrink-0 items-center gap-2 text-xs font-extrabold uppercase tracking-[.12em]" :class="categoryOpen ? 'text-stone-950' : 'text-stone-600 hover:text-stone-950'" aria-haspopup="true" :aria-expanded="categoryOpen"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg> Categories <svg class="h-3.5 w-3.5 transition-transform" :class="categoryOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m5 7.5 5 5 5-5"/></svg></button>
         <RouterLink to="/products" @click="closeMenus" class="text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950">New arrivals</RouterLink>
         <RouterLink to="/products" @click="closeMenus" class="text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950">All products</RouterLink>
         <RouterLink to="/affiliate" @click="closeMenus" class="hidden text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950 sm:block">Affiliate</RouterLink>
@@ -107,7 +132,11 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
       <div class="mx-auto grid min-h-[350px] max-w-[1440px] grid-cols-[260px_minmax(0,1fr)] px-6 lg:px-10">
         <div class="border-r border-stone-100 py-6 pr-4">
           <p class="mb-3 px-3 text-[10px] font-extrabold uppercase tracking-[.2em] text-stone-400">Shop by category</p>
-          <button v-for="item in (topCategories.length ? topCategories : (categories.length ? categories : [{ id: 'all', name: 'All products' }]))" :key="item.id" @mouseenter="activeCategory = item" @focus="activeCategory = item" @click="router.push({ path: '/products', query: item.id === 'all' ? {} : { categoryId: item.id } }); closeMenus()" class="flex w-full items-center justify-between rounded-lg px-3 py-3 text-left text-sm transition" :class="String(activeCategory?.id) === String(item.id) ? 'bg-stone-100 font-bold text-stone-950' : 'text-stone-600 hover:bg-stone-50 hover:text-stone-950'"><span>{{ item.name }}</span><svg class="h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7.5 4.5 5 5-5 5"/></svg></button>
+          <div v-for="row in megaCategoryRows" :key="row.item.id" class="flex items-center gap-1 rounded-lg pr-2" :style="{ marginLeft: (row.depth * 10) + 'px' }" :class="String(activeCategory?.id) === String(row.item.id) ? 'bg-stone-100' : 'hover:bg-stone-50'">
+            <button v-if="hasChildren(row.item)" @click="toggleCategory(row.item)" :aria-label="(expandedCategoryIds.includes(String(row.item.id)) ? 'Collapse ' : 'Expand ') + row.item.name" :aria-expanded="expandedCategoryIds.includes(String(row.item.id))" class="flex h-9 w-8 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200"><svg class="h-3.5 w-3.5 transition-transform" :class="expandedCategoryIds.includes(String(row.item.id)) ? 'rotate-90' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m7 4 6 6-6 6"/></svg></button>
+            <span v-else class="w-8 shrink-0"></span>
+            <button @mouseenter="activeCategory = row.item" @focus="activeCategory = row.item" @click="router.push({ path: '/products', query: { categoryId: row.item.id } }); closeMenus()" class="flex min-w-0 flex-1 items-center justify-between py-3 text-left text-sm" :class="String(activeCategory?.id) === String(row.item.id) ? 'font-bold text-stone-950' : 'text-stone-600'"><span class="truncate">{{ row.item.name }}</span><svg class="ml-2 h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m7.5 4.5 5 5-5 5"/></svg></button>
+          </div>
           <RouterLink to="/categories" @click="closeMenus" class="mt-4 inline-block px-3 text-xs font-bold underline underline-offset-4">View all categories ↗</RouterLink>
         </div>
         <div class="py-6 pl-7">
