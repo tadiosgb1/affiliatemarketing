@@ -75,7 +75,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
       </form>
       <div class="ml-auto flex shrink-0 items-center gap-2">
         <div class="relative">
-          <button @click="accountOpen = !accountOpen; categoryOpen = false" @mouseenter="accountOpen = true" class="flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold hover:border-stone-950" aria-haspopup="true" :aria-expanded="accountOpen"><span class="text-lg">♙</span><span class="hidden lg:inline">{{ auth.user ? 'My account' : 'Sign in' }}</span><span class="hidden sm:inline">⌄</span></button>
+          <button @click="accountOpen = true; categoryOpen = false" @mouseenter="accountOpen = true" class="flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold hover:border-stone-950" aria-haspopup="true" :aria-expanded="accountOpen"><span class="text-lg">♙</span><span class="hidden lg:inline">{{ auth.user ? 'My account' : 'Sign in' }}</span><span class="hidden sm:inline">⌄</span></button>
           <div v-if="accountOpen" @mouseleave="accountOpen = false" class="absolute right-0 top-full mt-3 w-64 rounded-2xl border border-stone-200 bg-white p-3 shadow-xl">
             <div class="border-b border-stone-100 px-3 pb-3"><p class="text-sm font-black">{{ auth.user ? (auth.user.name || auth.user.email || 'Welcome back') : 'Welcome to ' + brandName }}</p><p class="mt-1 text-xs text-stone-500">{{ auth.user ? 'Manage your shopping account' : 'Sign in to manage your orders and favourites' }}</p></div>
             <template v-if="auth.user">
@@ -95,7 +95,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
     </div>
     <div class="border-t border-stone-100">
       <div class="mx-auto flex max-w-[1440px] items-center gap-7 px-4 sm:px-6 lg:px-10">
-        <button @click="openCategories" @mouseenter="categoryOpen = true; accountOpen = false" class="relative flex h-12 shrink-0 items-center gap-2 text-xs font-extrabold uppercase tracking-[.12em]" :class="categoryOpen ? 'text-stone-950' : 'text-stone-600 hover:text-stone-950'" aria-haspopup="true" :aria-expanded="categoryOpen">☷ Categories <span>⌄</span></button>
+        <button @click="categoryOpen = true; activeCategory = activeCategory || topCategories[0] || categories[0] || null; accountOpen = false" @mouseenter="categoryOpen = true; accountOpen = false" class="relative flex h-12 shrink-0 items-center gap-2 text-xs font-extrabold uppercase tracking-[.12em]" :class="categoryOpen ? 'text-stone-950' : 'text-stone-600 hover:text-stone-950'" aria-haspopup="true" :aria-expanded="categoryOpen">☷ Categories <span>⌄</span></button>
         <RouterLink to="/products" @click="closeMenus" class="text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950">New arrivals</RouterLink>
         <RouterLink to="/products" @click="closeMenus" class="text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950">All products</RouterLink>
         <RouterLink to="/affiliate" @click="closeMenus" class="hidden text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950 sm:block">Affiliate</RouterLink>
