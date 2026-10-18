@@ -22,6 +22,7 @@ const routes = [
   { path: '/admin/carts', meta: { management: true }, component: () => import('../views/admin/FinanceManagementView.vue') },
   { path: '/admin/brands', meta: { management: true }, component: () => import('../views/admin/ResourceManagementView.vue') },
   { path: '/admin/variants', meta: { management: true }, component: () => import('../views/admin/VariantsView.vue') },
+  { path: '/admin/vehicle-catalog', meta: { management: true, permission: 'catalog.manage' }, component: () => import('../views/admin/VehicleCatalogView.vue') },
   { path: '/admin/attributes', meta: { management: true }, component: () => import('../views/admin/ResourceManagementView.vue') },
   { path: '/admin/warehouses', meta: { management: true }, component: () => import('../views/admin/ResourceManagementView.vue') },
   { path: '/admin/suppliers', meta: { management: true }, component: () => import('../views/admin/ResourceManagementView.vue') },

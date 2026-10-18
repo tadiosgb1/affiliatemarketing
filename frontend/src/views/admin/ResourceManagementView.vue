@@ -37,6 +37,10 @@ const resources = {
     fields: [
       { key: 'name', label: 'Attribute name', required: true, placeholder: 'e.g. Colour' },
       { key: 'type', label: 'Value type', type: 'select', options: [{ label: 'Selectable options', value: 'select' }, { label: 'Text', value: 'text' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Colour', value: 'color' }] },
+      { key: 'dataType', label: 'Data type', type: 'select', options: [{ label: 'Text', value: 'text' }, { label: 'Number', value: 'number' }, { label: 'Boolean', value: 'boolean' }, { label: 'Date', value: 'date' }, { label: 'JSON', value: 'json' }] },
+      { key: 'unit', label: 'Unit (optional)', placeholder: 'e.g. cm, kg, inch' },
+      { key: 'isFilterable', label: 'Storefront filter?', type: 'select', options: [{ label: 'No', value: 'false' }, { label: 'Yes', value: 'true' }] },
+      { key: 'isRequired', label: 'Required attribute?', type: 'select', options: [{ label: 'No', value: 'false' }, { label: 'Yes', value: 'true' }] },
       { key: 'valuesText', label: 'Initial options (comma-separated)', placeholder: 'Black, White, Blue' },
     ],
     columns: [{ key: 'name', label: 'Attribute' }, { key: 'type', label: 'Type' }, { key: 'values', label: 'Options', kind: 'values' }],
@@ -189,7 +193,8 @@ async function createRecord() {
         const values = String(value || '').split(',').map(item => item.trim()).filter(Boolean)
         if (values.length) payload.values = values
       } else if (value !== '' && value !== null && value !== undefined) {
-        payload[field.key] = ['commissionRate', 'fixedCommission', 'cookieDays'].includes(field.key) ? Number(value) : value
+        if (['isFilterable', 'isRequired'].includes(field.key)) payload[field.key] = value === true || value === 'true'
+        else payload[field.key] = ['commissionRate', 'fixedCommission', 'cookieDays'].includes(field.key) ? Number(value) : value
       }
     })
     if (key.value === 'affiliate-programs' && !payload.productId) delete payload.productId
