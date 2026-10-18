@@ -32,7 +32,8 @@ const groups = [
     { label: 'Categories', path: '/admin/categories', icon: '▤', permission: 'catalog.view' },
     { label: 'Brands', path: '/admin/brands', icon: '◈', permission: 'catalog.view' },
     { label: 'Variants', path: '/admin/variants', icon: '◇', permission: 'catalog.view' },
-    { label: 'Attributes', path: '/admin/attributes', icon: '☷', permission: 'catalog.view' },
+    { label: 'Attributes & values', path: '/admin/attributes', icon: '☷', permission: 'catalog.view' },
+    { label: 'Category attributes', path: '/admin/category-attributes', icon: '⚙', permission: 'catalog.view' },
   ] },
   { label: 'Inventory', items: [
     { label: 'Stock levels', path: '/admin/inventory', icon: '▥', permission: 'inventory.view' },
