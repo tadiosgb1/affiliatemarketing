@@ -160,50 +160,50 @@ onMounted(load)
 <template>
   <div>
     <div class="mb-7 flex flex-col gap-4 border-b border-stone-200 pb-6 sm:flex-row sm:items-end sm:justify-between">
-      <div><p class="text-[10px] font-extrabold uppercase tracking-[.25em] text-stone-500">The complete collection</p><h1 class="mt-2 text-4xl font-black tracking-[-.06em] sm:text-5xl">All products<span v-if="selectedCategoryName"> / {{ selectedCategoryName }}</span></h1><p class="mt-3 max-w-xl text-sm leading-6 text-stone-500">Search the live catalog, narrow by category and price, save favourites, and open each product to choose its available options.</p></div>
-      <RouterLink to="/categories" class="shrink-0 text-[10px] font-extrabold uppercase tracking-wider underline underline-offset-4">Explore categories ↗</RouterLink>
+      <div><p class="text-[10px] font-extrabold uppercase tracking-[.25em] text-stone-500">{{ $t('shop.collection') }}</p><h1 class="mt-2 text-4xl font-black tracking-[-.06em] sm:text-5xl">{{ $t('shop.all_products') }}<span v-if="selectedCategoryName"> / {{ selectedCategoryName }}</span></h1><p class="mt-3 max-w-xl text-sm leading-6 text-stone-500">{{ $t('shop.intro') }}</p></div>
+      <RouterLink to="/categories" class="shrink-0 text-[10px] font-extrabold uppercase tracking-wider underline underline-offset-4">{{ $t('shop.explore_categories') }} ↗</RouterLink>
     </div>
 
     <form class="flex gap-2" @submit.prevent="load">
-      <label class="relative min-w-0 flex-1"><span class="sr-only">Search products</span><span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">⌕</span><input v-model="search" aria-label="Search products" placeholder="Search products by name…" class="!min-h-12 !rounded-full !border-stone-200 !bg-white !pl-10 !pr-4"/></label>
-      <button class="min-h-12 rounded-full bg-stone-950 px-6 text-[10px] font-extrabold uppercase tracking-wider text-white transition hover:bg-stone-700">Search</button>
+      <label class="relative min-w-0 flex-1"><span class="sr-only">{{ $t('shop.search') }} products</span><span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400">⌕</span><input v-model="search" aria-label="Search products" placeholder="Search products by name…" class="!min-h-12 !rounded-full !border-stone-200 !bg-white !pl-10 !pr-4"/></label>
+      <button class="min-h-12 rounded-full bg-stone-950 px-6 text-[10px] font-extrabold uppercase tracking-wider text-white transition hover:bg-stone-700">{{ $t('shop.search') }}</button>
     </form>
 
     <div class="mt-5 flex gap-2 overflow-x-auto pb-2">
-      <button @click="chooseCategory('')" :class="!category ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-600'" class="shrink-0 rounded-full border px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider">All products</button>
+      <button @click="chooseCategory('')" :class="!category ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-600'" class="shrink-0 rounded-full border px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider">{{ $t('shop.all_products') }}</button>
       <button v-for="item in categories" :key="item.id" @click="chooseCategory(String(item.id))" :class="String(category) === String(item.id) ? 'border-stone-950 bg-stone-950 text-white' : 'border-stone-200 bg-white text-stone-600'" class="shrink-0 rounded-full border px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider">{{ item.name }}</button>
     </div>
 
     <div class="mt-6 grid items-start gap-7 lg:grid-cols-[230px_minmax(0,1fr)]">
       <aside class="rounded-2xl border border-stone-200 bg-white p-5">
-        <div class="flex items-center justify-between"><h2 class="text-sm font-black uppercase tracking-wider">Filters</h2><button v-if="activeFilterCount" @click="clearFilters" class="text-[10px] font-bold underline underline-offset-2">Clear all</button></div>
+        <div class="flex items-center justify-between"><h2 class="text-sm font-black uppercase tracking-wider">{{ $t('shop.filters') }}</h2><button v-if="activeFilterCount" @click="clearFilters" class="text-[10px] font-bold underline underline-offset-2">{{ $t('shop.clear_all') }}</button></div>
         <div class="mt-5 border-t border-stone-100 pt-5">
-          <p class="text-xs font-bold">Price range <span class="font-normal text-stone-400">(ETB)</span></p>
+          <p class="text-xs font-bold">{{ $t('shop.price_range') }} <span class="font-normal text-stone-400">(ETB)</span></p>
           <div class="mt-3 grid grid-cols-2 gap-2"><label><span class="sr-only">Minimum price</span><input v-model="minPrice" type="number" min="0" placeholder="Min" class="!min-h-10 !rounded-lg !px-3"/></label><label><span class="sr-only">Maximum price</span><input v-model="maxPrice" type="number" min="0" placeholder="Max" class="!min-h-10 !rounded-lg !px-3"/></label></div>
         </div>
         <div class="mt-5 border-t border-stone-100 pt-5">
-          <p class="text-xs font-bold">Availability</p>
+          <p class="text-xs font-bold">{{ $t('shop.availability') }}</p>
           <label class="mt-3 flex cursor-pointer items-center gap-2 text-xs text-stone-600"><input v-model="inStockOnly" type="checkbox" class="!h-4 !w-4 !min-h-0"/> Available items</label>
           <label class="mt-3 flex cursor-pointer items-center gap-2 text-xs text-stone-600"><input v-model="savedOnly" type="checkbox" class="!h-4 !w-4 !min-h-0"/> My saved favourites ({{ wishlist.length }})</label>
         </div>
         <div v-if="brands.length" class="mt-5 border-t border-stone-100 pt-5">
           <label class="text-xs font-bold" for="brand-filter">Brand</label>
-          <select id="brand-filter" v-model="selectedBrand" class="mt-3 !min-h-10 !w-full !rounded-lg !border-stone-200 !px-3 !text-xs"><option value="">All brands</option><option v-for="brand in brands" :key="brand" :value="brand">{{ brand }}</option></select>
+          <select id="brand-filter" v-model="selectedBrand" class="mt-3 !min-h-10 !w-full !rounded-lg !border-stone-200 !px-3 !text-xs"><option value="">{{ $t('shop.all_brands') }}</option><option v-for="brand in brands" :key="brand" :value="brand">{{ brand }}</option></select>
         </div>
         <div class="mt-5 border-t border-stone-100 pt-5">
-          <p class="text-xs font-bold">Customer rating</p>
+          <p class="text-xs font-bold">{{ $t('shop.rating') }}</p>
           <div class="mt-3 grid gap-2">
             <label v-for="rating in [{ value: '0', label: 'Any rating' }, { value: '4', label: '4 stars & up' }, { value: '3', label: '3 stars & up' }, { value: '2', label: '2 stars & up' }]" :key="rating.value" class="flex cursor-pointer items-center gap-2 text-xs text-stone-600"><input v-model="minRating" type="radio" :value="rating.value" class="!h-4 !w-4 !min-h-0"/> {{ rating.label }}</label>
           </div>
         </div>
         <div class="mt-5 border-t border-stone-100 pt-5">
-          <p class="text-xs font-bold">Special offers</p>
+          <p class="text-xs font-bold">{{ $t('shop.special_offers') }}</p>
           <label class="mt-3 flex cursor-pointer items-center gap-2 text-xs text-stone-600"><input v-model="onSaleOnly" type="checkbox" class="!h-4 !w-4 !min-h-0"/> On sale</label>
         </div>
         <div class="mt-5 border-t border-stone-100 pt-5">
           <p class="text-xs font-bold">Categories</p>
           <div class="mt-3 max-h-80 space-y-1 overflow-y-auto">
-            <button @click="chooseCategory('')" class="flex w-full items-center justify-between rounded-lg px-2 py-2.5 text-left text-xs" :class="!category ? 'bg-stone-100 font-bold text-stone-950' : 'text-stone-500 hover:bg-stone-50'"><span>All categories</span><span class="text-stone-400">All</span></button>
+            <button @click="chooseCategory('')" class="flex w-full items-center justify-between rounded-lg px-2 py-2.5 text-left text-xs" :class="!category ? 'bg-stone-100 font-bold text-stone-950' : 'text-stone-500 hover:bg-stone-50'"><span>{{ $t('shop.all_categories') }}</span><span class="text-stone-400">All</span></button>
             <div v-for="row in categoryRows" :key="row.item.id">
               <div class="flex items-center gap-1 rounded-lg pr-2 transition" :class="String(category) === String(row.item.id) ? 'bg-stone-100' : 'hover:bg-stone-50'" :style="{ marginLeft: (row.depth * 12) + 'px' }">
                 <button v-if="hasChildren(row.item)" @click="toggleCategory(row.item)" :aria-label="(expandedCategoryIds.includes(String(row.item.id)) ? 'Collapse ' : 'Expand ') + row.item.name" :aria-expanded="expandedCategoryIds.includes(String(row.item.id))" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-stone-500 hover:bg-stone-200">
@@ -222,12 +222,12 @@ onMounted(load)
           <p class="text-xs text-stone-500">{{ loading ? 'Loading live products…' : filteredProducts.length + (filteredProducts.length === 1 ? ' item' : ' items') }}<span v-if="activeFilterCount"> · {{ activeFilterCount }} active filters</span></p>
           <label class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-stone-500">Sort by
             <select v-model="sort" aria-label="Sort products" class="!min-h-10 !w-auto !rounded-full !border-stone-200 !px-4 !text-xs !font-semibold !normal-case !tracking-normal">
-              <option value="featured">Recommended</option><option value="newest">Newest</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option><option value="name">Name A–Z</option>
+              <option value="featured">{{ $t('shop.recommended') }}</option><option value="newest">{{ $t('shop.newest') }}</option><option value="price-low">{{ $t('shop.price_low') }}</option><option value="price-high">{{ $t('shop.price_high') }}</option><option value="name">Name A–Z</option>
             </select>
           </label>
         </div>
-        <p v-if="notice" role="status" class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-800">{{ notice }} <RouterLink to="/cart" class="ml-2 underline underline-offset-2">View cart →</RouterLink></p>
-        <div v-if="error" role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"><p class="font-bold">Catalog unavailable</p><p class="mt-1">{{ error }}</p><button @click="load" class="mt-3 font-bold underline">Try again</button></div>
+        <p v-if="notice" role="status" class="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-800">{{ notice }} <RouterLink to="/cart" class="ml-2 underline underline-offset-2">{{ $t('shop.view_cart') }} →</RouterLink></p>
+        <div v-if="error" role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"><p class="font-bold">{{ $t('shop.catalog_unavailable') }}</p><p class="mt-1">{{ error }}</p><button @click="load" class="mt-3 font-bold underline">{{ $t('shop.try_again') }}</button></div>
         <LoadingState v-if="loading"/>
         <div v-else-if="pageProducts.length" class="mt-5 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-3 xl:grid-cols-4">
           <article v-for="(product, index) in pageProducts" :key="product.id" class="group min-w-0">
@@ -244,8 +244,8 @@ onMounted(load)
             <div class="pt-3"><p class="text-[9px] font-bold uppercase tracking-[.15em] text-stone-400">{{ product.category?.name || 'Store collection' }}</p><RouterLink :to="'/products/' + product.slug" class="mt-1.5 block min-h-10 text-xs font-semibold leading-5 text-stone-900 hover:text-stone-500 sm:text-sm">{{ product.name }}</RouterLink><p class="mt-2 text-sm font-black">{{ money(product.price) }} <span class="text-[10px] font-semibold text-stone-500">{{ product.currency || 'ETB' }}</span></p><button @click="buy(product)" class="mt-3 w-full rounded-full border border-stone-200 py-2.5 text-[10px] font-extrabold uppercase tracking-wider hover:border-stone-950 hover:bg-stone-950 hover:text-white sm:hidden">{{ adding === product.id ? 'Added ✓' : 'Add to cart +' }}</button></div>
           </article>
         </div>
-        <div v-else-if="!error" class="mt-6 rounded-2xl border border-dashed border-stone-300 p-10 text-center"><p class="text-3xl text-stone-300">◇</p><h2 class="mt-3 text-lg font-black">No matching products</h2><p class="mt-2 text-sm text-stone-500">Try changing your search or filters to see more items.</p><button @click="clearFilters" class="mt-4 rounded-full bg-stone-950 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-white">Clear filters</button></div>
-        <div v-if="!loading && totalPages > 1" class="mt-8 flex items-center justify-center gap-3"><button :disabled="page <= 1" @click="page--" class="rounded-full border border-stone-200 px-4 py-2 text-xs font-bold disabled:opacity-30">← Previous</button><span class="text-xs text-stone-500">Page {{ page }} of {{ totalPages }}</span><button :disabled="page >= totalPages" @click="page++" class="rounded-full border border-stone-200 px-4 py-2 text-xs font-bold disabled:opacity-30">Next →</button></div>
+        <div v-else-if="!error" class="mt-6 rounded-2xl border border-dashed border-stone-300 p-10 text-center"><p class="text-3xl text-stone-300">◇</p><h2 class="mt-3 text-lg font-black">{{ $t('shop.no_match') }}</h2><p class="mt-2 text-sm text-stone-500">{{ $t('shop.change_filters') }}</p><button @click="clearFilters" class="mt-4 rounded-full bg-stone-950 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-white">{{ $t('shop.clear_filters') }}</button></div>
+        <div v-if="!loading && totalPages > 1" class="mt-8 flex items-center justify-center gap-3"><button :disabled="page <= 1" @click="page--" class="rounded-full border border-stone-200 px-4 py-2 text-xs font-bold disabled:opacity-30">← {{ $t('shop.previous') }}</button><span class="text-xs text-stone-500">Page {{ page }} of {{ totalPages }}</span><button :disabled="page >= totalPages" @click="page++" class="rounded-full border border-stone-200 px-4 py-2 text-xs font-bold disabled:opacity-30">{{ $t('shop.next') }} →</button></div>
       </section>
     </div>
   </div>
