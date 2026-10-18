@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { auth, cartCount, logout } from '../../stores'
 import api from '../../services/api'
+import LanguageSwitcher from '../LanguageSwitcher.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -100,6 +101,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
         <button aria-label="Search" class="-ml-12 z-10 w-12 rounded-full text-lg hover:bg-stone-100">↵</button>
       </form>
       <div class="ml-auto flex shrink-0 items-center gap-2">
+        <LanguageSwitcher />
         <RouterLink to="/wishlist" aria-label="My wishlist" class="hidden h-10 w-10 items-center justify-center rounded-full border border-stone-200 text-lg hover:border-stone-950 sm:flex">♡</RouterLink>
         <RouterLink to="/cart" aria-label="Cart" class="relative flex h-10 items-center gap-2 rounded-full border border-stone-200 px-3 text-xs font-bold transition hover:border-stone-950"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span class="hidden sm:inline">{{ $t('nav.cart') }}</span><span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-stone-950 px-1.5 text-[10px] text-white">{{ cartCount }}</span></RouterLink>
         <div class="relative">
@@ -110,7 +112,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
               <RouterLink @click="closeMenus" to="/orders" class="mt-2 block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">{{ $t('nav.orders') }}</RouterLink>
               <RouterLink @click="closeMenus" to="/messages" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">{{ $t('nav.messages') }}</RouterLink>
               <RouterLink @click="closeMenus" to="/wishlist" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">{{ $t('nav.wishlist') }}</RouterLink>
-              <RouterLink @click="closeMenus" to="/cart" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">Cart</RouterLink>
+              <RouterLink @click="closeMenus" to="/cart" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">{{ $t('nav.cart') }}</RouterLink>
               <RouterLink v-if="canManage" @click="closeMenus" to="/admin" class="block rounded-lg px-3 py-2.5 text-sm hover:bg-stone-50">{{ $t('admin.management') }}</RouterLink>
               <button @click="signOut" class="mt-2 w-full rounded-lg border border-stone-200 px-3 py-2.5 text-left text-sm font-bold hover:bg-stone-50">{{ $t('nav.logout') }}</button>
             </template>
@@ -125,7 +127,7 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
         <RouterLink to="/products" @click="closeMenus" class="text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950">{{ $t('home.latest') }}</RouterLink>
         <RouterLink to="/products" @click="closeMenus" class="text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950">{{ $t('nav.shop') }}</RouterLink>
         <RouterLink to="/affiliate" @click="closeMenus" class="hidden text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950 sm:block">{{ $t('nav.affiliate') }}</RouterLink>
-        <RouterLink v-if="canManage" to="/admin" @click="closeMenus" class="hidden text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950 lg:block">Management</RouterLink>
+        <RouterLink v-if="canManage" to="/admin" @click="closeMenus" class="hidden text-xs font-bold uppercase tracking-[.12em] text-stone-600 hover:text-stone-950 lg:block">{{ $t('admin.management') }}</RouterLink>
       </div>
     </div>
     <div v-if="categoryOpen" @mouseleave="categoryOpen = false" class="absolute left-0 right-0 top-full hidden border-t border-stone-200 bg-white shadow-2xl md:block">
@@ -150,16 +152,16 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
     </div>
     <div v-if="mobile" class="border-t border-stone-200 bg-white px-4 py-4 md:hidden">
       <form class="mb-3 flex gap-2" role="search" @submit.prevent="submitSearch"><input v-model="searchText" aria-label="Search products"  :placeholder="$t('common.search_placeholder')" class="!min-h-11 !rounded-full !bg-stone-50"/><button class="rounded-full bg-stone-950 px-4 text-xs font-bold text-white">{{ $t('common.search') }}</button></form>
-      <button @click="categoryOpen = !categoryOpen" class="flex w-full justify-between rounded-lg px-3 py-3 text-left text-sm font-semibold">Categories <svg class="h-4 w-4 transition-transform" :class="categoryOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m5 7.5 5 5 5-5"/></svg></button>
-      <div v-if="categoryOpen" class="grid gap-1 rounded-lg bg-stone-50 p-2"><RouterLink v-for="item in categories" :key="item.id" @click="closeMenus" :to="{ path: '/products', query: { categoryId: item.id } }" class="rounded-md px-3 py-2 text-sm">{{ item.name }}</RouterLink><RouterLink @click="closeMenus" to="/categories" class="px-3 py-2 text-sm font-bold">View all categories</RouterLink></div>
-      <RouterLink @click="mobile = false" to="/products" class="block rounded-lg px-3 py-3 text-sm font-semibold">All products</RouterLink>
-      <RouterLink @click="mobile = false" to="/orders" class="block rounded-lg px-3 py-3 text-sm font-semibold">My orders</RouterLink>
-      <RouterLink @click="mobile = false" to="/messages" class="block rounded-lg px-3 py-3 text-sm font-semibold">My messages</RouterLink>
-      <RouterLink @click="mobile = false" to="/wishlist" class="block rounded-lg px-3 py-3 text-sm font-semibold">My wishlist</RouterLink>
-      <RouterLink @click="mobile = false" to="/cart" class="block rounded-lg px-3 py-3 text-sm font-semibold">Cart ({{ cartCount }})</RouterLink>
-      <RouterLink v-if="!auth.user" @click="mobile = false" to="/login" class="block rounded-lg px-3 py-3 text-sm font-semibold">Sign in</RouterLink>
-      <RouterLink v-if="!auth.user" @click="mobile = false" to="/register" class="block rounded-lg px-3 py-3 text-sm font-semibold">Create account</RouterLink>
-      <button v-else @click="signOut; mobile = false" class="block rounded-lg px-3 py-3 text-sm font-semibold">Sign out</button>
+      <button @click="categoryOpen = !categoryOpen" class="flex w-full justify-between rounded-lg px-3 py-3 text-left text-sm font-semibold">{{ $t('nav.categories') }} <svg class="h-4 w-4 transition-transform" :class="categoryOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m5 7.5 5 5 5-5"/></svg></button>
+      <div v-if="categoryOpen" class="grid gap-1 rounded-lg bg-stone-50 p-2"><RouterLink v-for="item in categories" :key="item.id" @click="closeMenus" :to="{ path: '/products', query: { categoryId: item.id } }" class="rounded-md px-3 py-2 text-sm">{{ item.name }}</RouterLink><RouterLink @click="closeMenus" to="/categories" class="px-3 py-2 text-sm font-bold">{{ $t('common.view_all') }} {{ $t('nav.categories') }}</RouterLink></div>
+      <RouterLink @click="mobile = false" to="/products" class="block rounded-lg px-3 py-3 text-sm font-semibold">{{ $t('nav.shop') }}</RouterLink>
+      <RouterLink @click="mobile = false" to="/orders" class="block rounded-lg px-3 py-3 text-sm font-semibold">{{ $t('nav.orders') }}</RouterLink>
+      <RouterLink @click="mobile = false" to="/messages" class="block rounded-lg px-3 py-3 text-sm font-semibold">{{ $t('nav.messages') }}</RouterLink>
+      <RouterLink @click="mobile = false" to="/wishlist" class="block rounded-lg px-3 py-3 text-sm font-semibold">{{ $t('nav.wishlist') }}</RouterLink>
+      <RouterLink @click="mobile = false" to="/cart" class="block rounded-lg px-3 py-3 text-sm font-semibold">{{ $t('nav.cart') }} ({{ cartCount }})</RouterLink>
+      <RouterLink v-if="!auth.user" @click="mobile = false" to="/login" class="block rounded-lg px-3 py-3 text-sm font-semibold">{{ $t('nav.login') }}</RouterLink>
+      <RouterLink v-if="!auth.user" @click="mobile = false" to="/register" class="block rounded-lg px-3 py-3 text-sm font-semibold">{{ $t('nav.register') }}</RouterLink>
+      <button v-else @click="signOut; mobile = false" class="block rounded-lg px-3 py-3 text-sm font-semibold">{{ $t('nav.logout') }}</button>
     </div>
   </header>
   <main class="mx-auto min-h-[65vh] max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 lg:px-10"><slot/></main>
