@@ -1,10 +1,14 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import api from '../../services/api'
 import AdminPagination from '../../components/admin/AdminPagination.vue'
 
 const products = ref([])
 const categories = ref([])
+const attributes = ref([])
+const categoryRules = ref([])
+const attributeSelections = ref({})
+const productAttributes = computed(() => categoryRules.value.length ? categoryRules.value.map(rule => rule.attribute).filter(Boolean) : attributes.value)
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
@@ -21,12 +25,14 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const [productResponse, categoryResponse] = await Promise.all([
+    const [productResponse, categoryResponse, attributeResponse] = await Promise.all([
       api.get('/products/admin/all?limit=200'),
       api.get('/categories'),
+      api.get('/attributes'),
     ])
     products.value = productResponse.data?.data ?? productResponse.data?.products ?? []
     categories.value = categoryResponse.data?.data ?? categoryResponse.data?.categories ?? []
+    attributes.value = attributeResponse.data?.data ?? []
   } catch (err) {
     error.value = err.response?.data?.message || 'Could not load catalog data. Check the backend and your management access.'
   } finally {
@@ -50,6 +56,15 @@ async function createProduct() {
     payload.append('categoryId', form.value.categoryId)
     payload.append('categoryIds', JSON.stringify([...new Set([form.value.categoryId, ...form.value.additionalCategoryIds].filter(Boolean))]))
     payload.append('productType', form.value.productType)
+    const attributeValues = productAttributes.value.flatMap(attribute => {
+      const value = attributeSelections.value[attribute.id]
+      if (value === '' || value === null || value === undefined) return []
+      if (['select', 'color'].includes(attribute.type)) return [{ attributeId: attribute.id, attributeValueId: value }]
+      if (attribute.dataType === 'number') return [{ attributeId: attribute.id, numberValue: Number(value) }]
+      if (attribute.dataType === 'boolean') return [{ attributeId: attribute.id, booleanValue: value === true || value === 'true' }]
+      return [{ attributeId: attribute.id, textValue: String(value) }]
+    })
+    payload.append('attributeValues', JSON.stringify(attributeValues))
     payload.append('description', form.value.description.trim())
     payload.append('sku', sku)
     payload.append('price', String(price))
@@ -96,6 +111,15 @@ function toggleProductForm() {
   }
   showForm.value = !showForm.value
 }
+
+watch(() => form.value.categoryId, async categoryId => {
+  categoryRules.value = []
+  if (!categoryId) return
+  try {
+    const response = await api.get('/attributes/categories/' + categoryId)
+    categoryRules.value = (response.data?.data || []).filter(rule => rule.attribute).sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0))
+  } catch { categoryRules.value = [] }
+})
 
 function onImageChange(event) {
   const file = event.target.files?.[0] || null
@@ -157,6 +181,16 @@ onMounted(load)
         <div class="flex gap-2">
           <input v-model.number="form.price" type="number" min="0" step="0.01" required class="min-w-0 flex-1 rounded-xl border px-3 py-2.5" />
           <select v-model="form.currency" class="rounded-xl border bg-white px-3 py-2.5"><option>ETB</option><option>USD</option><option>EUR</option><option>GBP</option><option>KES</option></select>
+        </div>
+      </div>
+      <div v-if="productAttributes.length" class="md:col-span-2 rounded-xl border border-slate-200 p-4">
+        <h3 class="mb-1 text-sm font-bold">Product attributes</h3><p class="mb-3 text-xs text-slate-500">Reusable attributes configured for this category.</p>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <label v-for="attribute in productAttributes" :key="attribute.id" class="text-sm font-semibold">{{ attribute.name }}<span v-if="attribute.unit" class="font-normal text-slate-500"> ({{ attribute.unit }})</span>
+            <select v-if="['select', 'color'].includes(attribute.type) && attribute.values?.length" v-model="attributeSelections[attribute.id]" class="mt-1 w-full rounded border bg-white p-2.5"><option value="">Not set</option><option v-for="value in attribute.values" :key="value.id" :value="value.id">{{ value.label || value.value }}</option></select>
+            <select v-else-if="attribute.dataType === 'boolean'" v-model="attributeSelections[attribute.id]" class="mt-1 w-full rounded border bg-white p-2.5"><option value="">Not set</option><option value="true">Yes</option><option value="false">No</option></select>
+            <input v-else v-model="attributeSelections[attribute.id]" :type="attribute.dataType === 'number' ? 'number' : attribute.dataType === 'date' ? 'date' : 'text'" class="mt-1 w-full rounded border p-2.5" :placeholder="'Enter ' + attribute.name.toLowerCase()" />
+          </label>
         </div>
       </div>
       <div class="md:col-span-2">
