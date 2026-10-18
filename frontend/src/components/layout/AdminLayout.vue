@@ -32,6 +32,7 @@ const groups = [
     { label: 'Categories', path: '/admin/categories', icon: '▤', permission: 'catalog.view' },
     { label: 'Brands', path: '/admin/brands', icon: '◈', permission: 'catalog.view' },
     { label: 'Variants', path: '/admin/variants', icon: '◇', permission: 'catalog.view' },
+    { label: 'Vehicle fitment', path: '/admin/vehicle-catalog', icon: '🚗', permission: 'catalog.manage' },
     { label: 'Attributes', path: '/admin/attributes', icon: '☷', permission: 'catalog.view' },
   ] },
   { label: 'Inventory', items: [
