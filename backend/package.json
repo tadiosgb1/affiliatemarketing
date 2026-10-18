@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "db:sync": "node src/scripts/sync-db.js",
     "db:seed": "node src/scripts/seed.js",
-    "db:migrate:rbac": "node src/scripts/migrate-rbac-branding.js"
+    "db:migrate:rbac": "node src/scripts/migrate-rbac-branding.js",
+    "db:migrate:catalog": "node src/scripts/migrate-professional-catalog.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
