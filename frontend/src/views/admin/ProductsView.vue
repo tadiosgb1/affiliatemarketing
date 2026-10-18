@@ -42,7 +42,7 @@ async function createProduct() {
     const name = form.value.name.trim()
     const sku = form.value.sku.trim() || name.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40)
     const price = Number(form.value.price)
-    if (!name || !form.value.categoryId || !sku || !['physical', 'digital', 'service', 'vehicle'].includes(form.value.productType) || !Number.isFinite(price) || price < 0) {
+    if (!name || !form.value.categoryId || !sku || !Number.isFinite(price) || price < 0) {
       throw new Error('Enter a product name, category, SKU and a valid non-negative price.')
     }
     const payload = new FormData()
@@ -139,7 +139,7 @@ onMounted(load)
       </div>
       <div>
         <label class="mb-1 block text-sm font-semibold">Product type</label>
-        <select v-model="form.productType" required class="w-full rounded-xl border bg-white px-3 py-2.5"><option value="physical">Physical product</option><option value="digital">Digital product</option><option value="service">Service</option><option value="vehicle">Vehicle</option></select>
+        <select v-model="form.productType" required class="w-full rounded-xl border bg-white px-3 py-2.5"><option value="physical">Physical product</option><option value="digital">Digital product</option><option value="service">Service</option></select>
       </div>
       <div>
         <label class="mb-1 block text-sm font-semibold">Additional categories (optional)</label>
