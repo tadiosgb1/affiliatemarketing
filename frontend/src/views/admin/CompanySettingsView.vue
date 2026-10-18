@@ -58,6 +58,10 @@ function onLogoChange(event) {
   logoPreview.value = file ? URL.createObjectURL(file) : (form.value.logoUrl || '')
 }
 async function saveCompany() {
+  if (!/^#[0-9a-f]{6}$/i.test(form.value.primaryColor)) {
+    error.value = 'Enter a valid 6-digit hex colour, for example #4f46e5.'
+    return
+  }
   saving.value = true
   error.value = ''
   success.value = ''
