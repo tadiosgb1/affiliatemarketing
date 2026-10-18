@@ -120,7 +120,7 @@ watch(() => route.fullPath, () => {
         <button type="button" class="rounded px-2 py-1 text-slate-500 hover:bg-white lg:hidden" aria-label="Close menu" @click="mobileOpen = false">×</button>
       </div>
       <nav class="min-h-0 flex-1 overflow-y-auto px-3 py-4">
-        <p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.14em] text-slate-400">Workspace</p>
+        <p class="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.14em] text-slate-400">{{ $t('admin.workspace') }}</p>
         <template v-for="group in visibleGroups" :key="group.label">
           <div v-if="group.label === 'Workspace'" class="mb-1">
             <RouterLink v-for="item in group.items" :key="item.path" :to="item.path" class="mb-1 flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold transition-colors" :class="isActive(item.path) ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'">
@@ -134,7 +134,7 @@ watch(() => route.fullPath, () => {
             </button>
             <div v-if="openGroups.includes(group.label)" class="ml-2 border-l border-slate-300/80 pl-2">
               <RouterLink v-for="item in group.items" :key="item.path" :to="item.path" :aria-current="isActive(item.path) ? 'page' : undefined" class="mb-0.5 flex min-h-9 items-center gap-2.5 rounded-md px-2.5 text-[12px] font-medium transition-colors" :class="isActive(item.path) ? 'bg-white font-semibold text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'">
-                <span class="w-4 text-center text-[13px]">{{ item.icon }}</span><span class="flex-1">{{ item.label }}</span>
+                <span class="w-4 text-center text-[13px]">{{ item.icon }}</span><span class="flex-1">{{ translateLabel(item.label) }}</span>
                 <span v-if="isActive(item.path)" class="h-1.5 w-1.5 rounded-full bg-indigo-600"></span>
               </RouterLink>
             </div>
