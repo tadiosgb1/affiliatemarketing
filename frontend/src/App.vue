@@ -5,6 +5,7 @@ import { auth } from './stores'
 import api from './services/api'
 import AppShell from './components/layout/AppShell.vue'
 import AdminLayout from './components/layout/AdminLayout.vue'
+import LanguageSwitcher from './components/LanguageSwitcher.vue'
 
 const route = useRoute()
 const isAuthPage = computed(() => ['/login', '/register'].includes(route.path))
@@ -25,6 +26,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div class="global-language-switcher"><LanguageSwitcher /></div>
   <router-view v-if="isAuthPage" />
   <AdminLayout v-else-if="isAdminArea && isManager">
     <router-view />
@@ -33,3 +35,8 @@ onMounted(async () => {
     <router-view />
   </AppShell>
 </template>
+
+<style>
+.global-language-switcher { position: fixed; top: .65rem; right: .75rem; z-index: 1000; }
+@media (max-width: 640px) { .global-language-switcher { top: .45rem; right: .45rem; } }
+</style>
