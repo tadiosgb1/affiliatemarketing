@@ -42,20 +42,22 @@ async function submit(action, payload) {
     await action(payload)
     success.value = 'Vehicle catalog saved.'
     await load()
+    return true
   } catch (err) {
     error.value = err.response?.data?.message || err.message || 'Could not save vehicle catalog data.'
+    return false
   } finally { saving.value = false }
 }
 function createMake() {
   if (!makeForm.value.name.trim()) return
-  return submit(payload => api.post('/vehicle-catalog/makes', payload), { name: makeForm.value.name.trim() }).then(() => { makeForm.value.name = '' })
+  return submit(payload => api.post('/vehicle-catalog/makes', payload), { name: makeForm.value.name.trim() }).then(saved => { if (saved) makeForm.value.name = '' })
 }
 function createModel() {
-  return submit(payload => api.post('/vehicle-catalog/models', payload), { makeId: modelForm.value.makeId, name: modelForm.value.name.trim() }).then(() => { modelForm.value.name = '' })
+  return submit(payload => api.post('/vehicle-catalog/models', payload), { makeId: modelForm.value.makeId, name: modelForm.value.name.trim() }).then(saved => { if (saved) modelForm.value.name = '' })
 }
 function createGeneration() {
   const payload = { ...generationForm.value, yearFrom: generationForm.value.yearFrom || null, yearTo: generationForm.value.yearTo || null }
-  return submit(data => api.post('/vehicle-catalog/generations', data), payload).then(() => { generationForm.value = { modelId: '', generationName: '', yearFrom: '', yearTo: '', bodyStyle: '' } })
+  return submit(data => api.post('/vehicle-catalog/generations', data), payload).then(saved => { if (saved) generationForm.value = { modelId: '', generationName: '', yearFrom: '', yearTo: '', bodyStyle: '' } })
 }
 async function addFitment() {
   if (!fitmentForm.value.productId || !fitmentForm.value.vehicleGenerationId) return
