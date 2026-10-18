@@ -10,5 +10,5 @@ module.exports = (sequelize, D) => sequelize.define('MediaAsset', {
   height: { type: D.INTEGER, validate: { min: 0 } },
   durationSeconds: { type: D.DECIMAL(12, 3), validate: { min: 0 } },
   altText: { type: D.TEXT },
-  metadata: { type: D.JSON, allowNull: false, defaultValue: {} },
+  metadata: { type: D.JSON, allowNull: false },
 }, { tableName: 'media_assets', indexes: [{ fields: ['media_type'] }] });
