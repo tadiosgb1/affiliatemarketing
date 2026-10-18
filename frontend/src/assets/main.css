@@ -35,7 +35,7 @@ button:disabled { cursor: not-allowed; }
 
 @layer base {
   h1, h2, h3, h4 { letter-spacing: -0.035em; }
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   select,
   textarea {
     display: block;
@@ -97,7 +97,7 @@ button:disabled { cursor: not-allowed; }
 
 
 /* Keep form controls visually consistent even on pages with legacy Tailwind classes. */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
 select,
 textarea {
   min-height: 42px;
@@ -113,8 +113,8 @@ textarea {
 textarea { min-height: 100px; }
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #818cf8;
-  box-shadow: 0 0 0 3px rgb(99 102 241 / 12%);
+  border-color: var(--platform-primary, #818cf8);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--platform-primary, #6366f1) 16%, transparent);
 }
 
 
