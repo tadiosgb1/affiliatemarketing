@@ -39,6 +39,47 @@ const adminLabelKeys = {
 function translateLabel(label) { const key = adminLabelKeys[label]; return key ? t(key, label) : label }
 
 const mobileOpen = ref(false)
+const sidebarWidth = ref(250)
+const isDesktop = ref(typeof window !== 'undefined' ? window.innerWidth >= 1024 : true)
+const isResizingSidebar = ref(false)
+const MIN_SIDEBAR_WIDTH = 200
+const MAX_SIDEBAR_WIDTH = 420
+function syncViewport() { isDesktop.value = window.innerWidth >= 1024 }
+function startSidebarResize(event) {
+  if (!isDesktop.value || event.button !== 0) return
+  event.preventDefault()
+  isResizingSidebar.value = true
+  document.body.style.cursor = 'col-resize'
+  document.body.style.userSelect = 'none'
+}
+function resizeSidebar(event) {
+  if (!isResizingSidebar.value) return
+  sidebarWidth.value = Math.max(MIN_SIDEBAR_WIDTH, Math.min(MAX_SIDEBAR_WIDTH, event.clientX))
+}
+function stopSidebarResize() {
+  if (!isResizingSidebar.value) return
+  isResizingSidebar.value = false
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+  try { window.localStorage.setItem('admin-sidebar-width', String(sidebarWidth.value)) } catch { /* Storage may be unavailable. */ }
+}
+onMounted(() => {
+  try {
+    const savedWidth = Number(window.localStorage.getItem('admin-sidebar-width'))
+    if (Number.isFinite(savedWidth) && savedWidth >= MIN_SIDEBAR_WIDTH && savedWidth <= MAX_SIDEBAR_WIDTH) sidebarWidth.value = savedWidth
+  } catch { /* Use the default width if storage is unavailable. */ }
+  syncViewport()
+  window.addEventListener('resize', syncViewport)
+  window.addEventListener('mousemove', resizeSidebar)
+  window.addEventListener('mouseup', stopSidebarResize)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', syncViewport)
+  window.removeEventListener('mousemove', resizeSidebar)
+  window.removeEventListener('mouseup', stopSidebarResize)
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+})
 const profileOpen = ref(false)
 const notificationsOpen = ref(false)
 const openGroups = ref([])
@@ -107,7 +148,7 @@ watch(() => route.fullPath, () => {
 <template>
   <div class="min-h-screen bg-[#f6f8fb] text-slate-900">
     <button v-if="mobileOpen" type="button" class="fixed inset-0 z-40 bg-slate-950/40 lg:hidden" aria-label="Close navigation overlay" @click="mobileOpen = false"></button>
-    <aside :class="mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" class="fixed inset-y-0 left-0 z-50 flex w-[250px] flex-col border-r border-[#dce3ed] bg-[#eaf0f8] text-slate-700 transition-transform duration-200">
+    <aside :class="mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" :style="{ width: sidebarWidth + 'px' }" class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-[#dce3ed] bg-[#eaf0f8] text-slate-700 transition-transform duration-200">
       <div class="flex h-[66px] shrink-0 items-center gap-3 border-b border-slate-200 px-5">
         <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-md text-sm font-extrabold text-white" :style="{ backgroundColor: platformBrand.primaryColor || '#4f46e5' }">
           <img v-if="platformBrand.logoUrl" :src="platformBrand.logoUrl" :alt="brandTitle + ' logo'" class="h-full w-full bg-white object-contain" />
@@ -145,8 +186,16 @@ watch(() => route.fullPath, () => {
         <RouterLink to="/shop" class="flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold text-slate-600 hover:bg-white/70 hover:text-slate-900"><span>↗</span> {{ $t('admin.storefront') }}</RouterLink>
         <RouterLink to="/affiliate" class="flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold text-slate-600 hover:bg-white/70 hover:text-slate-900"><span>◎</span> {{ $t('admin.affiliate_portal') }}</RouterLink>
       </div>
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize sidebar"
+        title="Drag to resize sidebar"
+        class="absolute right-0 top-0 hidden h-full w-1.5 translate-x-1/2 cursor-col-resize bg-transparent transition-colors hover:bg-indigo-400/60 lg:block"
+        @mousedown="startSidebarResize"
+      ></div>
     </aside>
-    <div class="min-h-screen lg:pl-[250px]">
+    <div class="min-h-screen" :style="{ paddingLeft: isDesktop ? sidebarWidth + 'px' : '0px' }">
       <header class="sticky top-0 z-30 flex h-[66px] items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-7">
         <div class="flex min-w-0 items-center gap-3">
           <button type="button" class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 lg:hidden" aria-label="Open navigation" @click="mobileOpen = true">☰</button>
