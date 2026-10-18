@@ -44,16 +44,16 @@ async function submit() {
           </div>
           <RouterLink to="/" class="mb-10 hidden items-center gap-2 text-sm font-semibold text-stone-600 transition hover:text-stone-700 lg:inline-flex">← Back to storefront</RouterLink>
           <div class="mb-8">
-            <p class="text-sm font-bold text-stone-700">WELCOME BACK</p>
-            <h1 class="mt-3 text-3xl font-black tracking-tight text-stone-950 sm:text-4xl">Sign in to your account</h1>
-            <p class="mt-3 text-sm leading-6 text-stone-600">Enter your details below to continue shopping with MarketFlow.</p>
+            <p class="text-sm font-bold text-stone-700">{{ $t('auth.welcome_back') }}</p>
+            <h1 class="mt-3 text-3xl font-black tracking-tight text-stone-950 sm:text-4xl">{{ $t('auth.sign_in') }}</h1>
+            <p class="mt-3 text-sm leading-6 text-stone-600">{{ $t('auth.login_intro') }}</p>
           </div>
 
           <p v-if="error" role="alert" class="mb-5 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-5 text-red-700"><span aria-hidden="true">!</span><span>{{ error }}</span></p>
 
           <form class="space-y-5" @submit.prevent="submit">
             <div>
-              <label for="login-identifier" class="mb-2 block text-sm font-semibold text-stone-800">Email address or phone</label>
+              <label for="login-identifier" class="mb-2 block text-sm font-semibold text-stone-800">{{ $t('auth.email_or_phone') }}</label>
               <input id="login-identifier" v-model="identifier" type="text" autocomplete="username" required placeholder="you@example.com or +251..." class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
             </div>
             <div>
@@ -61,7 +61,7 @@ async function submit() {
                 <label for="login-password" class="block text-sm font-semibold text-stone-800">Password</label>
               </div>
               <div class="relative">
-                <input id="login-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required placeholder="Enter your password" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
+                <input id="login-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required placeholder=:placeholder="$t('auth.enter_password')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
                 <button type="button" class="absolute inset-y-0 right-3 my-auto h-9 rounded-lg px-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-950" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button>
               </div>
             </div>
@@ -72,8 +72,8 @@ async function submit() {
             </button>
           </form>
 
-          <div class="my-7 flex items-center gap-3 text-xs text-stone-500"><span class="h-px flex-1 bg-slate-200"></span><span>YOUR SHOPPING, ALL IN ONE PLACE</span><span class="h-px flex-1 bg-slate-200"></span></div>
-          <p class="text-center text-sm text-stone-600">New to MarketFlow? <RouterLink to="/register" class="font-bold text-stone-700 hover:text-stone-950">Create an account</RouterLink></p>
+          <div class="my-7 flex items-center gap-3 text-xs text-stone-500"><span class="h-px flex-1 bg-slate-200"></span><span>{{ $t('auth.shopping_tagline') }}</span><span class="h-px flex-1 bg-slate-200"></span></div>
+          <p class="text-center text-sm text-stone-600">New to MarketFlow? <RouterLink to="/register" class="font-bold text-stone-700 hover:text-stone-950">{{ $t('auth.create_account') }}</RouterLink></p>
           <p class="mt-8 text-center text-xs leading-5 text-stone-500">By continuing, you agree to use your account responsibly and keep your sign-in details secure.</p>
         </div>
       </section>
