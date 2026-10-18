@@ -19,7 +19,7 @@ async function addMissingColumns(table, definitions) {
     // Additive migration only: preserve company, warehouse, supplier, purchasing,
     // inventory, orders, payments and affiliate data already in this database.
     await addMissingColumns('products', {
-      product_type: { type: DataTypes.ENUM('physical', 'digital', 'service', 'vehicle'), allowNull: false, defaultValue: 'physical' },
+      product_type: { type: DataTypes.ENUM('physical', 'digital', 'service'), allowNull: false, defaultValue: 'physical' },
       has_variants: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     });
     await addMissingColumns('attributes', {
