@@ -56,7 +56,7 @@ async function submit() {
           <form class="space-y-4" @submit.prevent="submit">
             <div>
               <label for="register-name" class="mb-2 block text-sm font-semibold text-stone-800">Full name</label>
-              <input id="register-name" v-model="name" type="text" autocomplete="name" minlength="2" maxlength="120" required placeholder=:placeholder="$t('auth.your_full_name')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
+              <input id="register-name" v-model="name" type="text" autocomplete="name" minlength="2" maxlength="120" required :placeholder="$t('auth.your_full_name')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
             </div>
             <div>
               <label for="register-email" class="mb-2 block text-sm font-semibold text-stone-800">Email address</label>
@@ -69,7 +69,7 @@ async function submit() {
             <div>
               <label for="register-password" class="mb-2 block text-sm font-semibold text-stone-800">{{ $t('auth.create_password') }}</label>
               <div class="relative">
-                <input id="register-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" required placeholder=:placeholder="$t('auth.password_min')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
+                <input id="register-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" required :placeholder="$t('auth.password_min')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
                 <button type="button" class="absolute inset-y-0 right-3 my-auto h-9 rounded-lg px-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-950" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button>
               </div>
               <p class="mt-2 text-xs leading-5 text-stone-600">{{ $t('auth.password_tip') }}</p>
