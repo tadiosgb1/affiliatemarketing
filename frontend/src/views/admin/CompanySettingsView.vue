@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import api from '../../services/api'
 
 const loading = ref(true)
@@ -13,6 +13,12 @@ const form = ref({
   name: '', platformName: '', tagline: '', primaryColor: '#4f46e5', legalName: '', registrationNumber: '', taxNumber: '', businessType: 'company',
   email: '', phone: '', country: 'Ethiopia', city: '', address: '', logoUrl: '', status: 'active',
 })
+function applyBrandColor(value) {
+  if (typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)) {
+    document.documentElement.style.setProperty('--platform-primary', value)
+  }
+}
+watch(() => form.value.primaryColor, value => applyBrandColor(value), { immediate: true })
 const fields = [
   { key: 'name', label: 'Trading name', required: true },
   { key: 'platformName', label: 'Platform brand name' },
@@ -65,7 +71,7 @@ async function saveCompany() {
     const response = configured.value ? await api.patch('/company', payload, options) : await api.post('/company', payload, options)
     const savedBrand = response.data?.data || { ...form.value }
     Object.assign(form.value, savedBrand)
-    if (savedBrand.primaryColor && /^#[0-9a-f]{6}$/i.test(savedBrand.primaryColor)) document.documentElement.style.setProperty('--platform-primary', savedBrand.primaryColor)
+    applyBrandColor(savedBrand.primaryColor)
     window.dispatchEvent(new CustomEvent('platform-brand-updated', { detail: savedBrand }))
     selectedLogo.value = null
     configured.value = true
@@ -95,10 +101,12 @@ onMounted(loadCompany)
       <div class="grid gap-x-5 gap-y-4 p-5 sm:grid-cols-2 xl:grid-cols-3">
         <div>
           <label for="platform-color" class="mb-1.5 block text-[12px] font-semibold text-slate-700">Platform brand colour</label>
-          <div class="flex h-10 items-center gap-3 border border-slate-200 px-2">
-            <input id="platform-color" v-model="form.primaryColor" type="color" class="h-7 w-10 border-0 bg-transparent p-0" />
-            <span class="text-[12px] text-slate-600">{{ form.primaryColor }}</span>
+          <div class="flex min-h-11 items-center gap-3 rounded-lg border border-slate-200 bg-white px-3">
+            <input id="platform-color" :value="/^#[0-9a-f]{6}$/i.test(form.primaryColor) ? form.primaryColor : '#4f46e5'" @input="form.primaryColor = $event.target.value" type="color" aria-label="Choose platform brand colour" class="!h-8 !w-10 !min-h-0 !shrink-0 !cursor-pointer !rounded-md !border-0 !bg-transparent !p-0 !shadow-none" />
+            <input id="platform-color-hex" v-model="form.primaryColor" type="text" inputmode="text" pattern="^#[0-9a-fA-F]{6}$" maxlength="7" placeholder="#4f46e5" aria-label="Brand colour hex value" class="!min-h-9 !flex-1 !border-0 !bg-transparent !p-0 !font-mono !text-sm !shadow-none focus:!ring-0" />
+            <span class="h-6 w-6 shrink-0 rounded-md border border-slate-200" :style="{ backgroundColor: /^#[0-9a-f]{6}$/i.test(form.primaryColor) ? form.primaryColor : '#ffffff' }" aria-hidden="true"></span>
           </div>
+          <p class="mt-1.5 text-[11px] text-slate-500">Choose a colour or type a hex code. Changes preview immediately and apply after saving.</p>
         </div>
         <div class="sm:col-span-2 xl:col-span-3">
           <label for="company-logo" class="mb-1.5 block text-[12px] font-semibold text-slate-700">Company logo</label>
