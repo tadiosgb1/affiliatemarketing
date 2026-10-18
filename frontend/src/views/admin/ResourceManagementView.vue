@@ -193,7 +193,8 @@ async function createRecord() {
         const values = String(value || '').split(',').map(item => item.trim()).filter(Boolean)
         if (values.length) payload.values = values
       } else if (value !== '' && value !== null && value !== undefined) {
-        payload[field.key] = ['commissionRate', 'fixedCommission', 'cookieDays'].includes(field.key) ? Number(value) : value
+        if (['isFilterable', 'isRequired'].includes(field.key)) payload[field.key] = value === true || value === 'true'
+        else payload[field.key] = ['commissionRate', 'fixedCommission', 'cookieDays'].includes(field.key) ? Number(value) : value
       }
     })
     if (key.value === 'affiliate-programs' && !payload.productId) delete payload.productId
