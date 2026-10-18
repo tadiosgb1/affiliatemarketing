@@ -26,7 +26,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="global-language-switcher"><LanguageSwitcher /></div>
+  <div v-if="isAuthPage" class="auth-language-switcher"><LanguageSwitcher /></div>
   <router-view v-if="isAuthPage" />
   <AdminLayout v-else-if="isAdminArea && isManager">
     <router-view />
@@ -37,6 +37,6 @@ onMounted(async () => {
 </template>
 
 <style>
-.global-language-switcher { position: fixed; top: .65rem; right: .75rem; z-index: 1000; }
-@media (max-width: 640px) { .global-language-switcher { top: .45rem; right: .45rem; } }
+.auth-language-switcher { position: fixed; top: .75rem; right: .75rem; z-index: 1000; }
+@media (max-width: 640px) { .auth-language-switcher { top: .45rem; right: .45rem; } }
 </style>
