@@ -46,9 +46,9 @@ async function submit() {
           </div>
           <RouterLink to="/" class="mb-7 hidden items-center gap-2 text-sm font-semibold text-stone-600 transition hover:text-stone-700 lg:inline-flex">← Back to storefront</RouterLink>
           <div class="mb-7">
-            <p class="text-sm font-bold text-stone-700">JOIN MARKETFLOW</p>
-            <h1 class="mt-3 text-3xl font-black tracking-tight text-stone-950 sm:text-4xl">Create your account</h1>
-            <p class="mt-3 text-sm leading-6 text-stone-600">A few details and you’ll be ready to discover something great.</p>
+            <p class="text-sm font-bold text-stone-700">{{ $t('auth.join') }}</p>
+            <h1 class="mt-3 text-3xl font-black tracking-tight text-stone-950 sm:text-4xl">{{ $t('auth.create_account') }}</h1>
+            <p class="mt-3 text-sm leading-6 text-stone-600">{{ $t('auth.create_intro') }}</p>
           </div>
 
           <p v-if="error" role="alert" class="mb-5 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm leading-5 text-red-700"><span aria-hidden="true">!</span><span>{{ error }}</span></p>
@@ -56,7 +56,7 @@ async function submit() {
           <form class="space-y-4" @submit.prevent="submit">
             <div>
               <label for="register-name" class="mb-2 block text-sm font-semibold text-stone-800">Full name</label>
-              <input id="register-name" v-model="name" type="text" autocomplete="name" minlength="2" maxlength="120" required placeholder="Your full name" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
+              <input id="register-name" v-model="name" type="text" autocomplete="name" minlength="2" maxlength="120" required placeholder=:placeholder="$t('auth.your_full_name')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
             </div>
             <div>
               <label for="register-email" class="mb-2 block text-sm font-semibold text-stone-800">Email address</label>
@@ -67,12 +67,12 @@ async function submit() {
               <input id="register-phone" v-model="phone" type="tel" autocomplete="tel" placeholder="+251 9..." class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
             </div>
             <div>
-              <label for="register-password" class="mb-2 block text-sm font-semibold text-stone-800">Create a password</label>
+              <label for="register-password" class="mb-2 block text-sm font-semibold text-stone-800">{{ $t('auth.create_password') }}</label>
               <div class="relative">
-                <input id="register-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
+                <input id="register-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" required placeholder=:placeholder="$t('auth.password_min')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
                 <button type="button" class="absolute inset-y-0 right-3 my-auto h-9 rounded-lg px-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-950" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button>
               </div>
-              <p class="mt-2 text-xs leading-5 text-stone-600">Choose at least 8 characters and keep your password private.</p>
+              <p class="mt-2 text-xs leading-5 text-stone-600">{{ $t('auth.password_tip') }}</p>
             </div>
             <button type="submit" :disabled="loading" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-stone-950/10 transition hover:bg-stone-700 disabled:cursor-not-allowed disabled:opacity-60">
               <span v-if="loading" class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"></span>
