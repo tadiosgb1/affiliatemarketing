@@ -124,7 +124,7 @@ async function persistOrder(reordered) {
   try {
     await Promise.all(reordered.map((rule, orderIndex) => api.patch(
       '/attributes/categories/' + selectedCategoryId.value + '/' + rule.attributeId,
-      { sortOrder: (orderIndex + 1) * 10 },
+      { sortOrder: orderIndex },
     )))
     await loadAssigned()
     notifySuccess('The new attribute order has been saved.')
