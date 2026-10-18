@@ -156,7 +156,7 @@ onMounted(load)
         <label class="mb-1 block text-sm font-semibold">Price</label>
         <div class="flex gap-2">
           <input v-model.number="form.price" type="number" min="0" step="0.01" required class="min-w-0 flex-1 rounded-xl border px-3 py-2.5" />
-          <select v-model="form.currency" class="rounded-xl border bg-white px-3 py-2.5"><option>ETB</option><option>USD</option></select>
+          <select v-model="form.currency" class="rounded-xl border bg-white px-3 py-2.5"><option>ETB</option><option>USD</option><option>EUR</option><option>GBP</option><option>KES</option></select>
         </div>
       </div>
       <div class="md:col-span-2">
