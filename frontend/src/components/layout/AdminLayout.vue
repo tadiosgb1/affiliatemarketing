@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { auth, logout } from '../../stores'
 import api from '../../services/api'
+import { t } from '../../i18n'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,6 +21,21 @@ onUnmounted(() => window.removeEventListener('platform-brand-updated', onPlatfor
 watch(() => platformBrand.value.primaryColor, color => {
   if (typeof document !== 'undefined' && /^#[0-9a-f]{6}$/i.test(color || '')) document.documentElement.style.setProperty('--platform-primary', color)
 }, { immediate: true })
+
+
+const adminLabelKeys = {
+  Workspace: 'admin.workspace', Overview: 'admin.overview', 'Users & access': 'admin.users_access',
+  Catalog: 'admin.catalog', Products: 'admin.products', Categories: 'admin.categories', Brands: 'admin.brands',
+  Variants: 'admin.variants', 'Attributes & values': 'admin.attributes', 'Category attributes': 'admin.category_attributes',
+  Inventory: 'admin.inventory', 'Stock levels': 'admin.stock_levels', 'Stock movements': 'admin.stock_movements',
+  Warehouses: 'admin.warehouses', Procurement: 'admin.procurement', Suppliers: 'admin.suppliers',
+  'Supplier catalog': 'admin.supplier_catalog', 'Purchase orders': 'admin.purchase_orders', Sales: 'admin.sales',
+  Orders: 'admin.orders', 'Customer carts': 'admin.customer_carts', Payments: 'admin.payments', Growth: 'admin.growth',
+  'Affiliate programs': 'admin.affiliate_programs', 'Affiliate links': 'admin.affiliate_links', Commissions: 'admin.commissions',
+  Payouts: 'admin.payouts', Settings: 'admin.settings', 'Company profile': 'admin.company_profile',
+  'Roles & permissions': 'admin.roles_permissions'
+}
+function translateLabel(label) { const key = adminLabelKeys[label]; return key ? t(key, label) : label }
 
 const mobileOpen = ref(false)
 const profileOpen = ref(false)
@@ -107,12 +123,12 @@ watch(() => route.fullPath, () => {
         <template v-for="group in visibleGroups" :key="group.label">
           <div v-if="group.label === 'Workspace'" class="mb-1">
             <RouterLink v-for="item in group.items" :key="item.path" :to="item.path" class="mb-1 flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold transition-colors" :class="isActive(item.path) ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:bg-white/70 hover:text-slate-900'">
-              <span class="w-4 text-center text-[14px]">{{ item.icon }}</span>{{ item.label }}
+              <span class="w-4 text-center text-[14px]">{{ item.icon }}</span>{{ translateLabel(item.label) }}
             </RouterLink>
           </div>
           <div v-else class="mt-1">
             <button type="button" class="flex min-h-9 w-full items-center gap-2 rounded-md px-3 text-left text-[12px] font-bold tracking-[.01em] transition-colors" :class="groupIsActive(group) ? 'text-indigo-900' : 'text-slate-700 hover:bg-white/80 hover:text-slate-950'" :aria-expanded="openGroups.includes(group.label)" @click="toggleGroup(group.label)">
-              <span class="flex-1">{{ group.label }}</span>
+              <span class="flex-1">{{ translateLabel(group.label) }}</span>
               <span class="text-[12px] transition-transform" :class="openGroups.includes(group.label) ? 'rotate-90' : ''">›</span>
             </button>
             <div v-if="openGroups.includes(group.label)" class="ml-2 border-l border-slate-300/80 pl-2">
@@ -125,8 +141,8 @@ watch(() => route.fullPath, () => {
         </template>
       </nav>
       <div class="border-t border-slate-200 px-3 py-3">
-        <RouterLink to="/shop" class="flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold text-slate-600 hover:bg-white/70 hover:text-slate-900"><span>↗</span> Customer storefront</RouterLink>
-        <RouterLink to="/affiliate" class="flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold text-slate-600 hover:bg-white/70 hover:text-slate-900"><span>◎</span> Affiliate portal</RouterLink>
+        <RouterLink to="/shop" class="flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold text-slate-600 hover:bg-white/70 hover:text-slate-900"><span>↗</span> {{ $t('admin.storefront') }}</RouterLink>
+        <RouterLink to="/affiliate" class="flex min-h-9 items-center gap-3 rounded-md px-3 text-[12px] font-semibold text-slate-600 hover:bg-white/70 hover:text-slate-900"><span>◎</span> {{ $t('admin.affiliate_portal') }}</RouterLink>
       </div>
     </aside>
     <div class="min-h-screen lg:pl-[250px]">
@@ -138,8 +154,8 @@ watch(() => route.fullPath, () => {
           <div class="relative">
             <button type="button" class="relative flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-800" aria-label="Notifications" :aria-expanded="notificationsOpen" @click="notificationsOpen = !notificationsOpen; profileOpen = false">♧</button>
             <div v-if="notificationsOpen" class="absolute right-0 top-11 z-50 w-64 border border-slate-200 bg-white p-4 shadow-lg">
-              <p class="text-[13px] font-semibold text-slate-900">Notifications</p>
-              <p class="mt-2 text-[12px] text-slate-500">No new notifications.</p>
+              <p class="text-[13px] font-semibold text-slate-900">{{ $t('admin.notifications') }}</p>
+              <p class="mt-2 text-[12px] text-slate-500">{{ $t('admin.no_notifications') }}</p>
             </div>
           </div>
           <div class="relative">
@@ -154,9 +170,9 @@ watch(() => route.fullPath, () => {
                 <p class="truncate text-[11px] text-slate-500">{{ auth.user?.email || '' }}</p>
                 <p class="mt-1 text-[10px] uppercase tracking-wider text-slate-400">{{ String(auth.user?.role || 'user').replaceAll('_', ' ') }}</p>
               </div>
-              <button type="button" class="mt-1 flex w-full items-center rounded px-3 py-2 text-left text-[12px] text-slate-600 hover:bg-slate-50" @click="profileOpen = false">My profile <span class="ml-auto text-[10px] text-slate-400">Account details above</span></button>
+              <button type="button" class="mt-1 flex w-full items-center rounded px-3 py-2 text-left text-[12px] text-slate-600 hover:bg-slate-50" @click="profileOpen = false">{{ $t('admin.profile') }} <span class="ml-auto text-[10px] text-slate-400">Account details above</span></button>
               <div class="my-1 border-t border-slate-100"></div>
-              <button type="button" class="flex w-full items-center rounded px-3 py-2 text-left text-[12px] font-semibold text-rose-600 hover:bg-rose-50" @click="signOut">↪ <span class="ml-2">Log out</span></button>
+              <button type="button" class="flex w-full items-center rounded px-3 py-2 text-left text-[12px] font-semibold text-rose-600 hover:bg-rose-50" @click="signOut">↪ <span class="ml-2">{{ $t('admin.logout') }}</span></button>
             </div>
           </div>
         </div>
