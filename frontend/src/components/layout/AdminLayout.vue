@@ -4,6 +4,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { auth, logout } from '../../stores'
 import api from '../../services/api'
 import { t } from '../../i18n'
+import LanguageSwitcher from '../LanguageSwitcher.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -151,6 +152,7 @@ watch(() => route.fullPath, () => {
           <button type="button" class="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-600 lg:hidden" aria-label="Open navigation" @click="mobileOpen = true">☰</button>
         </div>
         <div class="ml-3 flex shrink-0 items-center gap-2">
+          <LanguageSwitcher />
           <div class="relative">
             <button type="button" class="relative flex h-9 w-9 items-center justify-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-slate-800" aria-label="Notifications" :aria-expanded="notificationsOpen" @click="notificationsOpen = !notificationsOpen; profileOpen = false">♧</button>
             <div v-if="notificationsOpen" class="absolute right-0 top-11 z-50 w-64 border border-slate-200 bg-white p-4 shadow-lg">
