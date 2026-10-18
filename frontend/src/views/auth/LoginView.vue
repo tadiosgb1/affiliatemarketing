@@ -61,7 +61,7 @@ async function submit() {
                 <label for="login-password" class="block text-sm font-semibold text-stone-800">Password</label>
               </div>
               <div class="relative">
-                <input id="login-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required placeholder=:placeholder="$t('auth.enter_password')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
+                <input id="login-password" v-model="password" :type="showPassword ? 'text' : 'password'" autocomplete="current-password" required :placeholder="$t('auth.enter_password')" class="auth-input w-full rounded-xl border border-stone-300 bg-[#faf9f6] px-4 py-3.5 pr-20 text-sm outline-none transition focus:border-stone-500 focus:ring-4 focus:ring-stone-900/10" />
                 <button type="button" class="absolute inset-y-0 right-3 my-auto h-9 rounded-lg px-2 text-xs font-semibold text-stone-600 hover:bg-stone-100 hover:text-stone-950" :aria-label="showPassword ? 'Hide password' : 'Show password'" @click="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button>
               </div>
             </div>
