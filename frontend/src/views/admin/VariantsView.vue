@@ -61,7 +61,10 @@ async function createVariant() {
     if (!payload.sku || !Number.isFinite(payload.price) || payload.price < 0) throw new Error('Enter a unique SKU and a valid selling price.')
     for (const value of [payload.weight, payload.length, payload.width, payload.height]) if (value !== null && (!Number.isFinite(value) || value < 0)) throw new Error('Weight and dimensions must be non-negative numbers.')
     for (const value of [payload.compareAtPrice, payload.costPrice]) if (value !== null && (!Number.isFinite(value) || value < 0)) throw new Error('All prices must be non-negative numbers.')
-    const body = new FormData()\n    Object.entries(payload).forEach(([key, value]) => { if (value !== null && value !== undefined) body.append(key, key === 'options' ? JSON.stringify(value) : String(value)) })\n    if (selectedVariantImage.value) body.append('image', selectedVariantImage.value)\n    await api.post('/product-variants', body, { headers: { 'Content-Type': 'multipart/form-data' } })
+    const body = new FormData()
+    Object.entries(payload).forEach(([key, value]) => { if (value !== null && value !== undefined) body.append(key, key === 'options' ? JSON.stringify(value) : String(value)) })
+    if (selectedVariantImage.value) body.append('image', selectedVariantImage.value)
+    await api.post('/product-variants', body, { headers: { 'Content-Type': 'multipart/form-data' } })
     success.value = 'Product variant created.'; showCreateForm.value = false; resetCreateForm(); await load()
   } catch (err) { error.value = err.response?.data?.message || err.message || 'Could not create variant.' }
   finally { saving.value = false }
