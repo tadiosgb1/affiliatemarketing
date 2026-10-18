@@ -15,7 +15,7 @@ const pageSize = ref(10)
 const selectedImage = ref(null)
 const imagePreview = ref('')
 const paginatedProducts = computed(() => products.value.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value))
-const form = ref({ name: '', categoryId: '', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 })
+const form = ref({ name: '', categoryId: '', additionalCategoryIds: [], productType: 'physical', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 })
 
 async function load() {
   loading.value = true
@@ -42,12 +42,14 @@ async function createProduct() {
     const name = form.value.name.trim()
     const sku = form.value.sku.trim() || name.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40)
     const price = Number(form.value.price)
-    if (!name || !form.value.categoryId || !sku || !Number.isFinite(price) || price < 0) {
+    if (!name || !form.value.categoryId || !sku || !['physical', 'digital', 'service', 'vehicle'].includes(form.value.productType) || !Number.isFinite(price) || price < 0) {
       throw new Error('Enter a product name, category, SKU and a valid non-negative price.')
     }
     const payload = new FormData()
     payload.append('name', name)
     payload.append('categoryId', form.value.categoryId)
+    payload.append('categoryIds', JSON.stringify([...new Set([form.value.categoryId, ...form.value.additionalCategoryIds].filter(Boolean))]))
+    payload.append('productType', form.value.productType)
     payload.append('description', form.value.description.trim())
     payload.append('sku', sku)
     payload.append('price', String(price))
@@ -61,7 +63,7 @@ async function createProduct() {
     const response = await api.post('/products', payload, { headers: { 'Content-Type': 'multipart/form-data' } })
     const created = response.data?.data
     if (created) products.value.unshift(created)
-    form.value = { name: '', categoryId: '', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 }
+    form.value = { name: '', categoryId: '', additionalCategoryIds: [], productType: 'physical', description: '', sku: '', price: 0, currency: 'ETB', imageUrl: '', quantity: 10 }
     selectedImage.value = null
     imagePreview.value = ''
     showForm.value = false
@@ -136,6 +138,17 @@ onMounted(load)
         <p v-if="!categories.length" class="mt-1 text-xs text-amber-700">Create a category first.</p>
       </div>
       <div>
+        <label class="mb-1 block text-sm font-semibold">Product type</label>
+        <select v-model="form.productType" required class="w-full rounded-xl border bg-white px-3 py-2.5"><option value="physical">Physical product</option><option value="digital">Digital product</option><option value="service">Service</option><option value="vehicle">Vehicle</option></select>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-semibold">Additional categories (optional)</label>
+        <select v-model="form.additionalCategoryIds" multiple class="min-h-24 w-full rounded-xl border bg-white px-3 py-2.5" aria-label="Additional product categories">
+          <option v-for="category in categories.filter(item => item.id !== form.categoryId)" :key="category.id" :value="category.id">{{ category.name }}</option>
+        </select>
+        <p class="mt-1 text-xs text-slate-500">Hold Ctrl (Windows) or Command (Mac) to select more than one.</p>
+      </div>
+      <div>
         <label class="mb-1 block text-sm font-semibold">SKU</label>
         <input v-model="form.sku" maxlength="80" class="w-full rounded-xl border px-3 py-2.5" placeholder="Auto-generated if blank" />
       </div>
@@ -168,7 +181,7 @@ onMounted(load)
           <thead class="border-b border-slate-200 bg-slate-50 text-slate-500"><tr><th class="p-4">Product</th><th class="p-4">SKU</th><th class="p-4">Price</th><th class="p-4">Stock</th><th class="p-4">Status</th><th class="p-4">Action</th></tr></thead>
           <tbody>
             <tr v-for="product in paginatedProducts" :key="product.id" class="border-t border-slate-100 transition-colors hover:bg-slate-50/70">
-              <td class="p-4"><div class="flex items-center gap-3"><img v-if="product.imageUrl" :src="product.imageUrl" class="h-10 w-10 border border-slate-200 object-cover" /><div><p class="font-bold">{{ product.name }}</p><p class="text-xs text-slate-500">{{ product.category?.name || 'Uncategorized' }}</p></div></div></td>
+              <td class="p-4"><div class="flex items-center gap-3"><img v-if="product.imageUrl" :src="product.imageUrl" class="h-10 w-10 border border-slate-200 object-cover" /><div><p class="font-bold">{{ product.name }}</p><p class="text-xs text-slate-500">{{ product.categories?.map(category => category.name).join(', ') || product.category?.name || 'Uncategorized' }} · {{ product.productType || 'physical' }}</p></div></div></td>
               <td class="p-4 font-mono text-xs">{{ product.sku || '—' }}</td>
               <td class="p-4 font-semibold">{{ Number(product.price || 0).toLocaleString() }} {{ product.currency || 'ETB' }}</td>
               <td class="p-4">{{ stockFor(product) }}</td>
