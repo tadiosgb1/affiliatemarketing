@@ -38,10 +38,10 @@ onMounted(load)
     <div class="relative isolate overflow-hidden rounded-2xl bg-[#e8e1d7] px-6 py-10 sm:px-10 md:py-14">
       <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1800&q=80" alt="Curated fashion collection" class="absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-35"/>
       <div class="absolute inset-0 -z-10 bg-gradient-to-r from-[#fbfaf8]/95 via-[#fbfaf8]/80 to-[#fbfaf8]/15"></div>
-      <p class="text-[10px] font-extrabold uppercase tracking-[.28em] text-stone-500">Find your collection</p>
-      <h1 class="mt-3 text-4xl font-black tracking-[-.06em] sm:text-6xl">Shop by category.</h1>
-      <p class="mt-4 max-w-xl text-sm leading-6 text-stone-600">Explore categories from your store catalog and jump straight into the products you’re looking for.</p>
-      <label class="mt-6 block max-w-md"><span class="sr-only">Search categories</span><input v-model="search" placeholder="Search categories…" aria-label="Search categories" class="!rounded-full !border-stone-300 !bg-white/90 !px-5"/></label>
+      <p class="text-[10px] font-extrabold uppercase tracking-[.28em] text-stone-500">{{ $t('categories.find') }}</p>
+      <h1 class="mt-3 text-4xl font-black tracking-[-.06em] sm:text-6xl">{{ $t('categories.title') }}</h1>
+      <p class="mt-4 max-w-xl text-sm leading-6 text-stone-600">{{ $t('categories.description') }}</p>
+      <label class="mt-6 block max-w-md"><span class="sr-only">Search categories</span><input v-model="search" placeholder=:placeholder="$t('categories.search')" aria-label="Search categories" class="!rounded-full !border-stone-300 !bg-white/90 !px-5"/></label>
     </div>
     <p v-if="error" role="alert" class="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{{ error }} <button @click="load" class="font-bold underline">Try again</button></p>
     <LoadingState v-if="loading"/>
@@ -55,6 +55,6 @@ onMounted(load)
         <div class="flex items-center justify-between gap-2 p-3 sm:p-4"><span class="text-[10px] font-semibold text-stone-500">{{ productCount(item) }} {{ productCount(item) === 1 ? 'product' : 'products' }} in loaded catalog</span><span class="text-lg transition group-hover:translate-x-1">↗</span></div>
       </RouterLink>
     </div>
-    <div v-else-if="!error" class="mt-8 rounded-2xl border border-dashed border-stone-300 p-12 text-center"><h2 class="text-xl font-black">No categories found</h2><p class="mt-2 text-sm text-stone-500">Try another search or add categories in your store management dashboard.</p><RouterLink to="/products" class="mt-5 inline-flex rounded-full bg-stone-950 px-5 py-3 text-xs font-bold uppercase tracking-wider text-white">Browse all products</RouterLink></div>
+    <div v-else-if="!error" class="mt-8 rounded-2xl border border-dashed border-stone-300 p-12 text-center"><h2 class="text-xl font-black">{{ $t('categories.no_results') }}</h2><p class="mt-2 text-sm text-stone-500">{{ $t('categories.try_search') }}</p><RouterLink to="/products" class="mt-5 inline-flex rounded-full bg-stone-950 px-5 py-3 text-xs font-bold uppercase tracking-wider text-white">{{ $t('categories.browse') }}</RouterLink></div>
   </section>
 </template>
